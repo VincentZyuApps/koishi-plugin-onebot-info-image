@@ -9,6 +9,10 @@
 推荐使用Napcat![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-blue?logo=apifox)
 
 ### 更新日志
+- **0.4.0-beta.3+20251230**
+  - 整理代码结构，现在支持群精华，群公告
+  - 调整部分aui的unknown处理
+  - 修改aui的获取groupMemberInfo的判断条件的逻辑
 - **0.3.1-beta.1+20251219**
   - 微调flat模板 aui的样式捏
 - **0.3.0-beta.1+20251219**
@@ -71,7 +75,7 @@ Invoke-WebRequest -Uri "https://www.google.com" -Method Head -UseBasicParsing
 npm login --registry https://registry.npmjs.org
 # login npm in browser
 npm run pub onebot-info-image -- --registry https://registry.npmjs.org
-npm dist-tag add koishi-plugin-onebot-info-image@0.3.1-beta.1+20251219 latest --registry https://registry.npmjs.org
+npm dist-tag add koishi-plugin-onebot-info-image@0.4.0-beta.3+20251230 latest --registry https://registry.npmjs.org
 
 npm view koishi-plugin-onebot-info-image
 npm-stat.com
