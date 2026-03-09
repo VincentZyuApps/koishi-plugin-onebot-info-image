@@ -30,13 +30,13 @@
 
 #### Napcat平台渲染效果:
 ##### 用户信息：
-![https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_aui_source.png](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_aui_source.png)
-![https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_aui_lxgw.png](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_aui_lxgw.png)
-![https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_aui_flat.png](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_aui_flat.png)
+![napcat_aui_source](docs/napcat_aui_source.png)
+![napcat_aui_lxgw](docs/napcat_aui_lxgw.png)
+![napcat_aui_flat](docs/napcat_aui_flat.png)
 ##### 群管理列表：
-![https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_al_source.pnge](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_al_source.png)
-![https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_al_lxgw.png](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_al_lxgw.png)
-![https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_al_flat.png](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/example_image/napcat_al_flat.png)
+![napcat_al_source](docs/napcat_al_source.png)
+![napcat_al_lxgw](docs/napcat_al_lxgw.png)
+![napcat_al_flat](docs/napcat_al_flat.png)
 
 ## dev 
 ### 查看git大文件
