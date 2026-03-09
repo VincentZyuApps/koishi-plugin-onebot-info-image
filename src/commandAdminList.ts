@@ -3,6 +3,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderAdminList } from './renderAdminList'
 import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
+import { scheduleAutoRecall } from './utils'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
@@ -101,7 +102,8 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
         if (config.sendText) {
           const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
           const formattedText = formatAdminListDirectText(adminListArg, unifiedContextInfo);
-          await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${formattedText}`);
+          const textMsgId = await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${formattedText}`);
+          scheduleAutoRecall(session, config, String(textMsgId));
         }
 
         if (config.sendImage) {
@@ -111,14 +113,16 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
           const adminListImageBase64 = await renderAdminList(ctx, adminListArg, unifiedContextInfo, selectedImageStyle, selectedDarkMode, config.imageType, config.screenshotQuality);
-          await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${adminListImageBase64}`)}`);
+          const imgMsgId = await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${adminListImageBase64}`)}`);
+          scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
 
         if (config.sendForward) {
           const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
           const forwardMessageContent = formatAdminListForwardText(adminListArg, unifiedContextInfo);
-          await session.send(h.unescape(forwardMessageContent));
+          const fwdMsgId = await session.send(h.unescape(forwardMessageContent));
+          scheduleAutoRecall(session, config, String(fwdMsgId));
         }
 
       } catch (error) {

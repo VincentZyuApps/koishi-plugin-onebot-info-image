@@ -5,6 +5,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, ONEBOT_IMPL_NAME, getNapcatQQStatusText } from './type'
 import { renderUserInfo } from './renderUserInfo'
 import { convertToUnifiedUserInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedContextInfo } from './type'
+import { scheduleAutoRecall } from './utils'
 
 export function registerUserInfoCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableUserInfoCommand) return;
@@ -204,7 +205,8 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
         if (config.sendText) {
           ctx.logger.info("text");
           const formattedText = formatUserInfoDirectText(unifiedUserInfo, unifiedContextInfo);
-          session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${formattedText}`);
+          const textMsgId = await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${formattedText}`);
+          scheduleAutoRecall(session, config, String(textMsgId));
         }
 
         if (config.sendImage) {
@@ -223,13 +225,16 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
               ctx.logger.error(`写入 base64 文件失败: ${error.message}`);
             }
           }
-          await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${userInfoimageBase64}`)}`);
+          await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${userInfoimageBase64}`)}`).then(msgId => {
+            scheduleAutoRecall(session, config, String(msgId));
+          });
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
 
         if (config.sendForward) {
           const forwardMessageContent = formatUserInfoForwardText(session.bot, unifiedUserInfo, unifiedContextInfo);
-          session.send(h.unescape(forwardMessageContent));
+          const fwdMsgId = await session.send(h.unescape(forwardMessageContent));
+          scheduleAutoRecall(session, config, String(fwdMsgId));
         }
 
 

@@ -2,6 +2,7 @@ import { Context, h } from 'koishi'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNotice } from './renderGroupNotice'
+import { scheduleAutoRecall } from './utils'
 
 // 群公告的原始格式
 export interface GroupNoticeMessageRaw {
@@ -263,7 +264,8 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
         // 发送文本
         if (config.sendText) {
           const textMessage = formatGroupNoticeAsText(paginatedResult, contextInfo, config);
-          await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${textMessage}`);
+          const textMsgId = await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${textMessage}`);
+          scheduleAutoRecall(session, config, String(textMsgId));
         }
 
         // 发送图片
@@ -290,14 +292,16 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
           if (pageHints.length > 0) {
             imageMessage += ` | 翻页: ${pageHints.join(' / ')}`;
           }
-          await session.send(imageMessage);
+          const imgMsgId = await session.send(imageMessage);
+          scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
 
         // 发送合并转发
         if (config.sendForward) {
           const forwardMessage = formatGroupNoticeAsForward(paginatedResult, contextInfo, config);
-          await session.send(h.unescape(forwardMessage));
+          const fwdMsgId = await session.send(h.unescape(forwardMessage));
+          scheduleAutoRecall(session, config, String(fwdMsgId));
         }
 
       } catch (error) {

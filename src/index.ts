@@ -1,23 +1,24 @@
 // index.ts
-import { Context, Schema, h } from 'koishi'
-import { readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
-import {} from 'koishi-plugin-adapter-onebot';
 import {} from '@koishijs/plugin-console';
-
-import { IMAGE_STYLES, type ImageStyle, type ImageStyleKey, IMAGE_STYLE_KEY_ARR, IMAGE_TYPES, type ImageType, ONEBOT_IMPL_NAME, type OneBotImplName, getNapcatQQStatusText } from './type';
-import { renderUserInfo } from './renderUserInfo'
-import { renderAdminList } from './renderAdminList'
-import { convertToUnifiedUserInfo, convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
+import { Context, Schema, h } from 'koishi'
+import {} from 'koishi-plugin-adapter-onebot';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs'
+// ----
 import { validateFonts } from './utils'
 import { OnebotInfoImageDataServer } from './data_server'
-import { registerInspectStyleCommand } from './commandInspectStyle'
+// ---
+import { renderUserInfo } from './renderUserInfo'
+import { renderAdminList } from './renderAdminList'
 import { registerUserInfoCommand } from './commandUserInfo'
 import { registerAdminListCommand } from './commandAdminList'
-import { registerGroupEssenceCommand } from './commandGroupEssence'
-import { registerGroupEssenceDetailCommand } from './commandGroupEssenceDetail'
 import { registerGroupNoticeCommand } from './commandGroupNotice'
+import { registerInspectStyleCommand } from './commandInspectStyle'
+import { registerGroupEssenceCommand } from './commandGroupEssence'
 import { registerGroupNoticeDetailCommand } from './commandGroupNoticeDetail'
+import { registerGroupEssenceDetailCommand } from './commandGroupEssenceDetail'
+import { convertToUnifiedUserInfo, convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
+import { IMAGE_STYLES, type ImageStyle, type ImageStyleKey, IMAGE_STYLE_KEY_ARR, IMAGE_TYPES, type ImageType, ONEBOT_IMPL_NAME, type OneBotImplName, getNapcatQQStatusText } from './type';
 
 export const name = 'onebot-info-image'
 
@@ -32,7 +33,10 @@ const pkg = JSON.parse(
 export const usage = `
 <h1>Koishi 插件：onebot-info-image 获取群员信息 渲染成图像</h1>
 <h2>🎯 插件版本：<span style="color: #ff6b6b; font-weight: bold;">v${pkg.version}</span></h2>
-<p>插件使用问题 / Bug反馈 / 插件开发交流，欢迎加入QQ群：<b style="color: #50c878;">259248174</b></p>
+
+<p><del>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>259248174</b>   🎉（这个群G了</del> </p> 
+<p>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>1085190201</b> 🎉</p>
+<p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
 <p>目前仅仅适配了 <b>Lagrange</b> 和 <b>Napcat</b> 协议</p>
 <p style="color: #f39c12;">Napcat能拿到的东西更多， 为了更好的使用体验，推荐使用 Napcat</p>
@@ -70,6 +74,10 @@ export interface ImageStyleDetail {
 
 export interface Config {
   onebotImplName: OneBotImplName;
+  enableWebUIPreview: boolean;
+
+  enableAutoRecall: boolean;
+  autoRecallDelay: number;
 
   enableUserInfoCommand: boolean;
   userinfoCommandName: string;
@@ -111,7 +119,20 @@ export const Config: Schema<Config> = Schema.intersect([
       .role('radio')
       .default(ONEBOT_IMPL_NAME.LAGRNAGE)
       .description('【重要】OneBot 的具体实现名称(选错了会导致获取到的内容会变少)'),
+    enableWebUIPreview: Schema.boolean()
+      .default(false)
+      .description('🖥️ 是否在 WebUI 插件配置页展示 aui 指令渲染效果预览。默认关闭，按需开启，省资源捏'),
   }).description('你的OneBot具体实现平台 是哪一个捏？'),
+
+  Schema.object({
+    enableAutoRecall: Schema.boolean()
+      .default(false)
+      .description('🗑️ 是否启用自动撤回。开启后 bot 发送的消息会在指定时间后自动撤回。'),
+    autoRecallDelay: Schema.number()
+      .min(5).max(120).step(1)
+      .default(45)
+      .description('⏱️ 自动撤回延迟（秒）。消息发出后经过该时间自动撤回。'),
+  }).description('自动撤回配置 🗑️'),
 
   Schema.object({
     enableUserInfoCommand: Schema.boolean()
@@ -259,8 +280,10 @@ export function apply(ctx: Context, config: Config) {
     ctx.logger.error(`字体文件验证失败: ${error.message}`);
   });
 
-  // 注册 DataService (如果 console 服务可用)
-  ctx.plugin(OnebotInfoImageDataServer);
+  // 注册 DataService (如果 console 服务可用 且 用户开启了 WebUI 预览)
+  if (config.enableWebUIPreview) {
+    ctx.plugin(OnebotInfoImageDataServer);
+  }
 
   //帮助文本中的 结果信息格式
   const responseHint = [

@@ -2,6 +2,37 @@ import { Context } from 'koishi';
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { FONT_FILES, type ImageStyle } from './type';
+import type { Config } from './index';
+
+
+/**
+ * 调度自动撤回消息
+ * 在消息发送后（await session.send 之后）调用此函数，
+ * 会在 config.autoRecallDelay 秒后自动撤回该消息。
+ * 
+ * @param session 会话对象
+ * @param config 插件配置
+ * @param msgIds 要撤回的消息ID（可以是单个或数组）
+ */
+export function scheduleAutoRecall(
+  session: any,
+  config: Config,
+  msgIds: string | string[]
+): void {
+  if (!config.enableAutoRecall) return;
+  const ids = Array.isArray(msgIds) ? msgIds : [msgIds];
+  const delayMs = (config.autoRecallDelay ?? 45) * 1000;
+  for (const msgId of ids) {
+    if (!msgId) continue;
+    setTimeout(async () => {
+      try {
+        await session.bot.deleteMessage(session.channelId, String(msgId));
+      } catch (e) {
+        // 撤回失败静默忽略（消息可能已被手动删除）
+      }
+    }, delayMs);
+  }
+}
 
 
 /**

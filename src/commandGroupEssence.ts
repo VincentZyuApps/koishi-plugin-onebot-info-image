@@ -2,6 +2,7 @@ import { Context, h } from 'koishi'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupEssence } from './renderGroupEssence'
+import { scheduleAutoRecall } from './utils'
 
 // 群精华消息的原始格式
 export interface GroupEssenceMessageRaw {
@@ -178,7 +179,8 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
         // 发送文本
         if (config.sendText) {
           const textMessage = formatGroupEssenceAsText(paginatedResult, contextInfo, config);
-          await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${textMessage}`);
+          const textMsgId = await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${textMessage}`);
+          scheduleAutoRecall(session, config, String(textMsgId));
         }
 
         // 发送图片
@@ -209,14 +211,16 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           }
           // 添加用法提示（简化版）
           imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p <页码> -s <每页条数>`;
-          await session.send(imageMessage);
+          const imgMsgId = await session.send(imageMessage);
+          scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
 
         // 发送合并转发
         if (config.sendForward) {
           const forwardMessage = formatGroupEssenceAsForward(paginatedResult, contextInfo, config);
-          await session.send(h.unescape(forwardMessage));
+          const fwdMsgId = await session.send(h.unescape(forwardMessage));
+          scheduleAutoRecall(session, config, String(fwdMsgId));
         }
 
       } catch (error) {

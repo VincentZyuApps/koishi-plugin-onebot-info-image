@@ -3,6 +3,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
 import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNotice'
+import { scheduleAutoRecall } from './utils'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {
@@ -174,7 +175,8 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         // 发送文本
         if (config.sendText) {
           const textMessage = formatGroupNoticeDetailAsText(targetRecord, contextInfo, config);
-          await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${textMessage}`);
+          const textMsgId = await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${textMessage}`);
+          scheduleAutoRecall(session, config, String(textMsgId));
         }
 
         // 发送图片
@@ -194,14 +196,16 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           // 构建图片消息
           let imageMessage = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${noticeDetailImageBase64}`)}`;
           imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} <序号>`;
-          await session.send(imageMessage);
+          const imgMsgId = await session.send(imageMessage);
+          scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
 
         // 发送合并转发
         if (config.sendForward) {
           const forwardMessage = formatGroupNoticeDetailAsForward(targetRecord, contextInfo, config);
-          await session.send(h.unescape(forwardMessage));
+          const fwdMsgId = await session.send(h.unescape(forwardMessage));
+          scheduleAutoRecall(session, config, String(fwdMsgId));
         }
 
       } catch (error) {
