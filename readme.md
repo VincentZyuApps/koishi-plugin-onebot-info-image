@@ -7,10 +7,14 @@
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image)
 [![Gitee](https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white)](https://gitee.com/vincent-zyu/koishi-plugin-onebot-info-image)
 
+<p><del>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>259248174</b>   🎉（这个群G了</del> </p> 
+<p>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>1085190201</b> 🎉</p>
+<p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
-获取成员信息/管理员列表/群公告/群精华，发送文字/图片/合并转发消息，仅支持onebot
 
-推荐使用[Napcat](https://napneko.github.io/) ![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-blue?logo=apifox)
+# 获取成员信息/管理员列表/群公告/群精华，发送文字/图片/合并转发消息，仅支持onebot
+
+> 推荐使用[Napcat](https://napneko.github.io/) ![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-blue?logo=apifox)
 
 
 
