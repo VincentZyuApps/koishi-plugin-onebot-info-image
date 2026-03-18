@@ -237,7 +237,7 @@ export const Config: Schema<Config> = Schema.intersect([
           darkMode: true,
         },
       ])
-      .description("� 图片样式配置。第一行是默认使用的样式，指定样式请使用 -i 参数"),
+      .description("🎨 图片样式配置。第一行是默认使用的样式，指定样式请使用 -i 参数"),
     imageType: Schema.union([
       Schema.const(IMAGE_TYPES.PNG).description(`🖼️ ${IMAGE_TYPES.PNG}, ❌ 不支持调整quality`),
       Schema.const(IMAGE_TYPES.JPEG).description(`🌄 ${IMAGE_TYPES.JPEG}, ✅ 支持调整quality`),
@@ -256,8 +256,8 @@ export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     sendForward: Schema.boolean()
       .default(false)
-      .description('➡️ 是否启用转发消息。'),
-  }).description('发送 onebot转发消息 配置 ✉️'),
+      .description('➡️ 是否启用 onebot合并转发。'),
+  }).description('发送 onebot合并转发 配置 ✉️'),
 
   Schema.object({
     verboseSessionOutput: Schema.boolean()

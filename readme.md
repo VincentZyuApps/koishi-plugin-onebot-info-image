@@ -12,7 +12,7 @@
 <p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
 
-# 获取成员信息/管理员列表/群公告/群精华，发送文字/图片/合并转发消息，仅支持onebot
+# 获取成员信息/管理员列表/群公告/群精华，发送文字/图片/合并转发消息，仅支持OneBotV11
 
 > 推荐使用[Napcat](https://napneko.github.io/) ![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-blue?logo=apifox)
 
