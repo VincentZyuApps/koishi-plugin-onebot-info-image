@@ -2,7 +2,8 @@ import { Context, h } from 'koishi'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNotice } from './renderGroupNotice'
-import { scheduleAutoRecall } from './utils'
+import { svgGroupNotice } from './svgGroupNotice'
+import { scheduleAutoRecall, getGroupAvatarBase64 } from './utils'
 
 // 群公告的原始格式
 export interface GroupNoticeMessageRaw {
@@ -196,6 +197,7 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
     .option('page', '-p, --page <page:number> 页码，从1开始', { fallback: 1 })
     .option('pagesize', '-s, --pagesize <pagesize:number> 每页显示条数', { fallback: config.groupNoticePageSize || 10 })
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
+    .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
       if (!session.onebot)
         return session.send('[error]当前会话不支持onebot协议。');
@@ -292,6 +294,35 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
           if (pageHints.length > 0) {
             imageMessage += ` | 翻页: ${pageHints.join(' / ')}`;
           }
+          const imgMsgId = await session.send(imageMessage);
+          scheduleAutoRecall(session, config, String(imgMsgId));
+          await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
+        }
+
+        if (config.sendImageSvg) {
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群公告列表图片，请稍候⏳...`);
+          const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
+          const startTime = Date.now();
+          let svgDarkMode = config.svgEnableDarkMode;
+          if (options.mode === 'dark') svgDarkMode = true;
+          if (options.mode === 'light') svgDarkMode = false;
+          const svgImageBase64 = await svgGroupNotice(ctx, {
+            result: paginatedResult,
+            contextInfo,
+            groupAvatarBase64,
+            enableDarkMode: svgDarkMode,
+            fontPath: config.svgFontPath || undefined,
+          });
+          const elapsed = Date.now() - startTime;
+          let imageMessage = `${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
+          const pageHints: string[] = [];
+          if (paginatedResult.hasPrev) pageHints.push(`-p ${paginatedResult.currentPage - 1}`);
+          if (paginatedResult.hasNext) pageHints.push(`-p ${paginatedResult.currentPage + 1}`);
+          imageMessage += `\n📢 第${page}/${totalPages}页 | 共${groupNoticeList.length}条公告`;
+          if (pageHints.length > 0) {
+            imageMessage += ` | 翻页: ${pageHints.join(' / ')}`;
+          }
+          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));

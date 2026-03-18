@@ -23,7 +23,7 @@ import { IMAGE_STYLES, type ImageStyle, type ImageStyleKey, IMAGE_STYLE_KEY_ARR,
 export const name = 'onebot-info-image'
 
 export const inject = {
-    required: ["puppeteer", "http"]
+    required: ["http", "puppeteer"]
 }
 
 const pkg = JSON.parse(
@@ -37,6 +37,18 @@ export const usage = `
 <p><del>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>259248174</b>   🎉（这个群G了</del> </p> 
 <p>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>1085190201</b> 🎉</p>
 <p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
+
+<hr>
+
+<h3 style="color: #e74c3c;">⚙️ 前置依赖</h3>
+<p>本插件需要以下依赖才能正常工作：</p>
+<ul>
+  <li><b>koishi-plugin-puppeteer</b> - Koishi 服务，用于 Puppeteer 渲染图片</li>
+  <li><b>@resvg/resvg-js</b> - npm 包，用于 resvg 轻量级 SVG 渲染（快速出图推荐！）</li>
+</ul>
+<p style="color: #27ae60;">💡 推荐开启 resvg 渲染，出图速度快，体验更好！</p>
+
+<hr>
 
 <p>目前仅仅适配了 <b>Lagrange</b> 和 <b>Napcat</b> 协议</p>
 <p style="color: #f39c12;">Napcat能拿到的东西更多， 为了更好的使用体验，推荐使用 Napcat</p>
@@ -103,6 +115,10 @@ export interface Config {
   imageType: ImageType;
   screenshotQuality: number;
 
+  sendImageSvg: boolean;
+  svgEnableDarkMode: boolean;
+  svgFontPath: string;
+
   sendForward: boolean
 
   verboseSessionOutput: boolean
@@ -146,7 +162,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .experimental()
       .description('📱 是否隐藏手机号。开启后手机号将显示为【已隐藏】。</br> <i> 保护隐私捏 </i>'),
     enableGroupAdminListCommand: Schema.boolean()
-      .default(false)
+      .default(true)
       .description('👥 是否启用群管理员列表命令。'),
     groupAdminListCommandName: Schema.string()
       .default('群管理列表')
@@ -254,6 +270,18 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('发送 Puppeteer渲染的图片 配置 🎨'),
 
   Schema.object({
+    sendImageSvg: Schema.boolean()
+      .default(false)
+      .description('🚀 是否启用 resvg 渲染图片（轻量快速，推荐！）'),
+    svgEnableDarkMode: Schema.boolean()
+      .default(false)
+      .description('🌙 resvg 渲染默认启用深色模式'),
+    svgFontPath: Schema.string()
+      .default(resolve(__dirname, '../assets/LXGWWenKaiMono-Regular.ttf'))
+      .description('🔤 resvg 渲染使用的字体文件绝对路径（留空使用系统字体）'),
+  }).description('发送 resvg渲染的图片 配置 🚀'),
+
+  Schema.object({
     sendForward: Schema.boolean()
       .default(false)
       .description('➡️ 是否启用 onebot合并转发。'),
@@ -288,8 +316,9 @@ export function apply(ctx: Context, config: Config) {
   //帮助文本中的 结果信息格式
   const responseHint = [
     config.sendText && '文本消息',
-    config.sendImage && '图片消息',
-    config.sendForward && '合并转发消息'
+    config.sendImage && 'Puppeteer图片',
+    config.sendImageSvg && 'resvg图片',
+    config.sendForward && '合并转发'
   ].filter(Boolean).join('、');
 
   // 注册指令

@@ -4,7 +4,9 @@ import { resolve } from 'path'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, ONEBOT_IMPL_NAME, getNapcatQQStatusText } from './type'
 import { renderUserInfo } from './renderUserInfo'
+import { svgUserInfo } from './svgUserInfo'
 import { convertToUnifiedUserInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedContextInfo } from './type'
+import { getGroupAvatarBase64 } from './utils'
 import { scheduleAutoRecall } from './utils'
 
 export function registerUserInfoCommand(ctx: Context, config: Config, responseHint: string) {
@@ -14,6 +16,7 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
     .alias('aui')
     .alias("awa_user_info")
     .option("imageStyleIdx", "-i, --idx, --index <idx:number> 图片样式索引")
+    .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, qqId) => {
       if (!session.onebot)
         return session.send("[error]当前会话不支持onebot协议。");
@@ -226,6 +229,41 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
             }
           }
           await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${userInfoimageBase64}`)}`).then(msgId => {
+            scheduleAutoRecall(session, config, String(msgId));
+          });
+          await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
+        }
+
+        if (config.sendImageSvg) {
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染用户信息图片，请稍候⏳...`);
+          let avatarBase64 = '';
+          try {
+            if (userObj.avatar) {
+              const avatarBuffer = await ctx.http.file(userObj.avatar);
+              avatarBase64 = Buffer.from(avatarBuffer.data).toString('base64');
+            }
+          } catch (e) {
+            ctx.logger.warn(`获取用户头像失败: ${e.message}`);
+          }
+          let groupAvatarBase64 = '';
+          if (unifiedContextInfo.isGroup && unifiedContextInfo.groupId) {
+            groupAvatarBase64 = await getGroupAvatarBase64(ctx, String(unifiedContextInfo.groupId));
+          }
+          const startTime = Date.now();
+          let svgDarkMode = config.svgEnableDarkMode;
+          if (options.mode === 'dark') svgDarkMode = true;
+          if (options.mode === 'light') svgDarkMode = false;
+          const svgImageBase64 = await svgUserInfo(ctx, unifiedUserInfo, unifiedContextInfo, {
+            userInfo: unifiedUserInfo,
+            contextInfo: unifiedContextInfo,
+            avatarBase64,
+            groupAvatarBase64,
+            enableDarkMode: svgDarkMode,
+            hidePhoneNumber: config.hidePhoneNumber,
+            fontPath: config.svgFontPath || undefined,
+          });
+          const elapsed = Date.now() - startTime;
+          await session.send(`${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`).then(msgId => {
             scheduleAutoRecall(session, config, String(msgId));
           });
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));

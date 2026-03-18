@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-onebot-info-image",
   "description": "用onebot api获取用户详细信息/群管理员列表信息，可以发纯文本/合并转发/渲染图片。 现在只做了lagrange和napcat的适配",
-  "version": "0.4.1-beta.1+20260309",
+  "version": "0.5.0-alpha.1+20260319",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -28,6 +28,9 @@
   "devDependencies": {
     "@koishijs/client": "^5.30.10"
   },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  },
   "koishi": {
     "description": {
       "en": "Fetch detailed user info / group admin list using OneBot API, and send plain text / merged forward messages / rendered images.",
@@ -35,8 +38,8 @@
     },
     "service": {
       "required": [
-        "puppeteer",
-        "http"
+        "http",
+        "puppeteer"
       ],
       "optional": [
         "console"

@@ -2,8 +2,9 @@ import { Context, h } from 'koishi'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderAdminList } from './renderAdminList'
+import { svgAdminList } from './svgAdminList'
 import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { scheduleAutoRecall } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64 } from './utils'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
@@ -12,6 +13,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
     .alias('al')
     .alias("awa_group_admin_list")
     .option("imageStyleIdx", "-i, --idx, --index <idx:number> 图片样式索引")
+    .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
       if (!session.onebot)
         return session.send("[error]当前会话不支持onebot协议。");
@@ -114,6 +116,27 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
           const adminListImageBase64 = await renderAdminList(ctx, adminListArg, unifiedContextInfo, selectedImageStyle, selectedDarkMode, config.imageType, config.screenshotQuality);
           const imgMsgId = await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${adminListImageBase64}`)}`);
+          scheduleAutoRecall(session, config, String(imgMsgId));
+          await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
+        }
+
+        if (config.sendImageSvg) {
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群管理员列表图片，请稍候⏳...`);
+          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
+          const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
+          const startTime = Date.now();
+          let svgDarkMode = config.svgEnableDarkMode;
+          if (options.mode === 'dark') svgDarkMode = true;
+          if (options.mode === 'light') svgDarkMode = false;
+          const svgImageBase64 = await svgAdminList(ctx, {
+            admins: adminListArg,
+            contextInfo: unifiedContextInfo,
+            groupAvatarBase64,
+            enableDarkMode: svgDarkMode,
+            fontPath: config.svgFontPath || undefined,
+          });
+          const elapsed = Date.now() - startTime;
+          const imgMsgId = await session.send(`${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }

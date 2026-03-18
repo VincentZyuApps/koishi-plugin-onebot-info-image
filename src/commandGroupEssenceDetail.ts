@@ -2,8 +2,9 @@ import { Context, h } from 'koishi'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupEssenceDetail } from './renderGroupEssenceDetail'
+import { svgGroupEssenceDetail } from './svgGroupEssenceDetail'
 import { GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssence'
-import { scheduleAutoRecall } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64 } from './utils'
 
 // 单条精华消息详情的上下文信息
 export interface EssenceDetailContextInfo {
@@ -135,6 +136,7 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
     .alias('群精华详情')
     .alias('aged')
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
+    .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, num) => {
       if (!session.onebot)
         return session.send('[error]当前会话不支持onebot协议。');
@@ -226,6 +228,29 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
           // 构建图片消息
           let imageMessage = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${essenceDetailImageBase64}`)}`;
           imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} <序号>`;
+          const imgMsgId = await session.send(imageMessage);
+          scheduleAutoRecall(session, config, String(imgMsgId));
+          await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
+        }
+
+        if (config.sendImageSvg) {
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群精华详情图片，请稍候⏳...`);
+          const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
+          const startTime = Date.now();
+          let svgDarkMode = config.svgEnableDarkMode;
+          if (options.mode === 'dark') svgDarkMode = true;
+          if (options.mode === 'light') svgDarkMode = false;
+          const svgImageBase64 = await svgGroupEssenceDetail(ctx, {
+            record: targetRecord,
+            contextInfo,
+            groupAvatarBase64,
+            enableDarkMode: svgDarkMode,
+            fontPath: config.svgFontPath || undefined,
+          });
+          const elapsed = Date.now() - startTime;
+          let imageMessage = `${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
+          imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} <序号>`;
+          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
