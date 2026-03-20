@@ -1,0 +1,33 @@
+# Source files
+src/
+tsconfig.json
+tsconfig.tsbuildinfo
+
+# Font files (will be downloaded automatically)
+assets/
+
+# Development files
+.git/
+.github/
+.vscode/
+.idea/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+*.log
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.ts
+*.spec.ts
+
+# Build cache
+.eslintcache
+.DS_Store

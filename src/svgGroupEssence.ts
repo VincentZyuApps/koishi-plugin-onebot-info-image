@@ -1,35 +1,14 @@
 import { Resvg } from '@resvg/resvg-js'
 import { Context } from 'koishi'
-import { join } from 'path'
-import { existsSync } from 'fs'
-
-function escapeXml(str: string): string {
-  if (!str) return ''
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
-}
-
-function truncate(text: string, maxLen: number): string {
-  if (!text) return ''
-  return text.length > maxLen ? text.substring(0, maxLen) + '...' : text
-}
-
-function formatTs(ts: number): string {
-  if (!ts) return '未知'
-  return new Date(ts * 1000).toLocaleString('zh-CN')
-}
+import { escapeXml, truncate, formatTs, decodeHtmlEntities } from './utils'
 
 function parseEssenceContent(content: Array<{ type: string; data: Record<string, any> }>): string {
   let text = ''
   for (const item of content) {
     if (item.type === 'text') {
-      text += item.data.text || ''
+      text += decodeHtmlEntities(item.data.text) || ''
     } else if (item.type === 'at') {
-      text += `@${item.data.name || item.data.qq || ''} `
+      text += `@${decodeHtmlEntities(item.data.name) || item.data.qq || ''} `
     } else if (item.type === 'image') {
       text += '[图片] '
     } else if (item.type === 'face') {
@@ -42,22 +21,7 @@ function parseEssenceContent(content: Array<{ type: string; data: Record<string,
       text += '[回复] '
     }
   }
-  return text || '[无法解析的消息]'
-}
-
-async function getFontPath(customFontPath?: string): Promise<string | null> {
-  if (customFontPath && existsSync(customFontPath)) {
-    return customFontPath
-  }
-  const possibleFontPaths = [
-    join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    join(__dirname, '..', '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
-  ]
-  for (const fp of possibleFontPaths) {
-    if (existsSync(fp)) return fp
-  }
-  return null
+    return text || '[无法解析的消息]'
 }
 
 export interface GroupEssenceMessageRaw {
@@ -97,20 +61,24 @@ export interface SvgGroupEssenceOptions {
   result: PaginatedEssenceResult
   contextInfo: EssenceContextInfo
   groupAvatarBase64?: string
+  avatarsBase64?: Record<string, string>
   enableDarkMode?: boolean
-  fontPath?: string
+  scale?: number
+  enableEmoji?: boolean
+  enableEmojiCache?: boolean
 }
 
 export async function svgGroupEssence(
   ctx: Context,
   options: SvgGroupEssenceOptions,
 ): Promise<string> {
-  const { result, contextInfo, groupAvatarBase64, enableDarkMode = false, fontPath } = options
+  const { result, contextInfo, groupAvatarBase64, avatarsBase64 = {}, enableDarkMode = false, scale = 3.3 } = options
 
   const W = 900
   const PADDING = 30
   const CARD_RX = 22
-  const fontFamily = 'LXGWWenKaiMono'
+  // 使用系统默认字体
+  const fontFamily = 'sans-serif'
 
   const bgColor = enableDarkMode ? '#0d1117' : '#e0eafc'
   const cardBg = enableDarkMode ? '#161b22' : 'white'
@@ -127,23 +95,35 @@ export async function svgGroupEssence(
   const groupId = String(contextInfo.groupId || '')
 
   let essenceItems = ''
-  const itemHeight = 90
-  const startY = 160
+  const itemHeight = 80
+  const startY = 165
+  const avatarSize = 36
+  const avatarX = PADDING + 15
+  const avatarY_offset = 8
 
   for (let i = 0; i < result.records.length; i++) {
     const record = result.records[i]
     const y = startY + i * itemHeight
     const idx = (result.currentPage - 1) * result.pageSize + i + 1
     const content = parseEssenceContent(record.content)
-    const displayContent = truncate(content, 35)
+    const displayContent = truncate(content, 30)
     const sender = truncate(record.sender_nick || String(record.sender_id), 10)
     const time = formatTs(record.operator_time)
+    const senderId = String(record.sender_id)
+    const avatarBase64 = avatarsBase64[senderId]
 
-    essenceItems += `<g transform="translate(0,${y})">` +
-      `<rect x="0" y="0" width="40" height="40" rx="8" fill="${highlightBg}"/>` +
-      `<text x="20" y="28" font-size="16" fill="${accentColor}" font-family="${fontFamily}" font-weight="bold" text-anchor="middle">${idx}</text>` +
-      `<text x="55" y="22" font-size="14" fill="${textColor}" font-family="${fontFamily}" font-weight="600">${escapeXml(displayContent)}</text>` +
-      `<text x="55" y="42" font-size="11" fill="${subTextColor}" font-family="${fontFamily}">${escapeXml(sender)} | ${escapeXml(time)}</text>` +
+    let avatarSvg = ''
+    if (avatarBase64) {
+      avatarSvg = `<image x="${avatarX}" y="${y + avatarY_offset}" width="${avatarSize}" height="${avatarSize}" href="data:image/jpeg;base64,${avatarBase64}" clip-path="url(#avatar-clip-${i})"/>`
+    } else {
+      avatarSvg = `<rect x="${avatarX}" y="${y + avatarY_offset}" width="${avatarSize}" height="${avatarSize}" rx="8" fill="${highlightBg}"/>`
+    }
+
+    essenceItems += `<clipPath id="avatar-clip-${i}"><rect x="${avatarX}" y="${y + avatarY_offset}" width="${avatarSize}" height="${avatarSize}" rx="8"/></clipPath>` +
+      avatarSvg +
+      `<g transform="translate(${avatarX + avatarSize + 12}, ${y})">` +
+      `<text x="0" y="16" font-size="13" fill="${textColor}" font-family="${fontFamily}" font-weight="600">${escapeXml(displayContent)}</text>` +
+      `<text x="0" y="34" font-size="11" fill="${subTextColor}" font-family="${fontFamily}">${escapeXml(sender)} | ${escapeXml(time)}</text>` +
       `</g>`
     if (i < result.records.length - 1) {
       essenceItems += `<line x1="${PADDING}" y1="${y + itemHeight - 5}" x2="${W - PADDING}" y2="${y + itemHeight - 5}" stroke="${dividerColor}" stroke-width="1" stroke-dasharray="4,4"/>`
@@ -174,21 +154,20 @@ export async function svgGroupEssence(
     `<text x="${PADDING + 10}" y="${H - PADDING - 8}" font-size="11" fill="${watermarkColor}" font-family="monospace">rendered by resvg</text>` +
     `</svg>`
 
-  const fontFiles: string[] = []
-  const resolvedFontPath = await getFontPath(fontPath)
-  if (resolvedFontPath) fontFiles.push(resolvedFontPath)
-
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: W },
+  // 使用系统默认字体
+  const resvgOpts: any = {
+    fitTo: { mode: 'width', value: W * scale },
     font: {
-      fontFiles,
       loadSystemFonts: true,
       defaultFontFamily: 'sans-serif',
     },
-  })
+  }
+
+  const resvg = new Resvg(svg, resvgOpts)
 
   const pngData = resvg.render()
   const pngBuffer = pngData.asPng()
+  ctx.logger.info(`[svgGroupEssence] PNG output=${pngData.width}x${pngData.height}, scale=${scale}, base64_len=${pngBuffer.length}`)
 
   return Buffer.from(pngBuffer).toString('base64')
 }

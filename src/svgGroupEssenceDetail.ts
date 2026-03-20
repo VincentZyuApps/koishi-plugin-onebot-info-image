@@ -1,35 +1,14 @@
 import { Resvg } from '@resvg/resvg-js'
 import { Context } from 'koishi'
-import { join } from 'path'
-import { existsSync } from 'fs'
-
-function escapeXml(str: string): string {
-  if (!str) return ''
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
-}
-
-function truncate(text: string, maxLen: number): string {
-  if (!text) return ''
-  return text.length > maxLen ? text.substring(0, maxLen) + '...' : text
-}
-
-function formatTs(ts: number): string {
-  if (!ts) return '未知'
-  return new Date(ts * 1000).toLocaleString('zh-CN')
-}
+import { escapeXml, truncate, formatTs, decodeHtmlEntities } from './utils'
 
 function parseEssenceContent(content: Array<{ type: string; data: Record<string, any> }>): string {
   let text = ''
   for (const item of content) {
     if (item.type === 'text') {
-      text += item.data.text || ''
+      text += decodeHtmlEntities(item.data.text) || ''
     } else if (item.type === 'at') {
-      text += `@${item.data.name || item.data.qq || ''} `
+      text += `@${decodeHtmlEntities(item.data.name) || item.data.qq || ''} `
     } else if (item.type === 'image') {
       text += '[图片] '
     } else if (item.type === 'face') {
@@ -42,22 +21,7 @@ function parseEssenceContent(content: Array<{ type: string; data: Record<string,
       text += '[回复] '
     }
   }
-  return text || '[无法解析的消息]'
-}
-
-async function getFontPath(customFontPath?: string): Promise<string | null> {
-  if (customFontPath && existsSync(customFontPath)) {
-    return customFontPath
-  }
-  const possibleFontPaths = [
-    join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    join(__dirname, '..', '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
-  ]
-  for (const fp of possibleFontPaths) {
-    if (existsSync(fp)) return fp
-  }
-  return null
+    return text || '[无法解析的消息]'
 }
 
 export interface GroupEssenceMessageRaw {
@@ -87,21 +51,26 @@ export interface SvgGroupEssenceDetailOptions {
   record: GroupEssenceMessageRaw
   contextInfo: EssenceDetailContextInfo
   groupAvatarBase64?: string
+  senderAvatarBase64?: string
+  operatorAvatarBase64?: string
   enableDarkMode?: boolean
-  fontPath?: string
+  scale?: number
+  enableEmoji?: boolean
+  enableEmojiCache?: boolean
 }
 
 export async function svgGroupEssenceDetail(
   ctx: Context,
   options: SvgGroupEssenceDetailOptions,
 ): Promise<string> {
-  const { record, contextInfo, groupAvatarBase64, enableDarkMode = false, fontPath } = options
+  const { record, contextInfo, groupAvatarBase64, senderAvatarBase64, operatorAvatarBase64, enableDarkMode = false, scale = 3.3 } = options
 
   const W = 900
   const H = 550
   const PADDING = 30
   const CARD_RX = 22
-  const fontFamily = 'LXGWWenKaiMono'
+  // 使用系统默认字体
+  const fontFamily = 'sans-serif'
 
   const bgColor = enableDarkMode ? '#0d1117' : '#e0eafc'
   const cardBg = enableDarkMode ? '#161b22' : 'white'
@@ -120,6 +89,25 @@ export async function svgGroupEssenceDetail(
   const sender = truncate(record.sender_nick || String(record.sender_id), 12)
   const operator = truncate(record.operator_nick || String(record.operator_id), 12)
   const addTime = formatTs(record.operator_time)
+  const senderId = String(record.sender_id)
+  const operatorId = String(record.operator_id)
+
+  const avatarSize = 45
+  const avatarY = 340
+
+  let senderAvatarSvg = ''
+  if (senderAvatarBase64) {
+    senderAvatarSvg = `<image x="${PADDING + 20}" y="${avatarY}" width="${avatarSize}" height="${avatarSize}" href="data:image/jpeg;base64,${senderAvatarBase64}" clip-path="url(#sender-avatar-clip)"/>`
+  } else {
+    senderAvatarSvg = `<rect x="${PADDING + 20}" y="${avatarY}" width="${avatarSize}" height="${avatarSize}" rx="22" fill="${highlightBg}"/>`
+  }
+
+  let operatorAvatarSvg = ''
+  if (operatorAvatarBase64) {
+    operatorAvatarSvg = `<image x="${PADDING + 85}" y="${avatarY}" width="${avatarSize}" height="${avatarSize}" href="data:image/jpeg;base64,${operatorAvatarBase64}" clip-path="url(#operator-avatar-clip)"/>`
+  } else {
+    operatorAvatarSvg = `<rect x="${PADDING + 85}" y="${avatarY}" width="${avatarSize}" height="${avatarSize}" rx="22" fill="${highlightBg}"/>`
+  }
 
   const timestamp = new Date().toLocaleString('zh-CN')
 
@@ -141,29 +129,32 @@ export async function svgGroupEssenceDetail(
     `<text x="${PADDING + 20}" y="140" font-size="14" fill="${subTextColor}" font-family="${fontFamily}">消息内容</text>` +
     `<rect x="${PADDING + 15}" y="155" width="${W - PADDING * 2 - 30}" height="150" rx="12" fill="${highlightBg}"/>` +
     `<text x="${PADDING + 30}" y="195" font-size="16" fill="${textColor}" font-family="${fontFamily}">${escapeXml(content)}</text>` +
-    `<text x="${PADDING + 20}" y="340" font-size="14" fill="${subTextColor}" font-family="${fontFamily}">详细信息</text>` +
-    `<text x="${PADDING + 20}" y="375" font-size="15" fill="${textColor}" font-family="${fontFamily}">发送者: ${escapeXml(sender)} (${record.sender_id})</text>` +
-    `<text x="${PADDING + 20}" y="405" font-size="15" fill="${textColor}" font-family="${fontFamily}">收录者: ${escapeXml(operator)} (${record.operator_id})</text>` +
-    `<text x="${PADDING + 20}" y="435" font-size="15" fill="${textColor}" font-family="${fontFamily}">收录时间: ${escapeXml(addTime)}</text>` +
+    `<text x="${PADDING + 20}" y="320" font-size="14" fill="${subTextColor}" font-family="${fontFamily}">详细信息</text>` +
+    `<clipPath id="sender-avatar-clip"><circle cx="${PADDING + 42}" cy="${avatarY + 22}" r="22"/></clipPath>` +
+    `<clipPath id="operator-avatar-clip"><circle cx="${PADDING + 107}" cy="${avatarY + 22}" r="22"/></clipPath>` +
+    senderAvatarSvg +
+    operatorAvatarSvg +
+    `<text x="${PADDING + 145}" y="${avatarY + 18}" font-size="13" fill="${textColor}" font-family="${fontFamily}" font-weight="600">发送者: ${escapeXml(sender)} (${senderId})</text>` +
+    `<text x="${PADDING + 145}" y="${avatarY + 38}" font-size="13" fill="${textColor}" font-family="${fontFamily}" font-weight="600">收录者: ${escapeXml(operator)} (${operatorId})</text>` +
+    `<text x="${PADDING + 20}" y="${avatarY + 70}" font-size="13" fill="${subTextColor}" font-family="${fontFamily}">收录时间: ${escapeXml(addTime)}</text>` +
     `<text x="${W - PADDING - 10}" y="${H - PADDING - 8}" font-size="11" fill="${watermarkColor}" font-family="monospace" text-anchor="end">${escapeXml(timestamp)}</text>` +
     `<text x="${PADDING + 10}" y="${H - PADDING - 8}" font-size="11" fill="${watermarkColor}" font-family="monospace">rendered by resvg</text>` +
     `</svg>`
 
-  const fontFiles: string[] = []
-  const resolvedFontPath = await getFontPath(fontPath)
-  if (resolvedFontPath) fontFiles.push(resolvedFontPath)
-
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: W },
+  // 使用系统默认字体
+  const resvgOpts: any = {
+    fitTo: { mode: 'width', value: W * scale },
     font: {
-      fontFiles,
       loadSystemFonts: true,
       defaultFontFamily: 'sans-serif',
     },
-  })
+  }
+
+  const resvg = new Resvg(svg, resvgOpts)
 
   const pngData = resvg.render()
   const pngBuffer = pngData.asPng()
+  ctx.logger.info(`[svgGroupEssenceDetail] PNG output=${pngData.width}x${pngData.height}, scale=${scale}, base64_len=${pngBuffer.length}`)
 
   return Buffer.from(pngBuffer).toString('base64')
 }

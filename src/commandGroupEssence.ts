@@ -3,7 +3,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupEssence } from './renderGroupEssence'
 import { svgGroupEssence } from './svgGroupEssence'
-import { scheduleAutoRecall, getGroupAvatarBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64 } from './utils'
 
 // 群精华消息的原始格式
 export interface GroupEssenceMessageRaw {
@@ -117,10 +117,10 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
       if (!session.onebot)
-        return session.send('[error]当前会话不支持onebot协议。');
+        return session.send('❌ 当前会话不支持 onebot 协议。');
 
       if (!session.guildId)
-        return session.send('[error]当前会话不在群聊中。');
+        return session.send('❌ 当前会话不在群聊中。');
 
       // 验证分页参数
       const page = Math.max(1, options.page || 1);
@@ -137,11 +137,11 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           && (options.imageStyleIdx as number) < config.imageStyleDetails.length;
         if (!isIdxValid) {
           let idxInvalidMsgArr = [
-            `图片样式索引不合法。`,
-            `\t 合法范围：[0, ${config.imageStyleDetails.length - 1}]双闭区间。`,
+            `🎨 ❌ 图片样式索引不合法！`,
+            `\t 合法范围：[0, ${config.imageStyleDetails.length - 1}] 双闭区间`,
             `\t 当前输入：${options.imageStyleIdx}`,
             `\n`,
-            `输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
+            `💡 输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
           ];
           return await session.send(idxInvalidMsgArr.join('\n'));
         }
@@ -154,14 +154,14 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
         const groupEssenceMsgList: GroupEssenceMessageRaw[] = await onebotBot.getEssenceMsgList(session.guildId);
 
         if (!groupEssenceMsgList || groupEssenceMsgList.length === 0) {
-          return session.send('该群暂无精华消息。');
+          return session.send('💎 该群暂无精华消息。');
         }
 
         // 分页处理
         const paginatedResult = paginateEssenceMessages(groupEssenceMsgList, page, pageSize);
 
         if (paginatedResult.records.length === 0) {
-          return session.send(`第${page}页没有记录，共${paginatedResult.totalPages}页`);
+          return session.send(`❌ 第 ${page} 页没有记录，共 ${paginatedResult.totalPages} 页`);
         }
 
         // 获取群信息
@@ -225,15 +225,27 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           let svgDarkMode = config.svgEnableDarkMode;
           if (options.mode === 'dark') svgDarkMode = true;
           if (options.mode === 'light') svgDarkMode = false;
+
+          // 获取每个发送者的头像
+          const avatarsBase64: Record<string, string> = {};
+          for (const record of paginatedResult.records) {
+            const senderIdStr = String(record.sender_id);
+            avatarsBase64[senderIdStr] = await getUserAvatarBase64(ctx, record.sender_id);
+          }
+
           const svgImageBase64 = await svgGroupEssence(ctx, {
             result: paginatedResult,
             contextInfo,
             groupAvatarBase64,
+            avatarsBase64,
             enableDarkMode: svgDarkMode,
-            fontPath: config.svgFontPath || undefined,
+            scale: config.svgScale,
+            enableEmoji: config.svgEnableEmoji,
+            enableEmojiCache: config.svgEnableEmojiCache,
           });
+          if (config.sendImageSvg) ctx.logger.info(`svgGroupEssence: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          let imageMessage = `${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
+          let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           if (paginatedResult.totalPages > 1) {
             imageMessage += `\n📄 第 ${paginatedResult.currentPage}/${paginatedResult.totalPages} 页`;
             if (paginatedResult.hasPrev) {
@@ -244,7 +256,7 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
             }
           }
           imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p <页码> -s <每页条数>`;
-          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms`;
+          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -259,7 +271,7 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
 
       } catch (error) {
         ctx.logger.error(`获取群精华消息失败: ${error}`);
-        await session.send(`[error]获取群精华消息失败: ${error.message}`);
+        await session.send(`❌ 获取群精华消息失败: ${error.message}`);
       }
     });
 }

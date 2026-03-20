@@ -260,10 +260,13 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
             groupAvatarBase64,
             enableDarkMode: svgDarkMode,
             hidePhoneNumber: config.hidePhoneNumber,
-            fontPath: config.svgFontPath || undefined,
+            scale: config.svgScale,
+            enableEmoji: config.svgEnableEmoji,
+            enableEmojiCache: config.svgEnableEmojiCache,
           });
+          if (config.sendImageSvg) ctx.logger.info(`svgUserInfo: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          await session.send(`${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`).then(msgId => {
+          await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`).then(msgId => {
             scheduleAutoRecall(session, config, String(msgId));
           });
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));

@@ -4,7 +4,7 @@ import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
 import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
 import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNotice'
-import { scheduleAutoRecall, getGroupAvatarBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64 } from './utils'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {
@@ -109,13 +109,13 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, num) => {
       if (!session.onebot)
-        return session.send('[error]当前会话不支持onebot协议。');
+        return session.send('❌ [error]当前会话不支持onebot协议。');
 
       if (!session.guildId)
-        return session.send('[error]当前会话不在群聊中。');
+        return session.send('❌ [error]当前会话不在群聊中。');
 
       if (num === undefined || num === null || isNaN(num)) {
-        return session.send(`[error]请输入要查看的公告序号。\n用法: ${config.groupNoticeDetailCommandName} <序号>\n示例: ${config.groupNoticeDetailCommandName} 2`);
+        return session.send(`📢 ❌ 请输入要查看的公告序号！\n\n📖 用法: ${config.groupNoticeDetailCommandName} <序号>\n💡 示例: ${config.groupNoticeDetailCommandName} 2\n\n👉 查看公告列表: 群公告`);
       }
 
       // 选择图片样式
@@ -129,11 +129,11 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           && (options.imageStyleIdx as number) < config.imageStyleDetails.length;
         if (!isIdxValid) {
           let idxInvalidMsgArr = [
-            `图片样式索引不合法。`,
-            `\t 合法范围：[0, ${config.imageStyleDetails.length - 1}]双闭区间。`,
+            `🎨 ❌ 图片样式索引不合法！`,
+            `\t 合法范围：[0, ${config.imageStyleDetails.length - 1}] 双闭区间`,
             `\t 当前输入：${options.imageStyleIdx}`,
             `\n`,
-            `输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
+            `💡 输入指令 ${config.inspectStyleCommandName} 查看图片样式列表`
           ];
           return await session.send(idxInvalidMsgArr.join('\n'));
         }
@@ -146,13 +146,13 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         const groupNoticeList: GroupNoticeMessageRaw[] = await onebotBot.getGroupNotice(session.guildId);
 
         if (!groupNoticeList || groupNoticeList.length === 0) {
-          return session.send('该群暂无公告。');
+          return session.send('📢 该群暂无公告。');
         }
 
         // 验证序号
         const index = Math.floor(num);
         if (index < 1 || index > groupNoticeList.length) {
-          return session.send(`[error]序号超出范围。\n有效范围: 1 - ${groupNoticeList.length}\n当前输入: ${index}`);
+          return session.send(`❌ 序号超出范围。\n有效范围：[1, ${groupNoticeList.length}] 双闭区间\n当前输入：${index}`);
         }
 
         // 获取指定的公告
@@ -206,6 +206,23 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         if (config.sendImageSvg) {
           const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群公告详情图片，请稍候⏳...`);
           const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
+          const senderAvatarBase64 = await getUserAvatarBase64(ctx, targetRecord.sender_id);
+
+          // 获取公告图片
+          const imagesBase64: Record<string, string> = {};
+          if (targetRecord.message.images && targetRecord.message.images.length > 0) {
+            for (const img of targetRecord.message.images) {
+              try {
+                const imgBase64 = await getNoticeImageBase64(ctx, img.id);
+                if (imgBase64) {
+                  imagesBase64[img.id] = imgBase64;
+                }
+              } catch (e) {
+                ctx.logger.warn(`获取公告图片失败: ${img.id}`);
+              }
+            }
+          }
+
           const startTime = Date.now();
           let svgDarkMode = config.svgEnableDarkMode;
           if (options.mode === 'dark') svgDarkMode = true;
@@ -214,13 +231,18 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
             record: targetRecord,
             contextInfo,
             groupAvatarBase64,
+            senderAvatarBase64,
+            imagesBase64,
             enableDarkMode: svgDarkMode,
-            fontPath: config.svgFontPath || undefined,
+            scale: config.svgScale,
+            enableEmoji: config.svgEnableEmoji,
+            enableEmojiCache: config.svgEnableEmojiCache,
           });
+          if (config.sendImageSvg) ctx.logger.info(`svgGroupNoticeDetail: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          let imageMessage = `${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
+          let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} <序号>`;
-          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms`;
+          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -235,7 +257,7 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
 
       } catch (error) {
         ctx.logger.error(`获取群公告详情失败: ${error}`);
-        await session.send(`[error]获取群公告详情失败: ${error.message}`);
+        await session.send(`❌ 获取群公告详情失败: ${error.message}`);
       }
     });
 }

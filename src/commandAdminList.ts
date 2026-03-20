@@ -4,7 +4,7 @@ import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderAdminList } from './renderAdminList'
 import { svgAdminList } from './svgAdminList'
 import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { scheduleAutoRecall, getGroupAvatarBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64 } from './utils'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
@@ -16,10 +16,10 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
       if (!session.onebot)
-        return session.send("[error]当前会话不支持onebot协议。");
+        return session.send("❌ 当前会话不支持 onebot 协议。");
 
       if (!session.guildId)
-        return session.send("[error]当前会话不在群聊中。");
+        return session.send("❌ 当前会话不在群聊中。");
 
       // 选择图片样式
       const IMAGE_STYLE_VALUES = Object.values(IMAGE_STYLES);
@@ -54,7 +54,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
         if (config.verboseConsoleOutput) ctx.logger.info(groupAdminMemberListObjMsg);
 
         if (groupAdminMemberListObj.length === 0) {
-          return session.send("该群没有管理员。");
+          return session.send("📋 该群没有管理员。");
         }
 
         // 获取管理员头像并转换为 AdminInfo 格式
@@ -128,15 +128,27 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           let svgDarkMode = config.svgEnableDarkMode;
           if (options.mode === 'dark') svgDarkMode = true;
           if (options.mode === 'light') svgDarkMode = false;
+
+          // 获取每个管理员的头像 base64
+          const avatarsBase64: Record<string, string> = {};
+          for (const admin of adminListArg) {
+            const userIdStr = String(admin.user_id);
+            avatarsBase64[userIdStr] = await getUserAvatarBase64(ctx, admin.user_id);
+          }
+
           const svgImageBase64 = await svgAdminList(ctx, {
             admins: adminListArg,
             contextInfo: unifiedContextInfo,
             groupAvatarBase64,
+            avatarsBase64,
             enableDarkMode: svgDarkMode,
-            fontPath: config.svgFontPath || undefined,
+            scale: config.svgScale,
+            enableEmoji: config.svgEnableEmoji,
+            enableEmojiCache: config.svgEnableEmojiCache,
           });
+          if (config.sendImageSvg) ctx.logger.info(`svgAdminList: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          const imgMsgId = await session.send(`${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`);
+          const imgMsgId = await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
@@ -150,7 +162,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
 
       } catch (error) {
         ctx.logger.error(`获取群管理员列表失败: ${error}`);
-        await session.send(`[error]获取群管理员列表失败: ${error.message}`);
+        await session.send(`❌ 获取群管理员列表失败: ${error.message}`);
       }
     })
 }

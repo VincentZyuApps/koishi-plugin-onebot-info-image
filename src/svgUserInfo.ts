@@ -1,28 +1,7 @@
 import { Resvg } from '@resvg/resvg-js'
 import { Context } from 'koishi'
-import { join } from 'path'
-import { existsSync } from 'fs'
 import { UnifiedUserInfo, UnifiedContextInfo } from './type'
-
-function escapeXml(str: string): string {
-  if (!str) return ''
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
-}
-
-function truncate(text: string, maxLen: number): string {
-  if (!text) return ''
-  return text.length > maxLen ? text.substring(0, maxLen) + '...' : text
-}
-
-function formatTs(ts: number): string {
-  if (!ts) return '未知'
-  return new Date(ts).toLocaleString('zh-CN')
-}
+import { escapeXml, truncate, formatTs } from './utils'
 
 function getSex(sex: string): string {
   return sex === 'male' ? '男' : sex === 'female' ? '女' : '未知'
@@ -42,22 +21,9 @@ export interface SvgUserInfoOptions {
   groupAvatarBase64?: string
   enableDarkMode?: boolean
   hidePhoneNumber?: boolean
-  fontPath?: string
-}
-
-async function getFontPath(customFontPath?: string): Promise<string | null> {
-  if (customFontPath && existsSync(customFontPath)) {
-    return customFontPath
-  }
-  const possibleFontPaths = [
-    join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    join(__dirname, '..', '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
-  ]
-  for (const fp of possibleFontPaths) {
-    if (existsSync(fp)) return fp
-  }
-  return null
+  scale?: number
+  enableEmoji?: boolean
+  enableEmojiCache?: boolean
 }
 
 export async function svgUserInfo(
@@ -66,13 +32,15 @@ export async function svgUserInfo(
   contextInfo: UnifiedContextInfo,
   options: SvgUserInfoOptions,
 ): Promise<string> {
-  const { avatarBase64, groupAvatarBase64, enableDarkMode = false, hidePhoneNumber = true, fontPath } = options
+  const { avatarBase64, groupAvatarBase64, enableDarkMode = false, hidePhoneNumber = true, scale = 3.3 } = options
 
   const W = 900
   const H = 720
   const PADDING = 30
   const CARD_RX = 22
-  const fontFamily = 'LXGWWenKaiMono'
+
+  // 使用系统默认字体
+  const fontFamily = 'sans-serif'
 
   const bgColor = enableDarkMode ? '#0d1117' : '#e0eafc'
   const cardBg = enableDarkMode ? '#161b22' : 'white'
@@ -137,12 +105,13 @@ export async function svgUserInfo(
   const valueX = infoX + 110
   const infoTitleY = PADDING + 50
 
-  const fields: Array<{ label: string; value: string }> = [
+  const fields: Array<{ label: string; value: string; isHiddenPhone?: boolean }> = [
     { label: 'QQ号', value: userId },
     { label: 'QQ昵称', value: truncate(userInfo.nickname || '未知', 20) },
     { label: '性别', value: getSex(userInfo.sex || '') },
     { label: '年龄', value: String(userInfo.age || '未知') },
     { label: 'QQ等级', value: String(userInfo.qq_level || userInfo.level || '未知') },
+    { label: '手机号', value: hidePhoneNumber ? '已隐藏' : (userInfo.phoneNum || '未知'), isHiddenPhone: hidePhoneNumber },
     { label: 'QID', value: truncate(userInfo.qid || userInfo.q_id || '未知', 20) },
     { label: '注册时间', value: formatTs(userInfo.RegisterTime || userInfo.regTime || 0) },
     { label: '个性签名', value: truncate(userInfo.sign || userInfo.longNick || userInfo.long_nick || '无', 28) },
@@ -157,10 +126,15 @@ export async function svgUserInfo(
   }
 
   const rowH = 44
-  const rows = fields.map((f, i) =>
-    `<text x="${labelX}" y="${infoTitleY + 55 + i * rowH}" font-size="16" fill="${subTextColor}" font-family="${fontFamily}">${escapeXml(f.label)}</text>` +
-    `<text x="${valueX}" y="${infoTitleY + 55 + i * rowH}" font-size="17" fill="${textColor}" font-family="${fontFamily}" font-weight="600">${escapeXml(f.value)}</text>`
-  ).join('')
+  const hiddenPhoneColor = enableDarkMode ? '#6e7681' : '#aaaaaa'
+  const rows = fields.map((f, i) => {
+    if (f.isHiddenPhone) {
+      return `<text x="${labelX}" y="${infoTitleY + 55 + i * rowH}" font-size="16" fill="${subTextColor}" font-family="${fontFamily}">${escapeXml(f.label)}</text>` +
+        `<text x="${valueX}" y="${infoTitleY + 55 + i * rowH}" font-size="17" fill="${hiddenPhoneColor}" font-family="${fontFamily}" font-style="italic" text-decoration="line-through">${escapeXml(f.value)}</text>`
+    }
+    return `<text x="${labelX}" y="${infoTitleY + 55 + i * rowH}" font-size="16" fill="${subTextColor}" font-family="${fontFamily}">${escapeXml(f.label)}</text>` +
+      `<text x="${valueX}" y="${infoTitleY + 55 + i * rowH}" font-size="17" fill="${textColor}" font-family="${fontFamily}" font-weight="600">${escapeXml(f.value)}</text>`
+  }).join('')
 
   const timestamp = new Date().toLocaleString('zh-CN')
   const titleText = contextInfo.isGroup ? '群员详细信息' : '用户信息'
@@ -193,18 +167,16 @@ export async function svgUserInfo(
     `<text x="${PADDING + 10}" y="${H - PADDING - 8}" font-size="11" fill="${watermarkColor}" font-family="monospace">rendered by resvg</text>` +
     `</svg>`
 
-  const fontFiles: string[] = []
-  const resolvedFontPath = await getFontPath(fontPath)
-  if (resolvedFontPath) fontFiles.push(resolvedFontPath)
-
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: W },
+  // 使用系统默认字体，不加载自定义字体
+  const resvgOpts: any = {
+    fitTo: { mode: 'width', value: W * scale },
     font: {
-      fontFiles,
       loadSystemFonts: true,
       defaultFontFamily: 'sans-serif',
     },
-  })
+  }
+
+  const resvg = new Resvg(svg, resvgOpts)
 
   const pngData = resvg.render()
   const pngBuffer = pngData.asPng()

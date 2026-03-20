@@ -114,7 +114,7 @@ const getSourceHanSerifSCStyleAdminListHtmlStr = async (admins: UnifiedAdminInfo
 
         .admin-column-3 { flex: 1; margin-right: 16px; text-align: left; }
 
-        .admin-card { font-size: 20px; line-height: 1.3; text-align: left; }
+        .admin-card { font-size: 20px; line-height: 1.3; text-align: left; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .card-label { color: #666; font-weight: 500; font-size: 18px; }
 
@@ -261,7 +261,7 @@ const getLXGWWenKaiAdminListHtmlStr = async (admins: UnifiedAdminInfo[], context
 
         .admin-column-3 { flex: 1; margin-right: 10px; text-align: left; }
 
-        .admin-card { font-size: 15px; line-height: 1.3; text-align: left; }
+        .admin-card { font-size: 15px; line-height: 1.3; text-align: left; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .card-label { color: #a0522d; font-weight: 500; font-size: 13px; }
 
@@ -560,6 +560,11 @@ const getFlatMinimalAdminListHtmlStr = async (admins: UnifiedAdminInfo[], contex
             background: ${colors.hover};
             border-radius: 8px;
             display: inline-block;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
         }
 
         .admin-card-label {

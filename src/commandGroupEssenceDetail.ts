@@ -4,7 +4,7 @@ import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupEssenceDetail } from './renderGroupEssenceDetail'
 import { svgGroupEssenceDetail } from './svgGroupEssenceDetail'
 import { GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssence'
-import { scheduleAutoRecall, getGroupAvatarBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64 } from './utils'
 
 // 单条精华消息详情的上下文信息
 export interface EssenceDetailContextInfo {
@@ -139,13 +139,13 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, num) => {
       if (!session.onebot)
-        return session.send('[error]当前会话不支持onebot协议。');
+        return session.send('❌ [error]当前会话不支持onebot协议。');
 
       if (!session.guildId)
-        return session.send('[error]当前会话不在群聊中。');
+        return session.send('❌ [error]当前会话不在群聊中。');
 
       if (num === undefined || num === null || isNaN(num)) {
-        return session.send(`[error]请输入要查看的精华消息序号。\n用法: ${config.groupEssenceDetailCommandName} <序号>\n示例: ${config.groupEssenceDetailCommandName} 5`);
+        return session.send(`💎 ❌ 请输入要查看的精华消息序号！\n\n📖 用法: ${config.groupEssenceDetailCommandName} <序号>\n💡 示例: ${config.groupEssenceDetailCommandName} 5\n\n👉 查看精华列表: 群精华`);
       }
 
       // 选择图片样式
@@ -159,11 +159,11 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
           && (options.imageStyleIdx as number) < config.imageStyleDetails.length;
         if (!isIdxValid) {
           let idxInvalidMsgArr = [
-            `图片样式索引不合法。`,
-            `\t 合法范围：[0, ${config.imageStyleDetails.length - 1}]双闭区间。`,
+            `🎨 ❌ 图片样式索引不合法！`,
+            `\t 合法范围：[0, ${config.imageStyleDetails.length - 1}] 双闭区间`,
             `\t 当前输入：${options.imageStyleIdx}`,
             `\n`,
-            `输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
+            `💡 输入指令 ${config.inspectStyleCommandName} 查看图片样式列表`
           ];
           return await session.send(idxInvalidMsgArr.join('\n'));
         }
@@ -176,13 +176,13 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
         const groupEssenceMsgList: GroupEssenceMessageRaw[] = await onebotBot.getEssenceMsgList(session.guildId);
 
         if (!groupEssenceMsgList || groupEssenceMsgList.length === 0) {
-          return session.send('该群暂无精华消息。');
+          return session.send('💎 该群暂无精华消息。');
         }
 
         // 验证序号
         const index = Math.floor(num);
         if (index < 1 || index > groupEssenceMsgList.length) {
-          return session.send(`[error]序号超出范围。\n有效范围: 1 - ${groupEssenceMsgList.length}\n当前输入: ${index}`);
+          return session.send(`❌ 序号超出范围。\n有效范围：[1, ${groupEssenceMsgList.length}] 双闭区间\n当前输入：${index}`);
         }
 
         // 获取指定的精华消息
@@ -236,6 +236,8 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
         if (config.sendImageSvg) {
           const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群精华详情图片，请稍候⏳...`);
           const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
+          const senderAvatarBase64 = await getUserAvatarBase64(ctx, targetRecord.sender_id);
+          const operatorAvatarBase64 = await getUserAvatarBase64(ctx, targetRecord.operator_id);
           const startTime = Date.now();
           let svgDarkMode = config.svgEnableDarkMode;
           if (options.mode === 'dark') svgDarkMode = true;
@@ -244,13 +246,18 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
             record: targetRecord,
             contextInfo,
             groupAvatarBase64,
+            senderAvatarBase64,
+            operatorAvatarBase64,
             enableDarkMode: svgDarkMode,
-            fontPath: config.svgFontPath || undefined,
+            scale: config.svgScale,
+            enableEmoji: config.svgEnableEmoji,
+            enableEmojiCache: config.svgEnableEmojiCache,
           });
+          if (config.sendImageSvg) ctx.logger.info(`svgGroupEssenceDetail: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          let imageMessage = `${h.quote(session.messageId)}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
+          let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} <序号>`;
-          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms`;
+          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -265,7 +272,7 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
 
       } catch (error) {
         ctx.logger.error(`获取群精华消息详情失败: ${error}`);
-        await session.send(`[error]获取群精华消息详情失败: ${error.message}`);
+        await session.send(`❌ 获取群精华消息详情失败: ${error.message}`);
       }
     });
 }

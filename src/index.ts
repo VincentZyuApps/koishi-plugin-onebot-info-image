@@ -116,8 +116,11 @@ export interface Config {
   screenshotQuality: number;
 
   sendImageSvg: boolean;
+  enableQuoteWithImageSvg: boolean;
   svgEnableDarkMode: boolean;
-  svgFontPath: string;
+  svgScale: number;
+  svgEnableEmoji: boolean;
+  svgEnableEmojiCache: boolean;
 
   sendForward: boolean
 
@@ -203,7 +206,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .default(false)
       .description('💬 是否启用文本回复。'),
     enableQuoteWithText: Schema.boolean()
-      .default(false)
+      .default(true)
       .description('↩️ 回复文本的时候，是否带引用触发指令的消息。'),
   }).description('发送 文本 配置 📝'),
 
@@ -212,7 +215,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .default(true)
       .description('🖼️ 是否启用 Puppeteer 渲染图片。'),
     enableQuoteWithImage: Schema.boolean()
-      .default(false)
+      .default(true)
       .description('📸 回复图片的时候，是否带引用触发指令的消息。'),
     imageStyleDetails: Schema
       .array(
@@ -273,12 +276,24 @@ export const Config: Schema<Config> = Schema.intersect([
     sendImageSvg: Schema.boolean()
       .default(false)
       .description('🚀 是否启用 resvg 渲染图片（轻量快速，推荐！）'),
+    enableQuoteWithImageSvg: Schema.boolean()
+      .default(true)
+      .description('↩️ 回复 resvg 图片的时候，是否带引用触发指令的消息。'),
     svgEnableDarkMode: Schema.boolean()
       .default(false)
       .description('🌙 resvg 渲染默认启用深色模式'),
-    svgFontPath: Schema.string()
-      .default(resolve(__dirname, '../assets/LXGWWenKaiMono-Regular.ttf'))
-      .description('🔤 resvg 渲染使用的字体文件绝对路径（留空使用系统字体）'),
+    svgScale: Schema.number()
+      .min(1).max(10)
+      .default(3.333333333)
+      .description('🔍 resvg 渲染缩放倍数 [1,10]，数值越大图片越清晰但渲染越慢'),
+    svgEnableEmoji: Schema.boolean()
+      .default(false)
+      .experimental()
+      .description('🎨 resvg 渲染是否启用 Emoji 转图片（使用 twemoji 本地数据，无需网络请求）'),
+    svgEnableEmojiCache: Schema.boolean()
+      .default(false)
+      .experimental()
+      .description('💾 resvg 渲染是否缓存 Emoji 图片（开启后重复 Emoji 会更快）'),
   }).description('发送 resvg渲染的图片 配置 🚀'),
 
   Schema.object({
@@ -303,10 +318,10 @@ export const Config: Schema<Config> = Schema.intersect([
 
 
 export function apply(ctx: Context, config: Config) {
-  // 验证并下载字体文件
+  // 验证并下载字体文件 - 直接调用，不等待 ready 事件
   validateFonts(ctx).catch(error => {
-    ctx.logger.error(`字体文件验证失败: ${error.message}`);
-  });
+    ctx.logger.error(`字体文件验证失败: ${error.message}`)
+  })
 
   // 注册 DataService (如果 console 服务可用 且 用户开启了 WebUI 预览)
   if (config.enableWebUIPreview) {
