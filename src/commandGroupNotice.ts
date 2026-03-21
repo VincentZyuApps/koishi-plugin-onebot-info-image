@@ -3,7 +3,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNotice } from './renderGroupNotice'
 import { svgGroupNotice } from './svgGroupNotice'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64, logCommandToFile } from './utils'
 
 // 群公告的原始格式
 export interface GroupNoticeMessageRaw {
@@ -158,7 +158,7 @@ function formatGroupNoticeAsForward(
   };
 
   // 标题
-  addMessageBlock(undefined, '📢 群公告', `${contextInfo.groupName}\n第${result.currentPage}/${result.totalPages}页 (共${result.totalCount}条公告)`);
+  addMessageBlock(undefined, '📢 群公告列表', `${contextInfo.groupName}\n第${result.currentPage}/${result.totalPages}页 (共${result.totalCount}条公告)`);
 
   // 每条公告
   result.records.forEach((record, index) => {
@@ -192,13 +192,14 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
   if (!config.enableGroupNoticeCommand) return;
 
   ctx.command(config.groupNoticeCommandName, `获取群公告列表, 发送${responseHint}`)
-    .alias('群公告列表')
+    .alias('群公告')
     .alias('agn')
     .option('page', '-p, --page <page:number> 页码，从1开始', { fallback: 1 })
     .option('pagesize', '-s, --pagesize <pagesize:number> 每页显示条数', { fallback: config.groupNoticePageSize || 10 })
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
+      const logs: string[] = [];
       if (!session.onebot)
         return session.send('❌ 当前会话不支持 onebot 协议。');
 
@@ -248,6 +249,8 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
 
         // 分页处理
         const paginatedResult = paginateNoticeMessages(groupNoticeList, page, pageSize);
+        logs.push(`群公告列表分页结果: ${JSON.stringify(paginatedResult)}`);
+        ctx.logger.info(`群公告列表分页结果: ${JSON.stringify(paginatedResult)}`);
 
         // 获取群信息
         const groupInfoObj = await session.onebot.getGroupInfo(session.guildId);
@@ -259,10 +262,6 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
           groupAvatarUrl: `https://p.qlogo.cn/gh/${session.guildId}/${session.guildId}/640/`
         };
 
-        if (config.verboseConsoleOutput) {
-          ctx.logger.info(`群公告列表: ${JSON.stringify(paginatedResult)}`);
-        }
-
         // 发送文本
         if (config.sendText) {
           const textMessage = formatGroupNoticeAsText(paginatedResult, contextInfo, config);
@@ -272,7 +271,7 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
 
         // 发送图片
         if (config.sendImage) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群公告列表图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群公告列表，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
           const noticeImageBase64 = await renderGroupNotice(
@@ -294,13 +293,14 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
           if (pageHints.length > 0) {
             imageMessage += ` | 翻页: ${pageHints.join(' / ')}`;
           }
+          imageMessage += `\n📖 用法: ${config.groupNoticeCommandName} -p 《页码》 -s 《每页条数》`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
 
         if (config.sendImageSvg) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群公告列表图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群公告列表，请稍候⏳...`);
           const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
           const startTime = Date.now();
           let svgDarkMode = config.svgEnableDarkMode;
@@ -321,10 +321,14 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
               for (const img of record.message.images) {
                 if (!imagesBase64[img.id]) {
                   imagesBase64[img.id] = await getNoticeImageBase64(ctx, img.id);
+                  logs.push(`[群公告列表] 公告图片获取成功: id=${img.id}`);
+                  ctx.logger.info(`[群公告列表] 公告图片获取成功: id=${img.id}`);
                 }
               }
             }
           }
+          logs.push(`[群公告列表] 总共获取 ${Object.keys(imagesBase64).length} 张图片`);
+          ctx.logger.info(`[群公告列表] 总共获取 ${Object.keys(imagesBase64).length} 张图片`);
 
           const svgImageBase64 = await svgGroupNotice(ctx, {
             result: paginatedResult,
@@ -336,9 +340,14 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
             scale: config.svgScale,
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
+            svgThemeColor: config.svgThemeColor,
           });
-          if (config.sendImageSvg) ctx.logger.info(`svgGroupNotice: scale=${config.svgScale}`);
+          if (config.sendImageSvg) {
+            logs.push(`svgGroupNotice: scale=${config.svgScale}`);
+            ctx.logger.info(`svgGroupNotice: scale=${config.svgScale}`);
+          }
           const elapsed = Date.now() - startTime;
+          logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           const pageHints: string[] = [];
           if (paginatedResult.hasPrev) pageHints.push(`-p ${paginatedResult.currentPage - 1}`);
@@ -347,7 +356,8 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
           if (pageHints.length > 0) {
             imageMessage += ` | 翻页: ${pageHints.join(' / ')}`;
           }
-          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+          imageMessage += `\n📖 用法: ${config.groupNoticeCommandName} -p 《页码》 -s 《每页条数》`;
+          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -359,6 +369,10 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
           const fwdMsgId = await session.send(h.unescape(forwardMessage));
           scheduleAutoRecall(session, config, String(fwdMsgId));
         }
+
+        // 输出日志到文件
+        const protocol = config.onebotImplName.toLowerCase();
+        logCommandToFile(ctx, config, protocol, '群公告列表', logs);
 
       } catch (error) {
         ctx.logger.error(`获取群公告列表失败: ${error}`);

@@ -135,11 +135,11 @@ const getSourceHanSerifSCStyleDetailHtmlStr = async (
     .content-title { font-size: 14px; color: #888; margin-bottom: 10px; font-weight: 500; }
     .content-body { font-size: 17px; color: #333; line-height: 1.7; word-break: break-all; white-space: pre-wrap; }
 
-    .meta-section { display: flex; align-items: center; padding: 14px 16px; background: rgba(255,255,255,0.4); border-radius: 12px; }
-    .operator-avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid rgba(255,255,255,0.8); }
+    .meta-section { display: flex; align-items: center; padding: 14px 16px; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .operator-avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .meta-info { flex: 1; }
-    .meta-time { font-size: 14px; color: #666; margin-bottom: 2px; }
-    .meta-operator { font-size: 14px; color: #ff8c00; }
+    .meta-time { font-size: 15px; color: #444; margin-bottom: 4px; font-weight: 600; }
+    .meta-operator { font-size: 15px; color: #e67e22; font-weight: 700; }
 
     /* 消息内容元素样式 */
     .msg-text { }
@@ -172,9 +172,9 @@ const getSourceHanSerifSCStyleDetailHtmlStr = async (
     body.dark .content-section { background: rgba(40,40,40,0.6); }
     body.dark .content-title { color: #888; }
     body.dark .content-body { color: #e0e0e0; }
-    body.dark .meta-section { background: rgba(40,40,40,0.5); }
-    body.dark .meta-time { color: #aaa; }
-    body.dark .meta-operator { color: #ffa07a; }
+    body.dark .meta-section { background: rgba(40,40,40,0.6); border-color: rgba(255,255,255,0.1); }
+    body.dark .meta-time { color: #ccc; font-weight: 600; }
+    body.dark .meta-operator { color: #ffb366; font-weight: 700; }
     body.dark .msg-reply { background: rgba(150,150,150,0.2); border-left-color: #aaa; color: #bbb; }
     body.dark .msg-at { color: #4da6ff; }
     body.dark .msg-face { color: #ffb74d; }
@@ -194,7 +194,7 @@ const getSourceHanSerifSCStyleDetailHtmlStr = async (
       </div>
     </div>
     <div class="title">📌 群精华详情</div>
-    <div class="subtitle">第 ${contextInfo.essenceIndex}/${contextInfo.totalEssenceCount} 条精华消息</div>
+    <div class="subtitle">第 ${contextInfo.essenceIndex}/${contextInfo.totalEssenceCount} 条</div>
     <div class="sender-section">
       <img class="sender-avatar" src="${senderAvatarUrl}" alt="发送者头像" />
       <div class="sender-info">
@@ -303,11 +303,11 @@ const getLXGWWenKaiStyleDetailHtmlStr = async (
     .content-title { font-size: 14px; color: #a0522d; margin-bottom: 10px; font-weight: 600; }
     .content-body { font-size: 16px; color: #3a2f2a; line-height: 1.7; word-break: break-all; white-space: pre-wrap; }
 
-    .meta-section { display: flex; align-items: center; padding: 12px 14px; background: rgba(255,255,255,0.2); border: 1px solid rgba(212,175,55,0.35); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .operator-avatar { width: 38px; height: 38px; border-radius: 50%; margin-right: 12px; border: 2px solid #d4af37; box-shadow: 0 2px 6px rgba(212,175,55,0.2); }
+    .meta-section { display: flex; align-items: center; padding: 14px 16px; background: rgba(255,255,255,0.3); border: 1px solid rgba(212,175,55,0.45); border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+    .operator-avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid #d4af37; box-shadow: 0 3px 8px rgba(212,175,55,0.3); }
     .meta-info { flex: 1; }
-    .meta-time { font-size: 13px; color: #a0522d; margin-bottom: 2px; }
-    .meta-operator { font-size: 13px; color: #8b4513; font-weight: bold; }
+    .meta-time { font-size: 14px; color: #8b4513; margin-bottom: 4px; font-weight: 700; }
+    .meta-operator { font-size: 14px; color: #b8860b; font-weight: 800; }
 
     /* 消息内容元素样式 */
     .msg-text { }
@@ -342,9 +342,9 @@ const getLXGWWenKaiStyleDetailHtmlStr = async (
     body.dark .content-section { background: rgba(0,0,0,0.35); border-color: rgba(184,134,11,0.5); }
     body.dark .content-title { color: #cd853f; }
     body.dark .content-body { color: #e6d7c3; }
-    body.dark .meta-section { background: rgba(0,0,0,0.3); border-color: rgba(184,134,11,0.4); }
-    body.dark .meta-time { color: #cd853f; }
-    body.dark .meta-operator { color: #daa520; }
+    body.dark .meta-section { background: rgba(0,0,0,0.4); border-color: rgba(184,134,11,0.5); }
+    body.dark .meta-time { color: #daa520; font-weight: 700; }
+    body.dark .meta-operator { color: #ffd700; font-weight: 800; }
     body.dark .msg-reply { background: rgba(184,134,11,0.2); border-left-color: #b8860b; color: #cd853f; }
     body.dark .msg-at { color: #daa520; }
     body.dark .msg-face { color: #b8860b; }
@@ -367,8 +367,7 @@ const getLXGWWenKaiStyleDetailHtmlStr = async (
     </div>
     <div class="title-section">
       <div class="main-title">「 群精华详情 」</div>
-    </div>
-    <div class="subtitle">第 ${contextInfo.essenceIndex}/${contextInfo.totalEssenceCount} 条精华消息</div>
+    <div class="subtitle">第 ${contextInfo.essenceIndex}/${contextInfo.totalEssenceCount} 条</div>
     <div class="sender-section">
       <img class="sender-avatar" src="${senderAvatarUrl}" alt="发送者头像" />
       <div class="sender-info">
@@ -468,11 +467,11 @@ const getFlatMinimalStyleDetailHtmlStr = async (
     .content-title { font-size: 12px; color: #6c757d; margin-bottom: 8px; font-weight: 500; }
     .content-body { font-size: 15px; color: #495057; line-height: 1.6; word-break: break-all; white-space: pre-wrap; }
 
-    .meta-section { display: flex; align-items: center; padding: 10px 12px; background: #f8f9fa; border-radius: 10px; }
-    .operator-avatar { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #e9ecef; }
+    .meta-section { display: flex; align-items: center; padding: 12px 14px; background: #f8f9fa; border-radius: 10px; border: 1px solid #e9ecef; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .operator-avatar { width: 38px; height: 38px; border-radius: 50%; margin-right: 12px; border: 2px solid #e9ecef; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
     .meta-info { flex: 1; }
-    .meta-time { font-size: 12px; color: #6c757d; margin-bottom: 2px; }
-    .meta-operator { font-size: 12px; color: #fd7e14; }
+    .meta-time { font-size: 13px; color: #495057; margin-bottom: 4px; font-weight: 600; }
+    .meta-operator { font-size: 13px; color: #e8590c; font-weight: 700; }
 
     /* 消息内容元素样式 */
     .msg-text { }
@@ -507,9 +506,9 @@ const getFlatMinimalStyleDetailHtmlStr = async (
     body.dark .content-section { background: #343a40; }
     body.dark .content-title { color: #adb5bd; }
     body.dark .content-body { color: #ced4da; }
-    body.dark .meta-section { background: #343a40; }
-    body.dark .meta-time { color: #adb5bd; }
-    body.dark .meta-operator { color: #ffc107; }
+    body.dark .meta-section { background: #343a40; border-color: #495057; }
+    body.dark .meta-time { color: #ced4da; font-weight: 600; }
+    body.dark .meta-operator { color: #ff922b; font-weight: 700; }
     body.dark .msg-reply { background: #495057; border-left-color: #6c757d; color: #adb5bd; }
     body.dark .msg-at { color: #6ea8fe; }
     body.dark .msg-face { color: #ffc107; }
@@ -529,7 +528,7 @@ const getFlatMinimalStyleDetailHtmlStr = async (
       </div>
     </div>
     <div class="title">📌 群精华详情</div>
-    <div class="subtitle">第 ${contextInfo.essenceIndex}/${contextInfo.totalEssenceCount} 条精华消息</div>
+    <div class="subtitle">第 ${contextInfo.essenceIndex}/${contextInfo.totalEssenceCount} 条</div>
     <div class="sender-section">
       <img class="sender-avatar" src="${senderAvatarUrl}" alt="发送者头像" />
       <div class="sender-info">

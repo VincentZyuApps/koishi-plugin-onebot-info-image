@@ -239,7 +239,7 @@ const getSourceHanSerifSCStyleEssenceHtmlStr = async (
         <div class="group-details">群号: ${contextInfo.groupId} | 成员: ${contextInfo.memberCount}/${contextInfo.maxMemberCount}</div>
       </div>
     </div>
-    <div class="title">📌 群精华消息</div>
+    <div class="title">📌 群精华列表</div>
     <div class="pagination-info">第${result.currentPage}/${result.totalPages}页 (共${result.totalCount}条精华)</div>
     <div class="essence-list">
       ${generateEssenceListItems(result.records, result.currentPage, result.pageSize)}
@@ -399,7 +399,7 @@ const getLXGWWenKaiStyleEssenceHtmlStr = async (
       </div>
     </div>
     <div class="title-section">
-      <div class="main-title">「 群精华消息 」</div>
+      <div class="main-title">「 群精华列表 」</div>
     </div>
     <div class="pagination-info">第${result.currentPage}/${result.totalPages}页 (共${result.totalCount}条精华)</div>
     <div class="essence-list">

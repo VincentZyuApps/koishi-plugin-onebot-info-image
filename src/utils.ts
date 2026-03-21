@@ -301,7 +301,9 @@ export function containsEmoji(text: string): boolean {
  */
 export function formatTs(ts: number): string {
   if (!ts) return '未知'
-  return new Date(ts).toLocaleString('zh-CN')
+  // 将秒级时间戳转换为毫秒级（如果小于 1e10 认为是秒级）
+  const ms = ts < 1e10 ? ts * 1000 : ts
+  return new Date(ms).toLocaleString('zh-CN')
 }
 
 /**
@@ -574,5 +576,51 @@ export function logSvgRenderDebug(
     } catch (error) {
       ctx.logger.error(`[${info.commandName}] 保存 PNG 文件失败: ${error.message}`)
     }
+  }
+}
+
+/**
+ * 输出命令执行日志到文件
+ * @param ctx Koishi Context 实例
+ * @param config 插件配置
+ * @param protocol 协议名（如 napcat）
+ * @param commandName 指令名（如 群精华列表）
+ * @param logs 日志内容数组
+ */
+export function logCommandToFile(
+  ctx: Context,
+  config: Config,
+  protocol: string,
+  commandName: string,
+  logs: string[]
+): void {
+  if (!config.verboseFileOutput) return
+
+  try {
+    // 创建 log 目录
+    const logDir = join(__dirname, '..', 'log')
+    if (!existsSync(logDir)) {
+      mkdirSync(logDir, { recursive: true })
+    }
+
+    // 生成文件名
+    const safeCommandName = commandName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')
+    const filename = `${protocol}_${safeCommandName}_latest.log`
+    const filepath = join(logDir, filename)
+
+    // 生成日志内容
+    const timestamp = generateTimestamp()
+    const logContent = [
+      `=== ${timestamp} ===`,
+      ...logs,
+      '',
+      ''
+    ].join('\n')
+
+    // 写入文件
+    writeFileSync(filepath, logContent)
+    ctx.logger.info(`[${commandName}] 日志已保存到: ${filepath}`)
+  } catch (error) {
+    ctx.logger.error(`[${commandName}] 保存日志文件失败: ${error.message}`)
   }
 }

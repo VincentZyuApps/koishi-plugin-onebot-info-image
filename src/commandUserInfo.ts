@@ -263,10 +263,11 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
             scale: config.svgScale,
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
+            svgThemeColor: config.svgThemeColor,
           });
           if (config.sendImageSvg) ctx.logger.info(`svgUserInfo: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`).then(msgId => {
+          await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`).then(msgId => {
             scheduleAutoRecall(session, config, String(msgId));
           });
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));

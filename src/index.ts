@@ -121,6 +121,7 @@ export interface Config {
   svgScale: number;
   svgEnableEmoji: boolean;
   svgEnableEmojiCache: boolean;
+  svgThemeColor: string;
 
   sendForward: boolean
 
@@ -174,20 +175,20 @@ export const Config: Schema<Config> = Schema.intersect([
       .default(true)
       .description('📌 是否启用群精华消息命令。'),
     groupEssenceCommandName: Schema.string()
-      .default('群精华')
-      .description('📌 群精华消息列表命令名称。'),
+      .default('群精华列表')
+      .description('📌 群精华列表命令名称。'),
     groupEssenceDetailCommandName: Schema.string()
       .default('群精华详情')
-      .description('🔍 群精华详情命令名称。'),
+      .description('🔍 群精华消息详情命令名称。'),
     groupEssencePageSize: Schema.number()
       .min(1).max(20).step(1)
       .default(10)
-      .description('📌 群精华消息每页显示条数。'),
+      .description('📌 群精华列表每页显示条数。'),
     enableGroupNoticeCommand: Schema.boolean()
       .default(true)
       .description('📢 是否启用群公告命令。'),
     groupNoticeCommandName: Schema.string()
-      .default('群公告')
+      .default('群公告列表')
       .description('📢 群公告列表命令名称。'),
     groupNoticeDetailCommandName: Schema.string()
       .default('群公告详情')
@@ -197,8 +198,8 @@ export const Config: Schema<Config> = Schema.intersect([
       .default(10)
       .description('📢 群公告每页显示条数。'),
     inspectStyleCommandName: Schema.string()
-      .default('查看图片样式')
-      .description('🎨 查看图片样式列表命令名称。'),
+      .default('查看puppeteer图片样式')
+      .description('🎨 查看puppeteer图片样式列表命令名称。'),
   }).description('基础配置 ⚙️'),
 
   Schema.object({
@@ -294,6 +295,10 @@ export const Config: Schema<Config> = Schema.intersect([
       .default(false)
       .experimental()
       .description('💾 resvg 渲染是否缓存 Emoji 图片（开启后重复 Emoji 会更快）'),
+    svgThemeColor: Schema.string()
+      .role('color')
+      .default('#7e57c2')
+      .description('🎨 resvg 渲染主题颜色，默认是 Koishi 紫~ 古明地恋的眼睛~'),
   }).description('发送 resvg渲染的图片 配置 🚀'),
 
   Schema.object({
@@ -312,7 +317,9 @@ export const Config: Schema<Config> = Schema.intersect([
     verboseFileOutput: Schema.boolean()
       .default(false)
       .description('📄 是否在文件中输出详细信息。(生产环境不要开)'),
-  }).description('调试 (Debug) 配置 🐞')
+  }).description('调试 (Debug) 配置 🐞'),
+
+
 
 ]);
 

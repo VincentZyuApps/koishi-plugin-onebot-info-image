@@ -4,7 +4,7 @@ import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
 import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
 import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNotice'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64, logCommandToFile } from './utils'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {
@@ -108,6 +108,7 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, num) => {
+      const logs: string[] = [];
       if (!session.onebot)
         return session.send('❌ [error]当前会话不支持onebot协议。');
 
@@ -115,7 +116,8 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         return session.send('❌ [error]当前会话不在群聊中。');
 
       if (num === undefined || num === null || isNaN(num)) {
-        return session.send(`📢 ❌ 请输入要查看的公告序号！\n\n📖 用法: ${config.groupNoticeDetailCommandName} <序号>\n💡 示例: ${config.groupNoticeDetailCommandName} 2\n\n👉 查看公告列表: 群公告`);
+        const errorMsg = `📢 ❌ 请输入要查看的公告序号！\n\n📖 用法: ${config.groupNoticeDetailCommandName} <序号>\n💡 示例: ${config.groupNoticeDetailCommandName} 2\n\n👉 查看公告列表: 群公告`;
+        return session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
       }
 
       // 选择图片样式
@@ -157,6 +159,8 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
 
         // 获取指定的公告
         const targetRecord = groupNoticeList[index - 1];
+        logs.push(`群公告详情: ${JSON.stringify(targetRecord)}`);
+        ctx.logger.info(`群公告详情: ${JSON.stringify(targetRecord)}`);
 
         // 获取群信息
         const groupInfoObj = await session.onebot.getGroupInfo(session.guildId);
@@ -170,10 +174,6 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           totalNoticeCount: groupNoticeList.length
         };
 
-        if (config.verboseConsoleOutput) {
-          ctx.logger.info(`群公告详情: ${JSON.stringify(targetRecord)}`);
-        }
-
         // 发送文本
         if (config.sendText) {
           const textMessage = formatGroupNoticeDetailAsText(targetRecord, contextInfo, config);
@@ -183,7 +183,7 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
 
         // 发送图片
         if (config.sendImage) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群公告详情图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群公告详情，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
           const noticeDetailImageBase64 = await renderGroupNoticeDetail(
@@ -204,7 +204,7 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         }
 
         if (config.sendImageSvg) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群公告详情图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群公告详情，请稍候⏳...`);
           const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
           const senderAvatarBase64 = await getUserAvatarBase64(ctx, targetRecord.sender_id);
 
@@ -216,8 +216,11 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
                 const imgBase64 = await getNoticeImageBase64(ctx, img.id);
                 if (imgBase64) {
                   imagesBase64[img.id] = imgBase64;
+                  logs.push(`[群公告详情] 公告图片获取成功: id=${img.id}`);
+                  ctx.logger.info(`[群公告详情] 公告图片获取成功: id=${img.id}`);
                 }
               } catch (e) {
+                logs.push(`[群公告详情] 获取公告图片失败: ${img.id}, 错误: ${e.message}`);
                 ctx.logger.warn(`获取公告图片失败: ${img.id}`);
               }
             }
@@ -237,12 +240,17 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
             scale: config.svgScale,
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
+            svgThemeColor: config.svgThemeColor,
           });
-          if (config.sendImageSvg) ctx.logger.info(`svgGroupNoticeDetail: scale=${config.svgScale}`);
+          if (config.sendImageSvg) {
+            logs.push(`svgGroupNoticeDetail: scale=${config.svgScale}`);
+            ctx.logger.info(`svgGroupNoticeDetail: scale=${config.svgScale}`);
+          }
           const elapsed = Date.now() - startTime;
+          logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} <序号>`;
-          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms`;
+          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -254,6 +262,10 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           const fwdMsgId = await session.send(h.unescape(forwardMessage));
           scheduleAutoRecall(session, config, String(fwdMsgId));
         }
+
+        // 输出日志到文件
+        const protocol = config.onebotImplName.toLowerCase();
+        logCommandToFile(ctx, config, protocol, '群公告详情', logs);
 
       } catch (error) {
         ctx.logger.error(`获取群公告详情失败: ${error}`);

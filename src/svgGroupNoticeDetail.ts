@@ -31,6 +31,7 @@ export interface SvgGroupNoticeDetailOptions {
   scale?: number
   enableEmoji?: boolean
   enableEmojiCache?: boolean
+  svgThemeColor?: string
 }
 
 /**
@@ -63,166 +64,189 @@ export async function svgGroupNoticeDetail(
   ctx: Context,
   options: SvgGroupNoticeDetailOptions,
 ): Promise<string> {
-  const { record, contextInfo, groupAvatarBase64, senderAvatarBase64, imagesBase64 = {}, enableDarkMode = false, scale = 3.3 } = options
+  const { record, contextInfo, groupAvatarBase64, senderAvatarBase64, imagesBase64 = {}, enableDarkMode = false, scale = 3.3, svgThemeColor = '#7e57c2' } = options
 
   const W = 900
-  const PADDING = 35
-  const CARD_RX = 22
-  const CONTENT_MAX_WIDTH = W - PADDING * 2 - 60  // 内容区域最大宽度
-  const LINE_HEIGHT = 28  // 行高
+  const PADDING = 40         // 外边距
+  const CARD_RX = 20         // 卡片圆角
 
   // 使用系统默认字体
   const fontFamily = 'sans-serif'
 
-  const bgColor = enableDarkMode ? '#0d1117' : '#e0eafc'
-  const cardBg = enableDarkMode ? '#161b22' : 'white'
+  // 颜色方案（与群精华详情保持一致）
+  const bgColor = enableDarkMode ? '#0d1117' : '#f0f4f8'
+  const cardBg = enableDarkMode ? '#161b22' : '#ffffff'
   const textColor = enableDarkMode ? '#e6edf3' : '#1a1a1a'
-  const subTextColor = enableDarkMode ? '#8b949e' : '#888888'
+  const subTextColor = enableDarkMode ? '#8b949e' : '#666666'
   const dividerColor = enableDarkMode ? '#30363d' : '#e0e0e0'
-  const accentColor = '#64b5f6'
-  const highlightBg = enableDarkMode ? '#1f2937' : '#f8f9fa'
-  const shadowColor = enableDarkMode ? '#00000066' : '#00000022'
-  const gradientEnd = enableDarkMode ? '#161b22' : '#cfdef3'
-  const watermarkColor = enableDarkMode ? '#484f58' : '#bbbbbb'
+  const accentColor = svgThemeColor  // 使用配置的主题颜色
+  const shadowColor = enableDarkMode ? '#00000044' : '#00000018'
+  const watermarkColor = enableDarkMode ? '#484f58' : '#999999'
   const avatarBgColor = enableDarkMode ? '#30363d' : '#e8e8e8'
+  const itemBgColor = enableDarkMode ? '#21262d' : '#f8f9fa'
+  const highlightBg = enableDarkMode ? '#1f2937' : '#f3e5f5'  // 与 Koishi 紫色搭配的高亮背景
 
-  const groupName = truncate(contextInfo.groupName || '未知群名', 20)
+  const groupName = truncate(contextInfo.groupName || '未知群名', 25)
   const groupId = String(contextInfo.groupId || '')
+  const memberText = contextInfo.memberCount
+    ? `${contextInfo.memberCount}${contextInfo.maxMemberCount ? '/' + contextInfo.maxMemberCount : ''} 人`
+    : ''
   const rawContent = decodeHtmlEntities(record.message.text) || '[空公告]'
   const time = formatTs(record.publish_time)
   const images = record.message.images || []
   const senderId = String(record.sender_id)
 
-  // 处理公告内容换行
-  const contentLines = wrapText(rawContent, 46)
-  const contentHeight = Math.max(80, contentLines.length * LINE_HEIGHT + 40)
+  // ── 布局计算 ──────────────────────────────────────────────
 
-  // 计算图片区域高度
+  // 群头像
+  const groupAvatarSize = 56
+  const groupAvatarX = PADDING + 20
+  const groupAvatarY = PADDING + 20
+
+  // 发送者头像
+  const senderAvatarSize = 48
+  const senderAvatarX = PADDING + 35
+  const senderAvatarY = 201  // 发送者卡片内的Y坐标
+
+  // 内容区域
+  const contentLines = wrapText(rawContent, 50)
+  const LINE_HEIGHT = 26
+  const contentTextH = Math.max(40, contentLines.length * LINE_HEIGHT + 10)
   const hasImages = images.length > 0
-  const imagesSectionHeight = hasImages ? 180 : 0
+  const imgThumbSize = 120
+  const imgThumbGap = 15
+  const maxDisplayImages = 3
+  const displayImgCount = Math.min(images.length, maxDisplayImages)
+  const imagesHeight = hasImages ? imgThumbSize + 40 : 0
 
-  // 动态计算总高度
-  const headerHeight = 110
-  const contentSectionHeight = contentHeight + 50  // 标题 + 内容
-  const senderSectionHeight = 120
-  const footerHeight = 50
-  const H = Math.max(500, headerHeight + contentSectionHeight + senderSectionHeight + imagesSectionHeight + footerHeight)
+  // 内容卡片位置
+  const contentCardY = 290
+  const contentHeight = Math.max(80, contentTextH + imagesHeight + 20)
+  const contentCardHeight = contentHeight
 
-  // 群头像（左上角）
-  const groupAvatarSize = 50
-  const groupAvatarX = PADDING + 25
-  const groupAvatarY = PADDING + 25
+  // 底部信息区域
+  const footerY = contentCardY + contentCardHeight + 40
 
+  // 总高度
+  const timestamp = new Date().toLocaleString('zh-CN')
+  const H = Math.max(550, footerY + 100)
+
+  // ── 绘制群头像 ─────────────────────────────────────────────
   let groupAvatarSvg = ''
   if (groupAvatarBase64) {
     groupAvatarSvg = `<image x="${groupAvatarX}" y="${groupAvatarY}" width="${groupAvatarSize}" height="${groupAvatarSize}" href="data:image/jpeg;base64,${groupAvatarBase64}" clip-path="url(#group-avatar-clip)"/>`
   } else {
-    groupAvatarSvg = `<rect x="${groupAvatarX}" y="${groupAvatarY}" width="${groupAvatarSize}" height="${groupAvatarSize}" rx="10" fill="${avatarBgColor}"/>`
+    groupAvatarSvg = `<rect x="${groupAvatarX}" y="${groupAvatarY}" width="${groupAvatarSize}" height="${groupAvatarSize}" rx="12" fill="${avatarBgColor}"/>`
   }
 
-  // 发布者头像（圆形裁剪）
-  const avatarSize = 56
-  const avatarX = PADDING + 25
-
+  // ── 绘制发送者头像 ──────────────────────────────────────────
   let senderAvatarSvg = ''
+  let senderClipPath = ''
+  const senderAvatarCenterX = senderAvatarX + senderAvatarSize / 2
+  const senderAvatarCenterY = senderAvatarY + senderAvatarSize / 2
+  const senderAvatarRadius = senderAvatarSize / 2
+
   if (senderAvatarBase64) {
-    senderAvatarSvg = `<image x="${avatarX}" y="${headerHeight + contentSectionHeight + 25}" width="${avatarSize}" height="${avatarSize}" href="data:image/jpeg;base64,${senderAvatarBase64}" clip-path="url(#sender-avatar-clip)"/>`
+    senderClipPath = `<clipPath id="sender-avatar-clip"><circle cx="${senderAvatarCenterX}" cy="${senderAvatarCenterY}" r="${senderAvatarRadius}"/></clipPath>`
+    senderAvatarSvg = `<image x="${senderAvatarX}" y="${senderAvatarY}" width="${senderAvatarSize}" height="${senderAvatarSize}" href="data:image/jpeg;base64,${senderAvatarBase64}" clip-path="url(#sender-avatar-clip)"/>`
   } else {
-    senderAvatarSvg = `<rect x="${avatarX}" y="${headerHeight + contentSectionHeight + 25}" width="${avatarSize}" height="${avatarSize}" rx="28" fill="${avatarBgColor}"/>`
+    senderClipPath = `<clipPath id="sender-avatar-clip"><circle cx="${senderAvatarCenterX}" cy="${senderAvatarCenterY}" r="${senderAvatarRadius}"/></clipPath>`
+    senderAvatarSvg = `<rect x="${senderAvatarX}" y="${senderAvatarY}" width="${senderAvatarSize}" height="${senderAvatarSize}" rx="24" fill="${avatarBgColor}"/>`
   }
 
-  // 公告内容（支持多行）
+  // ── 公告内容文字 ────────────────────────────────────────────
+  const contentX = PADDING + 30
   let contentSvg = ''
-  const contentStartY = headerHeight + 45
+  let currentY = 0
   contentLines.forEach((line, index) => {
-    const y = contentStartY + index * LINE_HEIGHT
-    contentSvg += `<text x="${PADDING + 30}" y="${y}" font-size="16" fill="${textColor}" font-family="${fontFamily}">${escapeXml(line)}</text>`
+    const y = currentY + 25
+    contentSvg += `<text x="${contentX}" y="${y}" font-size="16" fill="${textColor}" font-family="${fontFamily}">${escapeXml(line)}</text>`
+    currentY += 28
   })
 
-  // 图片区域
-  let imagesSection = ''
+  // ── 公告图片 ─────────────────────────────────────────────
+  let imagesSvg = ''
   if (hasImages) {
-    const imgSize = 140
-    const imgGap = 15
-    const imgStartY = headerHeight + contentSectionHeight + senderSectionHeight + 10
+    const imgStartY = currentY + 15
+    const imgStartX = contentX
 
-    let imageTags = ''
-    const maxDisplayImages = 4
-
-    for (let i = 0; i < Math.min(images.length, maxDisplayImages); i++) {
+    for (let i = 0; i < displayImgCount; i++) {
       const imgId = images[i].id
       const imgBase64 = imagesBase64[imgId]
-      const imgX = PADDING + 25 + i * (imgSize + imgGap)
+      const imgX = imgStartX + i * (imgThumbSize + imgThumbGap)
 
       if (imgBase64) {
-        imageTags += `<image x="${imgX}" y="${imgStartY}" width="${imgSize}" height="${imgSize}" href="data:image/jpeg;base64,${imgBase64}" rx="8"/>`
+        imagesSvg += `<rect x="${imgX}" y="${imgStartY}" width="${imgThumbSize}" height="${imgThumbSize}" rx="8" fill="${avatarBgColor}"/>`
+        imagesSvg += `<image x="${imgX + 2}" y="${imgStartY + 2}" width="${imgThumbSize - 4}" height="${imgThumbSize - 4}" href="data:image/jpeg;base64,${imgBase64}" preserveAspectRatio="xMidYMid meet"/>`
       } else {
-        imageTags += `<rect x="${imgX}" y="${imgStartY}" width="${imgSize}" height="${imgSize}" rx="8" fill="${highlightBg}"/>`
-        imageTags += `<text x="${imgX + imgSize / 2}" y="${imgStartY + imgSize / 2 + 5}" font-size="20" fill="${subTextColor}" font-family="${fontFamily}" text-anchor="middle">?</text>`
+        imagesSvg += `<rect x="${imgX}" y="${imgStartY}" width="${imgThumbSize}" height="${imgThumbSize}" rx="8" fill="${avatarBgColor}"/>`
+        imagesSvg += `<text x="${imgX + imgThumbSize / 2}" y="${imgStartY + imgThumbSize / 2 + 4}" font-size="10" fill="${subTextColor}" font-family="${fontFamily}" text-anchor="middle">?</text>`
       }
     }
 
     if (images.length > maxDisplayImages) {
-      const moreX = PADDING + 25 + maxDisplayImages * (imgSize + imgGap)
-      imageTags += `<rect x="${moreX}" y="${imgStartY}" width="${imgSize}" height="${imgSize}" rx="8" fill="${highlightBg}"/>`
-      imageTags += `<text x="${moreX + imgSize / 2}" y="${imgStartY + imgSize / 2}" font-size="18" fill="${accentColor}" font-family="${fontFamily}" text-anchor="middle" dominant-baseline="middle">+${images.length - maxDisplayImages}</text>`
+      const moreX = imgStartX + maxDisplayImages * (imgThumbSize + imgThumbGap)
+      imagesSvg += `<rect x="${moreX}" y="${imgStartY}" width="${imgThumbSize}" height="${imgThumbSize}" rx="8" fill="${avatarBgColor}"/>`
+      imagesSvg += `<text x="${moreX + imgThumbSize / 2}" y="${imgStartY + imgThumbSize / 2}" font-size="12" fill="${accentColor}" font-family="${fontFamily}" text-anchor="middle" dominant-baseline="middle">+${images.length - maxDisplayImages}</text>`
     }
 
-    imagesSection = `<text x="${PADDING + 25}" y="${imgStartY - 15}" font-size="13" fill="${subTextColor}" font-family="${fontFamily}">📎 附件图片 (${images.length}张)</text>` +
-      imageTags
+    // 图片数量标签
+    imagesSvg += `<text x="${imgStartX}" y="${imgStartY + imgThumbSize + 20}" font-size="12" fill="${accentColor}" font-family="${fontFamily}">${images.length}张图</text>`
   }
 
-  const timestamp = new Date().toLocaleString('zh-CN')
-
-  // 构建 SVG
+  // ── 构建 SVG ───────────────────────────────────────────────
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
     `<defs>` +
     `<linearGradient id="bg-grad" x1="0" y1="0" x2="1" y2="1">` +
     `<stop offset="0%" stop-color="${bgColor}"/>` +
-    `<stop offset="100%" stop-color="${gradientEnd}"/>` +
+    `<stop offset="100%" stop-color="${cardBg}"/>` +
     `</linearGradient>` +
     `<filter id="card-shadow" x="-5%" y="-5%" width="110%" height="115%">` +
     `<feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="${shadowColor}"/>` +
     `</filter>` +
-    `<clipPath id="group-avatar-clip"><rect x="${groupAvatarX}" y="${groupAvatarY}" width="${groupAvatarSize}" height="${groupAvatarSize}" rx="10"/></clipPath>` +
-    `<clipPath id="sender-avatar-clip"><circle cx="${avatarX + avatarSize/2}" cy="${headerHeight + contentSectionHeight + 25 + avatarSize/2}" r="${avatarSize/2}"/></clipPath>` +
+    `<clipPath id="group-avatar-clip"><rect x="${groupAvatarX}" y="${groupAvatarY}" width="${groupAvatarSize}" height="${groupAvatarSize}" rx="12"/></clipPath>` +
+    senderClipPath +
     `</defs>` +
     `<rect width="${W}" height="${H}" fill="url(#bg-grad)"/>` +
-    `<rect x="${PADDING}" y="${PADDING}" width="${W - PADDING * 2}" height="${H - PADDING * 2}" rx="${CARD_RX}" fill="${cardBg}" fill-opacity="0.95" filter="url(#card-shadow)"/>` +
+    `<rect x="${PADDING}" y="${PADDING}" width="${W - PADDING * 2}" height="${H - PADDING * 2}" rx="${CARD_RX}" fill="${cardBg}" fill-opacity="0.98" filter="url(#card-shadow)"/>` +
 
     // 群头像
     groupAvatarSvg +
 
-    // 标题区域（调整位置，给头像留出空间）
-    `<text x="${PADDING + 25 + groupAvatarSize + 15}" y="${PADDING + 45}" font-size="24" fill="${textColor}" font-family="${fontFamily}" font-weight="bold">${escapeXml(groupName)}</text>` +
-    `<text x="${PADDING + 25 + groupAvatarSize + 15}" y="${PADDING + 72}" font-size="14" fill="${subTextColor}" font-family="${fontFamily}">群号: ${escapeXml(groupId)} · 群公告详情</text>` +
-    `<line x1="${PADDING + 15}" y1="${headerHeight - 10}" x2="${W - PADDING - 15}" y2="${headerHeight - 10}" stroke="${dividerColor}" stroke-width="1"/>` +
-
-    // 公告内容区域
-    `<text x="${PADDING + 25}" y="${headerHeight + 25}" font-size="13" fill="${subTextColor}" font-family="${fontFamily}">💬 公告内容</text>` +
-    `<rect x="${PADDING + 15}" y="${headerHeight + 35}" width="${CONTENT_MAX_WIDTH}" height="${contentHeight}" rx="10" fill="${highlightBg}"/>` +
-    contentSvg +
+    // 群名称和群号
+    `<text x="${PADDING + 20 + groupAvatarSize + 15}" y="${PADDING + 45}" font-size="22" fill="${textColor}" font-family="${fontFamily}" font-weight="bold">${escapeXml(groupName)}</text>` +
+    `<text x="${PADDING + 20 + groupAvatarSize + 15}" y="${PADDING + 70}" font-size="13" fill="${subTextColor}" font-family="${fontFamily}">群号: ${escapeXml(groupId)}${memberText ? ' · 成员: ' + memberText : ''}</text>` +
 
     // 分隔线
-    `<line x1="${PADDING + 15}" y1="${headerHeight + contentSectionHeight}" x2="${W - PADDING - 15}" y2="${headerHeight + contentSectionHeight}" stroke="${dividerColor}" stroke-width="1" stroke-dasharray="4,4"/>` +
+    `<line x1="${PADDING + 15}" y1="${PADDING + 95}" x2="${W - PADDING - 15}" y2="${PADDING + 95}" stroke="${dividerColor}" stroke-width="1"/>` +
 
-    // 发布者信息
-    `<text x="${PADDING + 25}" y="${headerHeight + contentSectionHeight + 20}" font-size="13" fill="${subTextColor}" font-family="${fontFamily}">👤 发布信息</text>` +
+    // 标题区域
+    `<text x="${W / 2}" y="${PADDING + 130}" font-size="20" fill="${textColor}" font-family="${fontFamily}" font-weight="bold" text-anchor="middle">群公告详情</text>` +
+
+    // 发送者信息卡片
+    `<rect x="${PADDING + 15}" y="185" width="${W - PADDING * 2 - 30}" height="80" rx="12" fill="${itemBgColor}" stroke="${dividerColor}" stroke-width="1"/>` +
     senderAvatarSvg +
-    `<text x="${avatarX + avatarSize + 15}" y="${headerHeight + contentSectionHeight + 50}" font-size="16" fill="${textColor}" font-family="${fontFamily}" font-weight="600">发布者: ${escapeXml(senderId)}</text>` +
-    `<text x="${avatarX + avatarSize + 15}" y="${headerHeight + contentSectionHeight + 75}" font-size="13" fill="${subTextColor}" font-family="${fontFamily}">🕐 ${escapeXml(time)}</text>` +
+    `<text x="${senderAvatarX + senderAvatarSize + 15}" y="216" font-size="14" fill="${subTextColor}" font-family="${fontFamily}">发布者</text>` +
+    `<text x="${senderAvatarX + senderAvatarSize + 15}" y="241" font-size="16" fill="${textColor}" font-family="${fontFamily}" font-weight="600">QQ: ${senderId}</text>` +
 
-    // 图片区域
-    imagesSection +
+    // 公告内容卡片
+    `<rect x="${PADDING + 15}" y="${contentCardY}" width="${W - PADDING * 2 - 30}" height="${contentCardHeight}" rx="12" fill="${highlightBg}"/>` +
+    `<g transform="translate(0, ${contentCardY})"><text x="${contentX}" y="10" font-size="16" fill="${textColor}" font-family="${fontFamily}" font-weight="600">公告内容:</text></g>` +
+    `<g transform="translate(0, ${contentCardY + 30})">${contentSvg}</g>` +
+    `<g transform="translate(0, ${contentCardY + 30})">${imagesSvg}</g>` +
+
+    // 底部信息
+    `<text x="${PADDING + 20}" y="${footerY}" font-size="13" fill="${subTextColor}" font-family="${fontFamily}">发布时间: ${escapeXml(time)}</text>` +
 
     // 底部水印
+    `<text x="${PADDING + 15}" y="${H - PADDING - 10}" font-size="11" fill="${watermarkColor}" font-family="monospace">generated by koishi-plugin-onebot-info-image, resvg mode</text>` +
     `<text x="${W - PADDING - 15}" y="${H - PADDING - 10}" font-size="11" fill="${watermarkColor}" font-family="monospace" text-anchor="end">${escapeXml(timestamp)}</text>` +
-    `<text x="${PADDING + 15}" y="${H - PADDING - 10}" font-size="11" fill="${watermarkColor}" font-family="monospace">rendered by resvg</text>` +
+    `<text x="${W / 2}" y="${H - PADDING + 10}" font-size="11" fill="${watermarkColor}" font-family="monospace" text-anchor="middle">2026年3月21日18:21:17</text>` +
+    `<text x="${W / 2}" y="${H - PADDING + 23}" font-size="11" fill="${watermarkColor}" font-family="monospace" text-anchor="middle">https://github.com/yourusername/koishi-plugin-onebot-info-image</text>` +
     `</svg>`
 
-  // 使用系统默认字体
   const resvgOpts: any = {
-    fitTo: { mode: 'width', value: W * scale },
+    fitTo: { mode: 'zoom', value: scale },
     font: {
       loadSystemFonts: true,
       defaultFontFamily: 'sans-serif',

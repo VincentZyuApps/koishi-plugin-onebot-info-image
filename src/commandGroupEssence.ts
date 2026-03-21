@@ -3,7 +3,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupEssence } from './renderGroupEssence'
 import { svgGroupEssence } from './svgGroupEssence'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, logCommandToFile } from './utils'
 
 // 群精华消息的原始格式
 export interface GroupEssenceMessageRaw {
@@ -108,8 +108,8 @@ export function formatTimestamp(timestamp: number): string {
 export function registerGroupEssenceCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupEssenceCommand) return;
 
-  ctx.command(config.groupEssenceCommandName, `获取群精华消息列表, 发送${responseHint}`)
-    .alias('群精华列表')
+  ctx.command(config.groupEssenceCommandName, `获取群精华列表, 发送${responseHint}`)
+    .alias('群精华')
     .alias('age')
     .option('page', '-p, --page <page:number> 页码，从1开始', { fallback: 1 })
     .option('pagesize', '-s, --pagesize <pagesize:number> 每页显示条数', { fallback: config.groupEssencePageSize || 5 })
@@ -148,6 +148,9 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
         selectedStyleDetailObj = config.imageStyleDetails[options.imageStyleIdx as number];
       }
 
+      // 日志收集
+      const logs: string[] = [];
+
       try {
         // 获取群精华消息列表
         const onebotBot = (session as any).onebot;
@@ -174,6 +177,7 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           groupAvatarUrl: `https://p.qlogo.cn/gh/${session.guildId}/${session.guildId}/640/`
         };
 
+        logs.push(`群精华消息分页结果: ${JSON.stringify(paginatedResult)}`);
         if (config.verboseConsoleOutput) {
           ctx.logger.info(`群精华消息分页结果: ${JSON.stringify(paginatedResult)}`);
         }
@@ -187,7 +191,7 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
 
         // 发送图片
         if (config.sendImage) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群精华列表图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群精华列表，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
           const essenceImageBase64 = await renderGroupEssence(
@@ -212,14 +216,14 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
             }
           }
           // 添加用法提示（简化版）
-          imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p <页码> -s <每页条数>`;
+          imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p 《页码》 -s 《每页条数》`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
 
         if (config.sendImageSvg) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群精华列表图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群精华列表，请稍候⏳...`);
           const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
           const startTime = Date.now();
           let svgDarkMode = config.svgEnableDarkMode;
@@ -233,18 +237,54 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
             avatarsBase64[senderIdStr] = await getUserAvatarBase64(ctx, record.sender_id);
           }
 
+          // 获取每条消息中的图片
+          const imagesBase64: Record<string, string> = {};
+          for (const record of paginatedResult.records) {
+            for (const item of record.content) {
+              if (item.type === 'image' && item.data.url) {
+                let imageUrl = item.data.url;
+                // 清理 URL 中的反引号和逗号
+                imageUrl = imageUrl.replace(/[`]/g, '').replace(/[,]$/, '').trim();
+                logs.push(`[群精华列表] 发现图片URL: ${imageUrl.substring(0, 50)}...`);
+                ctx.logger.info(`[群精华列表] 发现图片URL: ${imageUrl.substring(0, 50)}...`);
+                if (!imagesBase64[imageUrl]) {
+                  try {
+                    const response = await ctx.http.get(imageUrl, { responseType: 'arraybuffer' });
+                    imagesBase64[imageUrl] = Buffer.from(response).toString('base64');
+                    logs.push(`[群精华列表] 图片获取成功: ${imageUrl.substring(0, 50)}..., base64长度: ${imagesBase64[imageUrl].length}`);
+                    ctx.logger.info(`[群精华列表] 图片获取成功: ${imageUrl.substring(0, 50)}..., base64长度: ${imagesBase64[imageUrl].length}`);
+                  } catch (error) {
+                    logs.push(`[群精华列表] 获取精华消息图片失败: ${error.message}, URL: ${imageUrl.substring(0, 50)}...`);
+                    ctx.logger.warn(`[群精华列表] 获取精华消息图片失败: ${error.message}, URL: ${imageUrl.substring(0, 50)}...`);
+                  }
+                } else {
+                  logs.push(`[群精华列表] 图片已缓存: ${imageUrl.substring(0, 50)}...`);
+                  ctx.logger.info(`[群精华列表] 图片已缓存: ${imageUrl.substring(0, 50)}...`);
+                }
+              }
+            }
+          }
+          logs.push(`[群精华列表] 总共获取 ${Object.keys(imagesBase64).length} 张图片`);
+          ctx.logger.info(`[群精华列表] 总共获取 ${Object.keys(imagesBase64).length} 张图片`);
+
           const svgImageBase64 = await svgGroupEssence(ctx, {
             result: paginatedResult,
             contextInfo,
             groupAvatarBase64,
             avatarsBase64,
+            imagesBase64,
             enableDarkMode: svgDarkMode,
             scale: config.svgScale,
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
+            svgThemeColor: config.svgThemeColor,
           });
-          if (config.sendImageSvg) ctx.logger.info(`svgGroupEssence: scale=${config.svgScale}`);
+          if (config.sendImageSvg) {
+            logs.push(`svgGroupEssence: scale=${config.svgScale}`);
+            ctx.logger.info(`svgGroupEssence: scale=${config.svgScale}`);
+          }
           const elapsed = Date.now() - startTime;
+          logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           if (paginatedResult.totalPages > 1) {
             imageMessage += `\n📄 第 ${paginatedResult.currentPage}/${paginatedResult.totalPages} 页`;
@@ -255,8 +295,8 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
               imageMessage += ` | ▶ ${config.groupEssenceCommandName} -p ${paginatedResult.currentPage + 1}`;
             }
           }
-          imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p <页码> -s <每页条数>`;
-          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms`;
+          imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p 《页码》 -s 《每页条数》`;
+          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -268,6 +308,10 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           const fwdMsgId = await session.send(h.unescape(forwardMessage));
           scheduleAutoRecall(session, config, String(fwdMsgId));
         }
+
+        // 输出日志到文件
+        const protocol = config.onebotImplName.toLowerCase();
+        logCommandToFile(ctx, config, protocol, '群精华列表', logs);
 
       } catch (error) {
         ctx.logger.error(`获取群精华消息失败: ${error}`);
@@ -322,8 +366,8 @@ function formatGroupEssenceAsText(
   // 添加参数用法说明
   output += `\n==================\n`;
   output += `📖 参数用法:\n`;
-  output += `  -p, --page <页码>     指定页码(从1开始)\n`;
-  output += `  -s, --pagesize <条数> 每页显示条数\n`;
+  output += `  -p, --page 《页码》     指定页码(从1开始)\n`;
+  output += `  -s, --pagesize 《条数》 每页显示条数\n`;
   output += `📝 示例:\n`;
   output += `  ${config.groupEssenceCommandName} -p 2        查看第2页\n`;
   output += `  ${config.groupEssenceCommandName} -s 10       每页显示10条\n`;
@@ -396,8 +440,8 @@ function formatGroupEssenceAsForward(
   // 添加参数用法说明
   const usageText = [
     `📖 参数用法:`,
-    `  -p, --page <页码>     指定页码(从1开始)`,
-    `  -s, --pagesize <条数> 每页显示条数`,
+    `  -p, --page 《页码》     指定页码(从1开始)`,
+    `  -s, --pagesize 《条数》 每页显示条数`,
     `📝 示例:`,
     `  ${config.groupEssenceCommandName} -p 2        查看第2页`,
     `  ${config.groupEssenceCommandName} -s 10       每页显示10条`,

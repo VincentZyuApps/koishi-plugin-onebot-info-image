@@ -145,10 +145,11 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
             scale: config.svgScale,
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
+            svgThemeColor: config.svgThemeColor,
           });
           if (config.sendImageSvg) ctx.logger.info(`svgAdminList: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          const imgMsgId = await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms`);
+          const imgMsgId = await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
