@@ -23,6 +23,11 @@
 > 🚀 **重磅更新：SVG 轻量级渲染 mode 上线！** _——2026年3月24日08:51:59_  
 > 使用 **resvg** 渲染 SVG图片，**比 Puppeteer 快 3 倍以上**，资源占用极低！强烈推荐开启~ ✨
 
+- **0.5.1-beta.1+20260324** 🚀
+  - ✨ 新增渲染信息显示配置项
+    - `imageShowRenderInfo`: 控制 Puppeteer 渲染耗时、类型、质量信息显示
+    - `svgShowRenderInfo`: 控制 resvg 渲染耗时、缩放信息显示
+  - 🎨 优化渲染提示文字，明确显示「正在使用 Puppeteer 渲染」
 - **0.5.0-beta.1+20260324** 🚀
   - ✨ **新增 SVG 轻量级渲染 mode！** 使用 resvg 出图，速度极快，零依赖 Puppeteer！
   - 🎨 统一所有 SVG 文件的主题色为 Koishi 紫 `#7e57c2`
