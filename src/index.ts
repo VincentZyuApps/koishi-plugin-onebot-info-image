@@ -114,6 +114,7 @@ export interface Config {
   imageStyleDetails: ImageStyleDetail[];
   imageType: ImageType;
   screenshotQuality: number;
+  imageShowRenderInfo: boolean;
 
   sendImageSvg: boolean;
   enableQuoteWithImageSvg: boolean;
@@ -122,6 +123,7 @@ export interface Config {
   svgEnableEmoji: boolean;
   svgEnableEmojiCache: boolean;
   svgThemeColor: string;
+  svgShowRenderInfo: boolean;
 
   sendForward: boolean
 
@@ -270,6 +272,9 @@ export const Config: Schema<Config> = Schema.intersect([
       .min(0).max(100).step(1)
       .default(80)
       .description('📏 Puppeteer 截图质量 (0-100)。'),
+    imageShowRenderInfo: Schema.boolean()
+      .default(true)
+      .description('📊 是否在Puppeteer图片消息段后面增加文字消息段，显示Puppeteer渲染图片类型和截图质量的信息'),
 
   }).description('发送 Puppeteer渲染的图片 配置 🎨'),
 
@@ -299,6 +304,9 @@ export const Config: Schema<Config> = Schema.intersect([
       .role('color')
       .default('#7e57c2')
       .description('🎨 resvg 渲染主题颜色，默认是 Koishi 紫~ 古明地恋的眼睛~'),
+    svgShowRenderInfo: Schema.boolean()
+      .default(true)
+      .description('📊 是否在svg图片消息段后面增加文字消息段，显示resvg图片渲染耗时、缩放的信息'),
   }).description('发送 resvg渲染的图片 配置 🚀'),
 
   Schema.object({

@@ -110,12 +110,18 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
 
         if (config.sendImage) {
           ctx.logger.info(`context info = ${JSON.stringify(contextInfo)}`)
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群管理员列表图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染群管理员列表图片，请稍候⏳...`);
           const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
+          const startTime = Date.now();
           const adminListImageBase64 = await renderAdminList(ctx, adminListArg, unifiedContextInfo, selectedImageStyle, selectedDarkMode, config.imageType, config.screenshotQuality);
-          const imgMsgId = await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${adminListImageBase64}`)}`);
+          let imageMsg = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${adminListImageBase64}`)}`;
+          if (config.imageShowRenderInfo) {
+            const elapsed = Date.now() - startTime;
+            imageMsg += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
+          }
+          const imgMsgId = await session.send(imageMsg);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }
@@ -149,7 +155,11 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           });
           if (config.sendImageSvg) ctx.logger.info(`svgAdminList: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          const imgMsgId = await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
+          let imageMsg = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
+          if (config.svgShowRenderInfo) {
+            imageMsg += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+          }
+          const imgMsgId = await session.send(imageMsg);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
         }

@@ -218,9 +218,10 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
 
         // 发送图片
         if (config.sendImage) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群精华详情，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染群精华详情，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
+          const startTime = Date.now();
           const essenceDetailImageBase64 = await renderGroupEssenceDetail(
             ctx,
             targetRecord,
@@ -233,6 +234,10 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
           // 构建图片消息
           let imageMessage = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${essenceDetailImageBase64}`)}`;
           imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} <序号>`;
+          if (config.imageShowRenderInfo) {
+            const elapsed = Date.now() - startTime;
+            imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
+          }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -297,7 +302,9 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
           logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} <序号>`;
-          imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+          if (config.svgShowRenderInfo) {
+            imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+          }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));

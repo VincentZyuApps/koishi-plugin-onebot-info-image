@@ -213,9 +213,10 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
         }
 
         if (config.sendImage) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染用户信息图片，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染用户信息图片，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
+          const startTime = Date.now();
           const userInfoimageBase64 = await renderUserInfo(ctx, unifiedUserInfo, unifiedContextInfo, selectedImageStyle, selectedDarkMode, config.imageType, config.screenshotQuality, config.hidePhoneNumber);
           if (config.verboseFileOutput) {
             try {
@@ -228,7 +229,12 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
               ctx.logger.error(`写入 base64 文件失败: ${error.message}`);
             }
           }
-          await session.send(`${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${userInfoimageBase64}`)}`).then(msgId => {
+          let imageMsg = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${userInfoimageBase64}`)}`;
+          if (config.imageShowRenderInfo) {
+            const elapsed = Date.now() - startTime;
+            imageMsg += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
+          }
+          await session.send(imageMsg).then(msgId => {
             scheduleAutoRecall(session, config, String(msgId));
           });
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -267,7 +273,11 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           });
           if (config.sendImageSvg) ctx.logger.info(`svgUserInfo: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
-          await session.send(`${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`).then(msgId => {
+          let imageMsg = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
+          if (config.svgShowRenderInfo) {
+            imageMsg += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+          }
+          await session.send(imageMsg).then(msgId => {
             scheduleAutoRecall(session, config, String(msgId));
           });
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));

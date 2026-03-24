@@ -191,9 +191,10 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
 
         // 发送图片
         if (config.sendImage) {
-          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在渲染群精华列表，请稍候⏳...`);
+          const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染群精华列表，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
+          const startTime = Date.now();
           const essenceImageBase64 = await renderGroupEssence(
             ctx,
             paginatedResult,
@@ -217,6 +218,10 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           }
           // 添加用法提示（简化版）
           imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p 《页码》 -s 《每页条数》`;
+          if (config.imageShowRenderInfo) {
+            const elapsed = Date.now() - startTime;
+            imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
+          }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
@@ -296,7 +301,9 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
             }
           }
           imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p 《页码》 -s 《每页条数》`;
-          imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+          if (config.svgShowRenderInfo) {
+            imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+          }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
           await session.bot.deleteMessage(session.guildId, String(waitTipMsgId));
