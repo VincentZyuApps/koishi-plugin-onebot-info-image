@@ -3,7 +3,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
 import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
-import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNotice'
+import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNoticeList'
 import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64, logCommandToFile } from './utils'
 
 // 单条公告详情的上下文信息

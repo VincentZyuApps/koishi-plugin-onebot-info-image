@@ -4,7 +4,7 @@ import { } from 'koishi-plugin-puppeteer';
 
 import { IMAGE_STYLES, FONT_FILES, type ImageStyle, ImageType } from './type';
 import { generateTimestamp, getGroupAvatarBase64, getFontBase64 } from './utils';
-import { GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssence';
+import { GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssenceList';
 import { EssenceDetailContextInfo } from './commandGroupEssenceDetail';
 
 /**

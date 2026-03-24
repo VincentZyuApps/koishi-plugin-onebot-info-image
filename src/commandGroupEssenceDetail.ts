@@ -3,7 +3,7 @@ import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupEssenceDetail } from './renderGroupEssenceDetail'
 import { svgGroupEssenceDetail } from './svgGroupEssenceDetail'
-import { GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssence'
+import { GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssenceList'
 import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, logCommandToFile } from './utils'
 
 // 单条精华消息详情的上下文信息

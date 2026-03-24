@@ -34,15 +34,20 @@
 - **前面的版本号**
   - 忘了。反正你看到的features都是前面更新的
 
-#### Napcat平台渲染效果:
+#### Napcat 平台渲染效果:
 ##### 用户信息：
 ![napcat_aui_source](docs/napcat_aui_source.png)
 ![napcat_aui_lxgw](docs/napcat_aui_lxgw.png)
 ![napcat_aui_flat](docs/napcat_aui_flat.png)
+![napcat_aui_svg](docs/napcat_aui_svg.png)
+
 ##### 群管理列表：
 ![napcat_al_source](docs/napcat_al_source.png)
 ![napcat_al_lxgw](docs/napcat_al_lxgw.png)
 ![napcat_al_flat](docs/napcat_al_flat.png)
+![napcat_al_svg](docs/napcat_al_svg.png)
+
+> 📸 查看更多渲染效果预览图：[所有图片的预览捏](docs/所有图片的预览捏.md)
 
 ## dev 
 ### 查看git大文件

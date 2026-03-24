@@ -1,6 +1,6 @@
-=== 2026/03/21 18:52:48 ===
+=== 2026/03/24 06:55:59 ===
 群公告详情: {"notice_id":"73821f3900000000d627be695e1c0e00","sender_id":3967912008,"publish_time":1774069718,"message":{"text":"测试123321","image":[{"id":"XumQPfv1OnKVOY0icx9P39TAxysX0LyialBQEibicoZFcmA","height":"570","width":"434"}],"images":[{"id":"XumQPfv1OnKVOY0icx9P39TAxysX0LyialBQEibicoZFcmA","height":"570","width":"434"}]}}
 [群公告详情] 公告图片获取成功: id=XumQPfv1OnKVOY0icx9P39TAxysX0LyialBQEibicoZFcmA
-svgGroupNoticeDetail: scale=3
-resvg 渲染耗时: 2911ms | 缩放: 3x
+svgGroupNoticeDetail: scale=2.25
+resvg 渲染耗时: 2271ms | 缩放: 2.25x
 

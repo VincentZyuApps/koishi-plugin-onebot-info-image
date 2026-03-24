@@ -4,7 +4,7 @@ import { } from 'koishi-plugin-puppeteer';
 
 import { IMAGE_STYLES, FONT_FILES, type ImageStyle, ImageType } from './type';
 import { generateTimestamp, getGroupAvatarBase64, getFontBase64 } from './utils';
-import { PaginatedNoticeResult, GroupNoticeMessageRaw, NoticeContextInfo, formatTimestamp, parseNoticeText } from './commandGroupNotice';
+import { PaginatedNoticeResult, GroupNoticeMessageRaw, NoticeContextInfo, formatTimestamp, parseNoticeText } from './commandGroupNoticeList';
 
 /**
  * 解析群公告内容为 HTML（用于图片渲染）

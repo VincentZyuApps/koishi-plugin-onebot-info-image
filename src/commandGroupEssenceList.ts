@@ -1,8 +1,8 @@
 import { Context, h } from 'koishi'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
-import { renderGroupEssence } from './renderGroupEssence'
-import { svgGroupEssence } from './svgGroupEssence'
+import { renderGroupEssence } from './renderGroupEssenceList'
+import { svgGroupEssence } from './svgGroupEssenceList'
 import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, logCommandToFile } from './utils'
 
 // 群精华消息的原始格式

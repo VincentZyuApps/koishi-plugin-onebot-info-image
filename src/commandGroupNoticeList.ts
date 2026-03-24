@@ -1,8 +1,8 @@
 import { Context, h } from 'koishi'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
-import { renderGroupNotice } from './renderGroupNotice'
-import { svgGroupNotice } from './svgGroupNotice'
+import { renderGroupNotice } from './renderGroupNoticeList'
+import { svgGroupNotice } from './svgGroupNoticeList'
 import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64, logCommandToFile } from './utils'
 
 // 群公告的原始格式

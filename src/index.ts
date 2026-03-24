@@ -12,9 +12,9 @@ import { renderUserInfo } from './renderUserInfo'
 import { renderAdminList } from './renderAdminList'
 import { registerUserInfoCommand } from './commandUserInfo'
 import { registerAdminListCommand } from './commandAdminList'
-import { registerGroupNoticeCommand } from './commandGroupNotice'
+import { registerGroupNoticeCommand } from './commandGroupNoticeList'
 import { registerInspectStyleCommand } from './commandInspectStyle'
-import { registerGroupEssenceCommand } from './commandGroupEssence'
+import { registerGroupEssenceCommand } from './commandGroupEssenceList'
 import { registerGroupNoticeDetailCommand } from './commandGroupNoticeDetail'
 import { registerGroupEssenceDetailCommand } from './commandGroupEssenceDetail'
 import { convertToUnifiedUserInfo, convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
@@ -285,7 +285,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .description('🌙 resvg 渲染默认启用深色模式'),
     svgScale: Schema.number()
       .min(1).max(10)
-      .default(3.333333333)
+      .default(2.25)
       .description('🔍 resvg 渲染缩放倍数 [1,10]，数值越大图片越清晰但渲染越慢'),
     svgEnableEmoji: Schema.boolean()
       .default(false)
