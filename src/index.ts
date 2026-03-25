@@ -42,7 +42,10 @@ export const usage = `
 <h3 style="color: #e74c3c;">⚙️ 前置依赖</h3>
 <p>本插件需要以下依赖才能正常工作：</p>
 <ul>
-  <li><b>koishi-plugin-puppeteer</b> - Koishi 服务，用于 Puppeteer 渲染图片</li>
+  <li><b>http</b> - Koishi 内置服务，用于 HTTP 服务器功能</li>
+  <li><b>puppeteer</b> - Koishi 服务，用于 Puppeteer 渲染图片</li>
+  <li><b>notifier</b> - Koishi 服务，用于 WebUI 通知显示</li>
+  <li><b>console</b> - Koishi 服务，用于 WebUI 功能（可选）</li>
   <li><b>@resvg/resvg-js</b> - npm 包，用于 resvg 轻量级 SVG 渲染（快速出图推荐！）</li>
 </ul>
 <p style="color: #27ae60;">💡 推荐开启 resvg 渲染，出图速度快，体验更好！</p>

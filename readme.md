@@ -16,12 +16,35 @@
 
 > 推荐使用[Napcat](https://napneko.github.io/) ![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-blue?logo=apifox)
 
+### ⚙️ 必须依赖
+本插件需要以下依赖才能正常工作：
+- **http** - Koishi 内置服务，用于 HTTP 服务器功能
+- **puppeteer** - Koishi 服务，用于 Puppeteer 渲染图片
+- **notifier** - Koishi 服务，用于 WebUI 通知显示
+- **console** - Koishi 服务，用于 WebUI 功能（可选）
+- **@resvg/resvg-js** - npm 包，用于 resvg 轻量级 SVG 渲染（快速出图推荐！）
 
+#### Napcat 平台渲染效果:
+##### 用户信息：
+![napcat_aui_source](docs/napcat_aui_source.png)
+![napcat_aui_lxgw](docs/napcat_aui_lxgw.png)
+![napcat_aui_flat](docs/napcat_aui_flat.png)
+![napcat_aui_svg](docs/napcat_aui_svg.png)
 
-### 更新日志
+##### 群管理列表：
+![napcat_al_source](docs/napcat_al_source.png)
+![napcat_al_lxgw](docs/napcat_al_lxgw.png)
+![napcat_al_flat](docs/napcat_al_flat.png)
+![napcat_al_svg](docs/napcat_al_svg.png)
+
+> 📸 查看更多渲染效果预览图：[所有图片的预览捏](docs/所有图片的预览捏.md)
+
+--- 
+
+## 更新日志
 
 > 🚀 **重磅更新：SVG 轻量级渲染 mode 上线！** _——2026年3月24日08:51:59_  
-> 使用 **resvg** 渲染 SVG图片，**比 Puppeteer 快 3 倍以上**，资源占用极低！强烈推荐开启~ ✨
+> 使用 **resvg** 渲染 SVG图片，**比 Puppeteer出图 更快，资源占用更低！**强烈推荐开启~ ✨
 
 - **0.5.1-beta.1+20260324** 🚀
   - ✨ 新增渲染信息显示配置项
@@ -54,20 +77,7 @@
 - **前面的版本号**
   - 忘了。反正你看到的features都是前面更新的
 
-#### Napcat 平台渲染效果:
-##### 用户信息：
-![napcat_aui_source](docs/napcat_aui_source.png)
-![napcat_aui_lxgw](docs/napcat_aui_lxgw.png)
-![napcat_aui_flat](docs/napcat_aui_flat.png)
-![napcat_aui_svg](docs/napcat_aui_svg.png)
-
-##### 群管理列表：
-![napcat_al_source](docs/napcat_al_source.png)
-![napcat_al_lxgw](docs/napcat_al_lxgw.png)
-![napcat_al_flat](docs/napcat_al_flat.png)
-![napcat_al_svg](docs/napcat_al_svg.png)
-
-> 📸 查看更多渲染效果预览图：[所有图片的预览捏](docs/所有图片的预览捏.md)
+--- 
 
 ## dev 
 ### 查看git大文件
