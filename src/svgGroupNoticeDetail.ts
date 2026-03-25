@@ -1,6 +1,6 @@
 import { Resvg } from '@resvg/resvg-js'
 import { Context } from 'koishi'
-import { escapeXml, truncate, formatTs, decodeHtmlEntities } from './utils'
+import { escapeXml, truncate, formatTs, decodeHtmlEntities, loadResvgFont } from './utils'
 
 export interface GroupNoticeMessageRaw {
   notice_id: string
@@ -32,6 +32,9 @@ export interface SvgGroupNoticeDetailOptions {
   enableEmoji?: boolean
   enableEmojiCache?: boolean
   svgThemeColor?: string
+  enableCustomFont?: boolean
+  fontFiles?: string[]
+  fontFamilies?: string[]
 }
 
 /**
@@ -64,14 +67,13 @@ export async function svgGroupNoticeDetail(
   ctx: Context,
   options: SvgGroupNoticeDetailOptions,
 ): Promise<string> {
-  const { record, contextInfo, groupAvatarBase64, senderAvatarBase64, imagesBase64 = {}, enableDarkMode = false, scale = 3.3, svgThemeColor = '#7e57c2' } = options
+  const { record, contextInfo, groupAvatarBase64, senderAvatarBase64, imagesBase64 = {}, enableDarkMode = false, scale = 3.3, svgThemeColor = '#7e57c2', enableCustomFont = false, fontFiles: configFontFiles, fontFamilies: configFontFamilies } = options
+
+  const { fontFiles, fontFamily } = loadResvgFont(enableCustomFont, configFontFiles, configFontFamilies)
 
   const W = 900
   const PADDING = 40         // 外边距
   const CARD_RX = 20         // 卡片圆角
-
-  // 使用系统默认字体
-  const fontFamily = 'sans-serif'
 
   // 颜色方案（与群精华详情保持一致）
   const bgColor = enableDarkMode ? '#0d1117' : '#e0eafc'
@@ -250,8 +252,9 @@ export async function svgGroupNoticeDetail(
   const resvgOpts: any = {
     fitTo: { mode: 'zoom', value: scale },
     font: {
+      fontFiles,
       loadSystemFonts: true,
-      defaultFontFamily: 'sans-serif',
+      defaultFontFamily: fontFamily,
     },
   }
 

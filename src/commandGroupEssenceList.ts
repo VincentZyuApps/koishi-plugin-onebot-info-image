@@ -1,9 +1,10 @@
 import { Context, h } from 'koishi'
+import { basename } from 'path'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupEssence } from './renderGroupEssenceList'
 import { svgGroupEssence } from './svgGroupEssenceList'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, logCommandToFile } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, logCommandToFile, loadResvgFont } from './utils'
 
 // 群精华消息的原始格式
 export interface GroupEssenceMessageRaw {
@@ -220,7 +221,7 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p 《页码》 -s 《每页条数》`;
           if (config.imageShowRenderInfo) {
             const elapsed = Date.now() - startTime;
-            imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
+            imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
           }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
@@ -283,6 +284,9 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
             svgThemeColor: config.svgThemeColor,
+            enableCustomFont: config.svgEnableCustomFont,
+            fontFiles: config.svgFontFiles,
+            fontFamilies: config.svgFontFamilies,
           });
           if (config.sendImageSvg) {
             logs.push(`svgGroupEssence: scale=${config.svgScale}`);
@@ -290,6 +294,9 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           }
           const elapsed = Date.now() - startTime;
           logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
+          const { fontFiles, fontFamily } = loadResvgFont(config.svgEnableCustomFont, config.svgFontFiles, config.svgFontFamilies)
+          const fontFileName = fontFiles.length > 0 ? basename(fontFiles[0]) : '默认'
+          const fontFamilyDisplay = config.svgEnableCustomFont ? fontFamily : '默认'
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           if (paginatedResult.totalPages > 1) {
             imageMessage += `\n📄 第 ${paginatedResult.currentPage}/${paginatedResult.totalPages} 页`;
@@ -302,7 +309,7 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           }
           imageMessage += `\n📖 用法: ${config.groupEssenceCommandName} -p 《页码》 -s 《每页条数》`;
           if (config.svgShowRenderInfo) {
-            imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+            imageMessage += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`;
           }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));

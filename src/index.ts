@@ -1,5 +1,5 @@
 // index.ts
-import { resolve } from 'path'
+import { resolve, join } from 'path'
 import {} from '@koishijs/plugin-console';
 import {} from "@koishijs/plugin-notifier";
 import { Context, Schema, h } from 'koishi'
@@ -126,6 +126,9 @@ export interface Config {
   svgEnableEmojiCache: boolean;
   svgThemeColor: string;
   svgShowRenderInfo: boolean;
+  svgEnableCustomFont: boolean;
+  svgFontFiles: string[];
+  svgFontFamilies: string[];
 
   sendForward: boolean
 
@@ -309,6 +312,21 @@ export const Config: Schema<Config> = Schema.intersect([
     svgShowRenderInfo: Schema.boolean()
       .default(true)
       .description('📊 是否在svg图片消息段后面增加文字消息段，显示resvg图片渲染耗时、缩放倍数的信息'),
+    svgEnableCustomFont: Schema.boolean()
+      .default(true)
+      .description('🔤 是否启用自定义字体渲染。开启后下方的「字体文件路径」和「font-family名称」配置才会生效。关闭则使用系统默认字体 sans-serif'),
+    svgFontFiles: Schema.array(Schema.string())
+      .role('table')
+      .default([
+        join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
+        '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
+        'C:\\Windows\\Fonts\\LXGWWenKaiMono-Regular.ttf',
+      ])
+      .description('🔤 resvg 渲染使用的字体文件路径 <b>(绝对路径)</b>，会按顺序查找第一个存在的'),
+    svgFontFamilies: Schema.array(Schema.string())
+      .role('table')
+      .default(['LXGWWenKaiMono, sans-serif'])
+      .description('🔤 resvg 渲染使用的 font-family 名称（需要与字体文件对应）'),
   }).description('发送 resvg渲染的图片 配置 🚀'),
 
   Schema.object({

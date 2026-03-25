@@ -227,6 +227,54 @@ export interface SvgFontInfo {
 }
 
 /**
+ * 加载用于 resvg 渲染的字体文件路径和 font-family
+ * 返回: { fontFiles: string[], fontFamily: string }
+ * 如果 enableCustomFont 为 false，直接使用系统默认字体 sans-serif
+ * @param enableCustomFont 是否启用自定义字体
+ * @param configFontFiles 用户配置的字体文件路径数组
+ * @param configFontFamilies 用户配置的 font-family 数组
+ */
+export function loadResvgFont(
+  enableCustomFont: boolean = false,
+  configFontFiles: string[] = [],
+  configFontFamilies: string[] = [],
+): { fontFiles: string[]; fontFamily: string } {
+  // 如果未启用自定义字体，直接使用系统默认字体
+  if (!enableCustomFont) {
+    return { fontFiles: [], fontFamily: 'sans-serif' }
+  }
+
+  // 启用自定义字体时，优先使用用户配置
+  if (configFontFiles.length > 0 && configFontFamilies.length > 0) {
+    const validFontFiles = configFontFiles.filter(fp => existsSync(fp))
+    if (validFontFiles.length > 0) {
+      return {
+        fontFiles: validFontFiles,
+        fontFamily: configFontFamilies[0] || 'sans-serif',
+      }
+    }
+  }
+
+  // 回退到默认字体
+  const fontFiles: string[] = []
+  const candidates = [
+    join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
+    '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
+  ]
+
+  for (const fp of candidates) {
+    if (existsSync(fp)) {
+      fontFiles.push(fp)
+      break
+    }
+  }
+
+  // 使用带 fallback 的字体名称
+  const fontFamily = fontFiles.length > 0 ? 'LXGWWenKaiMono, sans-serif' : 'sans-serif'
+  return { fontFiles, fontFamily }
+}
+
+/**
  * 加载 SVG 渲染用的字体：返回字体二进制数据、font-family 名称、字体所在目录
  * 优先使用 customFontPath，否则从 assets 目录加载默认字体
  */

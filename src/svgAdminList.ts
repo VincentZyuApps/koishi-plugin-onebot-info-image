@@ -1,7 +1,7 @@
 import { Resvg } from '@resvg/resvg-js'
 import { Context } from 'koishi'
 import { UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { escapeXml, truncate, fetchTwemojiSvg } from './utils'
+import { escapeXml, truncate, fetchTwemojiSvg, loadResvgFont } from './utils'
 
 // Emoji 正则表达式
 const EMOJI_REGEX = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu
@@ -134,19 +134,22 @@ export interface SvgAdminListOptions {
   enableEmoji?: boolean
   enableEmojiCache?: boolean
   svgThemeColor?: string
+  enableCustomFont?: boolean
+  fontFiles?: string[]
+  fontFamilies?: string[]
 }
 
 export async function svgAdminList(
   ctx: Context,
   options: SvgAdminListOptions,
 ): Promise<string> {
-  const { contextInfo, admins, groupAvatarBase64, avatarsBase64 = {}, enableDarkMode = false, scale = 3.3, svgThemeColor = '#7e57c2', enableEmoji = false, enableEmojiCache = false } = options
+  const { contextInfo, admins, groupAvatarBase64, avatarsBase64 = {}, enableDarkMode = false, scale = 3.3, svgThemeColor = '#7e57c2', enableEmoji = false, enableEmojiCache = false, enableCustomFont = false, fontFiles: configFontFiles, fontFamilies: configFontFamilies } = options
+
+  const { fontFiles, fontFamily } = loadResvgFont(enableCustomFont, configFontFiles, configFontFamilies)
 
   const W = 900
   const PADDING = 40
   const CARD_RX = 20
-  // 使用系统默认字体
-  const fontFamily = 'sans-serif'
 
   const sortedAdmins = [...admins].sort((a, b) => {
     if (a.role === 'owner') return -1
@@ -307,12 +310,12 @@ export async function svgAdminList(
     `<text x="${W / 2}" y="${H - PADDING + 23}" font-size="11" fill="${watermarkColor}" font-family="monospace" text-anchor="middle">https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image</text>` +
     `</svg>`
 
-  // 使用系统默认字体
   const resvgOpts: any = {
     fitTo: { mode: 'zoom', value: scale },
     font: {
+      fontFiles,
       loadSystemFonts: true,
-      defaultFontFamily: 'sans-serif',
+      defaultFontFamily: fontFamily,
     },
   }
 

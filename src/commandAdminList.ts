@@ -1,10 +1,11 @@
 import { Context, h } from 'koishi'
+import { basename } from 'path'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderAdminList } from './renderAdminList'
 import { svgAdminList } from './svgAdminList'
 import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64 } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont } from './utils'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
@@ -119,7 +120,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           let imageMsg = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${adminListImageBase64}`)}`;
           if (config.imageShowRenderInfo) {
             const elapsed = Date.now() - startTime;
-            imageMsg += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
+            imageMsg += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
           }
           const imgMsgId = await session.send(imageMsg);
           scheduleAutoRecall(session, config, String(imgMsgId));
@@ -152,12 +153,18 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
             svgThemeColor: config.svgThemeColor,
+            enableCustomFont: config.svgEnableCustomFont,
+            fontFiles: config.svgFontFiles,
+            fontFamilies: config.svgFontFamilies,
           });
           if (config.sendImageSvg) ctx.logger.info(`svgAdminList: scale=${config.svgScale}`);
           const elapsed = Date.now() - startTime;
+          const { fontFiles, fontFamily } = loadResvgFont(config.svgEnableCustomFont, config.svgFontFiles, config.svgFontFamilies)
+          const fontFileName = fontFiles.length > 0 ? basename(fontFiles[0]) : '默认'
+          const fontFamilyDisplay = config.svgEnableCustomFont ? fontFamily : '默认'
           let imageMsg = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           if (config.svgShowRenderInfo) {
-            imageMsg += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+            imageMsg += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`;
           }
           const imgMsgId = await session.send(imageMsg);
           scheduleAutoRecall(session, config, String(imgMsgId));

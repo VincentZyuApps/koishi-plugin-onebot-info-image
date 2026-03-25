@@ -1,7 +1,7 @@
 import { Resvg } from '@resvg/resvg-js'
 import { Context } from 'koishi'
 import { UnifiedUserInfo, UnifiedContextInfo } from './type'
-import { escapeXml, truncate, formatTs } from './utils'
+import { escapeXml, truncate, formatTs, loadResvgFont } from './utils'
 
 function getSex(sex: string): string {
   return sex === 'male' ? '男' : sex === 'female' ? '女' : '未知'
@@ -25,6 +25,9 @@ export interface SvgUserInfoOptions {
   enableEmoji?: boolean
   enableEmojiCache?: boolean
   svgThemeColor?: string
+  enableCustomFont?: boolean
+  fontFiles?: string[]
+  fontFamilies?: string[]
 }
 
 export async function svgUserInfo(
@@ -33,15 +36,14 @@ export async function svgUserInfo(
   contextInfo: UnifiedContextInfo,
   options: SvgUserInfoOptions,
 ): Promise<string> {
-  const { avatarBase64, groupAvatarBase64, enableDarkMode = false, hidePhoneNumber = true, scale = 3.3, svgThemeColor = '#7e57c2' } = options
+  const { avatarBase64, groupAvatarBase64, enableDarkMode = false, hidePhoneNumber = true, scale = 3.3, svgThemeColor = '#7e57c2', enableCustomFont = false, fontFiles: configFontFiles, fontFamilies: configFontFamilies } = options
+
+  const { fontFiles, fontFamily } = loadResvgFont(enableCustomFont, configFontFiles, configFontFamilies)
 
   const W = 900
   const H = 800
   const PADDING = 30
   const CARD_RX = 22
-
-  // 使用系统默认字体
-  const fontFamily = 'sans-serif'
 
   const bgColor = enableDarkMode ? '#0d1117' : '#e0eafc'
   const cardBg = enableDarkMode ? '#161b22' : 'white'
@@ -172,12 +174,12 @@ export async function svgUserInfo(
     `<text x="${W / 2}" y="${H - PADDING + 23}" font-size="11" fill="${watermarkColor}" font-family="monospace" text-anchor="middle">https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image</text>` +
     `</svg>`
 
-  // 使用系统默认字体，不加载自定义字体
   const resvgOpts: any = {
     fitTo: { mode: 'zoom', value: scale },
     font: {
+      fontFiles,
       loadSystemFonts: true,
-      defaultFontFamily: 'sans-serif',
+      defaultFontFamily: fontFamily,
     },
   }
 

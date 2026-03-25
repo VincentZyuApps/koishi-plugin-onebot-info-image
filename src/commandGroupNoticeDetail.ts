@@ -1,10 +1,11 @@
 import { Context, h } from 'koishi'
+import { basename } from 'path'
 import { Config } from './index'
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
 import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
 import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNoticeList'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64, logCommandToFile } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64, logCommandToFile, loadResvgFont } from './utils'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {
@@ -201,7 +202,7 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} <序号>`;
           if (config.imageShowRenderInfo) {
             const elapsed = Date.now() - startTime;
-            imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
+            imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
           }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
@@ -246,6 +247,9 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
             enableEmoji: config.svgEnableEmoji,
             enableEmojiCache: config.svgEnableEmojiCache,
             svgThemeColor: config.svgThemeColor,
+            enableCustomFont: config.svgEnableCustomFont,
+            fontFiles: config.svgFontFiles,
+            fontFamilies: config.svgFontFamilies,
           });
           if (config.sendImageSvg) {
             logs.push(`svgGroupNoticeDetail: scale=${config.svgScale}`);
@@ -253,10 +257,13 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           }
           const elapsed = Date.now() - startTime;
           logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`);
+          const { fontFiles, fontFamily } = loadResvgFont(config.svgEnableCustomFont, config.svgFontFiles, config.svgFontFamilies)
+          const fontFileName = fontFiles.length > 0 ? basename(fontFiles[0]) : '默认'
+          const fontFamilyDisplay = config.svgEnableCustomFont ? fontFamily : '默认'
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} <序号>`;
           if (config.svgShowRenderInfo) {
-            imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x`;
+            imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`;
           }
           const imgMsgId = await session.send(imageMessage);
           scheduleAutoRecall(session, config, String(imgMsgId));
