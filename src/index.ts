@@ -1,6 +1,7 @@
 // index.ts
 import { resolve } from 'path'
 import {} from '@koishijs/plugin-console';
+import {} from "@koishijs/plugin-notifier";
 import { Context, Schema, h } from 'koishi'
 import {} from 'koishi-plugin-adapter-onebot';
 import { readFileSync, writeFileSync, mkdirSync } from 'fs'
@@ -22,9 +23,7 @@ import { IMAGE_STYLES, type ImageStyle, type ImageStyleKey, IMAGE_STYLE_KEY_ARR,
 
 export const name = 'onebot-info-image'
 
-export const inject = {
-    required: ["http", "puppeteer"]
-}
+export const inject = ["http", "puppeteer", "notifier", "console"]
 
 const pkg = JSON.parse(
   readFileSync(resolve(__dirname, '../package.json'), 'utf-8')
@@ -274,7 +273,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .description('📏 Puppeteer 截图质量 (0-100)。'),
     imageShowRenderInfo: Schema.boolean()
       .default(true)
-      .description('📊 是否在Puppeteer图片消息段后面增加文字消息段，显示Puppeteer渲染图片类型和截图质量的信息'),
+      .description('📊 是否在Puppeteer图片消息段后面增加文字消息段，显示Puppeteer渲染的 渲染耗时、图片类型、截图质量的信息'),
 
   }).description('发送 Puppeteer渲染的图片 配置 🎨'),
 
@@ -306,7 +305,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .description('🎨 resvg 渲染主题颜色，默认是 Koishi 紫~ 古明地恋的眼睛~'),
     svgShowRenderInfo: Schema.boolean()
       .default(true)
-      .description('📊 是否在svg图片消息段后面增加文字消息段，显示resvg图片渲染耗时、缩放的信息'),
+      .description('📊 是否在svg图片消息段后面增加文字消息段，显示resvg图片渲染耗时、缩放倍数的信息'),
   }).description('发送 resvg渲染的图片 配置 🚀'),
 
   Schema.object({
@@ -341,6 +340,24 @@ export function apply(ctx: Context, config: Config) {
   // 注册 DataService (如果 console 服务可用 且 用户开启了 WebUI 预览)
   if (config.enableWebUIPreview) {
     ctx.plugin(OnebotInfoImageDataServer);
+  }
+
+  // 使用 notifier 在 WebUI 显示当前信息格式
+  const formatItems: string[] = [];
+  if (config.sendText) formatItems.push('💬 文本消息');
+  if (config.sendImage) formatItems.push('🖼️ Puppeteer图片');
+  if (config.sendImageSvg) formatItems.push('🚀 resvg图片');
+  if (config.sendForward) formatItems.push('✉️ 合并转发');
+
+  if (formatItems.length === 0) {
+    ctx.notifier.create(h('p', '请至少勾选一种信息格式！'));
+  } else {
+    ctx.notifier.create(
+      h(h.Fragment, [
+        h('p', '当前信息格式：'),
+        h('ul', formatItems.map(item => h('li', item)))
+      ])
+    );
   }
 
   //帮助文本中的 结果信息格式
