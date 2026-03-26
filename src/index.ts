@@ -52,8 +52,16 @@ export const usage = `
 
 <hr>
 
-<p>目前仅仅适配了 <b>Lagrange</b> 和 <b>Napcat</b> 协议</p>
-<p style="color: #f39c12;">Napcat能拿到的东西更多， 为了更好的使用体验，推荐使用 Napcat</p>
+<p style="background: linear-gradient(90deg, #3b82f6, #93c5fd, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; font-size: 18px;"><strong>✨ Napcat能拿到的东西更多，为了更好的使用体验，推荐使用 Napcat！</strong></p>
+<p style="margin-top: 8px;">
+  <a href="https://napcat.apifox.cn/" target="_blank"><img src="https://img.shields.io/badge/Apifox-Napcat文档-ff99cc?logo=apifox" alt="Napcat文档" style="vertical-align: middle; margin-right: 10px;"></a>
+  <a href="https://napneko.github.io/" target="_blank"><img src="https://img.shields.io/badge/GitHub%20Pages-Napcat文档-3b82f6?logo=github" alt="Napcat文档" style="vertical-align: middle;"></a>
+</p>
+<p style="color: #ffffff; font-size: 16px; margin-top: 8px;"><strong>📋 协议适配情况：</strong></p>
+<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>Napcat</strong> - <span style="color: #4ade80;">✅ 完全适配</span></p>
+<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>Lagrange</strong> - <span style="color: #4ade80;">✅ 完全适配</span></p>
+<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>llonebot</strong> - <span style="color: #fca5a5;">⚠️ 未适配，部分API可能可用</span></p>
+<p style="color: #ffffff; font-size: 14px; margin-top: 10px; font-style: italic;">若需适配其他协议端或格式，欢迎提 issue 或进群艾特我反馈~</p>
 
 <hr>
 
@@ -300,11 +308,11 @@ export const Config: Schema<Config> = Schema.intersect([
     svgEnableEmoji: Schema.boolean()
       .default(false)
       .experimental()
-      .description('🎨 resvg 渲染是否启用 Emoji 转图片（使用 twemoji 本地数据，无需网络请求）'),
+      .description('🎨 resvg 渲染是否启用 Emoji 转图片（使用 twemoji 本地数据，无需网络请求）</br> <i>目前 SVG 还是无法渲染 emoji，这个配置项打开也没用，未来某个版本可能能实现~</i>'),
     svgEnableEmojiCache: Schema.boolean()
       .default(false)
       .experimental()
-      .description('💾 resvg 渲染是否缓存 Emoji 图片（开启后重复 Emoji 会更快）'),
+      .description('💾 resvg 渲染是否缓存 Emoji 图片（开启后重复 Emoji 会更快）</br> <i>目前 SVG 还是无法渲染 emoji，这个配置项打开也没用，未来某个版本可能能实现~</i>'),
     svgThemeColor: Schema.string()
       .role('color')
       .default('#7e57c2')

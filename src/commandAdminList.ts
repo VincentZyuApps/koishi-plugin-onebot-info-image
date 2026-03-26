@@ -5,7 +5,7 @@ import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
 import { renderAdminList } from './renderAdminList'
 import { svgAdminList } from './svgAdminList'
 import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont } from './utils'
+import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile } from './utils'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
@@ -21,6 +21,9 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
 
       if (!session.guildId)
         return session.send("❌ 当前会话不在群聊中。");
+
+      const logs: string[] = [];
+      const protocol = config.onebotImplName.toLowerCase();
 
       // 选择图片样式
       const IMAGE_STYLE_VALUES = Object.values(IMAGE_STYLES);
@@ -49,6 +52,9 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
         const groupMemberListObj = await session.onebot.getGroupMemberList(session.guildId);
         const groupInfoObj = await session.onebot.getGroupInfo(session.guildId);
         const groupAdminMemberListObj = groupMemberListObj.filter(m => m.role === 'admin' || m.role === 'owner');
+
+        logs.push(`群ID: ${session.guildId}`);
+        logs.push(`管理员数量: ${groupAdminMemberListObj.length}`);
 
         let groupAdminMemberListObjMsg = `groupAdminMemberListObj = \n\t ${JSON.stringify(groupAdminMemberListObj)}`;
         if (config.verboseSessionOutput) await session.send(groupAdminMemberListObjMsg);
@@ -117,9 +123,10 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
           const startTime = Date.now();
           const adminListImageBase64 = await renderAdminList(ctx, adminListArg, unifiedContextInfo, selectedImageStyle, selectedDarkMode, config.imageType, config.screenshotQuality);
+          const elapsed = Date.now() - startTime;
+          logs.push(`Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`);
           let imageMsg = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${adminListImageBase64}`)}`;
           if (config.imageShowRenderInfo) {
-            const elapsed = Date.now() - startTime;
             imageMsg += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
           }
           const imgMsgId = await session.send(imageMsg);
@@ -162,6 +169,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           const { fontFiles, fontFamily } = loadResvgFont(config.svgEnableCustomFont, config.svgFontFiles, config.svgFontFamilies)
           const fontFileName = fontFiles.length > 0 ? basename(fontFiles[0]) : '默认'
           const fontFamilyDisplay = config.svgEnableCustomFont ? fontFamily : '默认'
+          logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`);
           let imageMsg = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           if (config.svgShowRenderInfo) {
             imageMsg += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`;
@@ -177,6 +185,9 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           const fwdMsgId = await session.send(h.unescape(forwardMessageContent));
           scheduleAutoRecall(session, config, String(fwdMsgId));
         }
+
+        // 输出日志到文件
+        logCommandToFile(ctx, config, protocol, '管理员列表', logs);
 
       } catch (error) {
         ctx.logger.error(`获取群管理员列表失败: ${error}`);

@@ -6,7 +6,7 @@ import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, ONEBOT_IMPL_NAME, getNapcatQQStatusT
 import { renderUserInfo } from './renderUserInfo'
 import { svgUserInfo } from './svgUserInfo'
 import { convertToUnifiedUserInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedContextInfo } from './type'
-import { getGroupAvatarBase64, loadResvgFont } from './utils'
+import { getGroupAvatarBase64, loadResvgFont, logCommandToFile } from './utils'
 import { scheduleAutoRecall } from './utils'
 
 export function registerUserInfoCommand(ctx: Context, config: Config, responseHint: string) {
@@ -20,6 +20,9 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
     .action(async ({ session, options }, qqId) => {
       if (!session.onebot)
         return session.send("[error]当前会话不支持onebot协议。");
+
+      const logs: string[] = [];
+      const protocol = config.onebotImplName.toLowerCase();
 
       // 选择图片样式
       const IMAGE_STYLE_VALUES = Object.values(IMAGE_STYLES);
@@ -45,6 +48,7 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
       }
 
       let targetUserId = session.userId;
+      logs.push(`目标用户ID: ${targetUserId}`);
       // 是否通过参数直接指定了目标用户（QQ号 或 @元素）
       let isDirectQuery = false;
       if (qqId) {
@@ -229,6 +233,8 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
               ctx.logger.error(`写入 base64 文件失败: ${error.message}`);
             }
           }
+          const elapsed = Date.now() - startTime;
+          logs.push(`Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`);
           let imageMsg = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${userInfoimageBase64}`)}`;
           if (config.imageShowRenderInfo) {
             const elapsed = Date.now() - startTime;
@@ -279,6 +285,7 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           const { fontFiles, fontFamily } = loadResvgFont(config.svgEnableCustomFont, config.svgFontFiles, config.svgFontFamilies)
           const fontFileName = fontFiles.length > 0 ? basename(fontFiles[0]) : '默认'
           const fontFamilyDisplay = config.svgEnableCustomFont ? fontFamily : '默认'
+          logs.push(`resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`);
           let imageMsg = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
           if (config.svgShowRenderInfo) {
             imageMsg += `\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`;
@@ -295,6 +302,8 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           scheduleAutoRecall(session, config, String(fwdMsgId));
         }
 
+        // 输出日志到文件
+        logCommandToFile(ctx, config, protocol, '用户信息', logs);
 
       } catch (error) {
         ctx.logger.error(`获取用户信息或渲染图片失败: \n\terror=${error}\n\terror.stack=${error.stack}`);

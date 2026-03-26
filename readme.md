@@ -14,7 +14,13 @@
 
 # 获取成员信息/管理员列表/群公告/群精华，发送文字/图片/合并转发消息，仅支持OneBotV11
 
-> 推荐使用[Napcat](https://napneko.github.io/) ![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-blue?logo=apifox)
+> 推荐使用[Napcat](https://napneko.github.io/)
+> ![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-ff99cc?logo=apifox)
+> ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Napcat文档-3b82f6?logo=github)
+>
+> 开发时仅适配了 **Napcat** 和 **Lagrange** 协议，**llonebot** 未适配。
+> 部分 llonebot API 返回的 JSON 格式与 Napcat 相同，可尝试使用。
+> 若需适配其他协议，欢迎提 issue 或进群艾特我反馈~
 
 ### ⚙️ 必须依赖
 本插件需要以下依赖才能正常工作：
@@ -46,6 +52,22 @@
 > 🚀 **重磅更新：SVG 轻量级渲染 mode 上线！** _——2026年3月24日08:51:59_  
 > 使用 **resvg** 渲染 SVG图片，**比 Puppeteer出图 更快，资源占用更低！**强烈推荐开启~ ✨
 
+- **0.5.3-beta.1+20260326** 🔤
+  - ✨ **新增 SVG 自定义字体配置**
+    - 新增 `svgEnableCustomFont` 开关，默认关闭
+    - 开启后 `svgFontFiles` 和 `svgFontFamilies` 配置才会生效
+    - 关闭时使用系统默认字体 `sans-serif`
+    - 默认字体路径新增 Windows 系统支持
+  - 📊 **渲染信息增强**
+    - Puppeteer 渲染信息新增：样式名称、黑暗模式状态
+    - resvg 渲染信息新增：字体文件名、font-family
+    - 未启用自定义字体时显示「默认」
+- **0.5.2-beta.2+20260326** 📢
+  - ✨ **WebUI 配置状态通知**
+    - 新增注入的 `notifier` 服务，配置变更时实时通知
+  - 📚 **文档与依赖**
+    - 补充依赖说明
+    - 更新 README 文档
 - **0.5.1-beta.1+20260324** 🚀
   - ✨ 新增渲染信息显示配置项
     - `imageShowRenderInfo`: 控制 Puppeteer 渲染耗时、类型、质量信息显示
