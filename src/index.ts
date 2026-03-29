@@ -65,8 +65,8 @@ export const usage = `
 </p>
 <p style="color: #ffffff; font-size: 16px; margin-top: 8px;"><strong>📋 协议适配情况：</strong></p>
 <p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>Napcat</strong> - <span style="color: #4ade80;">✅ 完全适配</span></p>
-<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>Lagrange</strong> - <span style="color: #4ade80;">✅ 完全适配</span></p>
-<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>llonebot</strong> - <span style="color: #fca5a5;">⚠️ 未适配，部分API可能可用</span></p>
+<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>Lagrange.OneBot</strong> - <span style="color: #4ade80;">✅ 完全适配</span></p>
+<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>LLOneBot</strong> (现<strong>Lucky Lillia Bot</strong>)- <span style="color: #fca5a5;">⚠️ 未适配，部分API可能可用</span></p>
 <p style="color: #ffffff; font-size: 14px; margin-top: 10px; font-style: italic;">若需适配其他协议端或格式，欢迎提 issue 或进群艾特我反馈~</p>
 
 <hr>
@@ -82,8 +82,8 @@ export const usage = `
 <h3 style="color: #27ae60;">字体使用声明</h3>
 <p>本插件使用以下开源字体进行图像渲染：</p>
 <ul>
-  <li><b style="color: #3498db;">思源宋体（Source Han Serif SC）</b> - 由 Adobe 与 Google 联合开发，遵循 <a href="https://openfontlicense.org">SIL Open Font License 1.1</a> 协议。</li>
-  <li><b style="color: #3498db;">霞鹜文楷（LXGW WenKai）</b> - 由 LXGW 开发并维护，遵循 <a href="https://openfontlicense.org">SIL Open Font License 1.1</a> 协议。</li>
+  <li><b style="color: #3498db;"><a href="https://github.com/adobe-fonts/source-han-serif/tree/master" target="_blank">思源宋体（Source Han Serif SC）</a></b> - 由 Adobe 与 Google 联合开发，遵循 <a href="https://openfontlicense.org">SIL Open Font License 1.1</a> 协议。</li>
+  <li><b style="color: #3498db;"><a href="https://github.com/lxgw/LxgwWenkai" target="_blank">霞鹜文楷（LXGW WenKai）</a></b> - 由 LXGW 开发并维护，遵循 <a href="https://openfontlicense.org">SIL Open Font License 1.1</a> 协议。</li>
 </ul>
 <p>两者均为自由字体，可在本项目中自由使用、修改与发布。若你也在开发相关插件或项目，欢迎一同使用这些优秀的字体。</p>
 
