@@ -49,6 +49,23 @@
 
 ## 更新日志
 
+- **0.5.4-beta.1+20260329** 📊
+  - ✨ **WebUI 配置汇总通知**
+    - 插件启动时在 WebUI 的 紫色Notifier模块 显示完整配置汇总
+    - 支持 OneBot 实现平台、自动撤回配置显示
+    - 支持信息格式（文本/Puppeteer/resvg/合并转发）显示
+    - 支持 Puppeteer 渲染详细配置（图片类型、质量、样式等）显示
+    - 支持 resvg 渲染详细配置（深色模式、缩放、主题色等）显示
+    - 支持调试输出配置显示
+    - ![koishi-webui-notifier](docs/other-preview-pic/koishi-webui-notifier.png)
+  - 🔧 **依赖调整**
+    - 将 `puppeteer` 服务从必需改为可选依赖
+    - 添加 `notifier` 服务到可选依赖
+  - 📝 **文档优化**
+    - 在 LICENSE 中添加项目名称和 GitHub/Gitee 地址
+    - 为字体使用声明中的字体名称添加跳转链接
+    - 优化文档结构，方便用户访问项目源码和字体仓库
+
 > 🚀 **重磅更新：SVG 轻量级渲染 mode 上线！** _——2026年3月24日08:51:59_  
 > 使用 **resvg** 渲染 SVG图片，**比 Puppeteer出图 更快，资源占用更低！**强烈推荐开启~ ✨
 

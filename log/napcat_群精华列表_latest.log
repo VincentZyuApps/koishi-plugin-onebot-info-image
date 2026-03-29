@@ -1,12 +1,8 @@
-=== 2026/03/26 07:25:36 ===
-群精华消息分页结果: {"records":[{"msg_seq":22890,"msg_random":40998817,"sender_id":1909362660,"sender_nick":"拨无因果.","operator_id":3967912008,"operator_nick":"🤖-dev-bot-","message_id":161226789,"operator_time":1774300918,"content":[{"type":"text","data":{"text":"很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长的群精华喵 "}},{"type":"image","data":{"url":"https://group-digest-pi-1251316161.file.myqcloud.com/e2508c2ae4610a1f0ada6bbc2b1d5590.jpeg"}}]},{"msg_seq":21267,"msg_random":1266234192,"sender_id":1909362660,"sender_nick":"拨无因果.","operator_id":3967912008,"operator_nick":"🤖-dev-bot-","message_id":245183697,"operator_time":1774075500,"content":[{"type":"text","data":{"text":"群精华喵喵喵"}},{"type":"image","data":{"url":"https://group-digest-pi-1251316161.file.myqcloud.com/05f04a4811457f2ddc6d7fb6572b6f10.png"}}]},{"msg_seq":6634,"msg_random":1058823585,"sender_id":1830540513,"sender_nick":"VincentZyu123","operator_id":1830540513,"operator_nick":"VincentZyu123","message_id":1616470659,"operator_time":1755639537,"content":[{"type":"image","data":{"url":"https://group-digest-pi-1251316161.file.myqcloud.com/bda8ecad2a0362461c44601847df2242.jpeg"}}]}],"totalCount":3,"currentPage":1,"pageSize":10,"totalPages":1,"hasNext":false,"hasPrev":false}
+=== 2026/03/29 11:42:21 ===
+群精华消息分页结果: {"records":[{"msg_seq":3753,"msg_random":325506664,"sender_id":1909362660,"sender_nick":"拨无因果.","operator_id":1909362660,"operator_nick":"拨无因果.","message_id":1776173369,"operator_time":1773871068,"content":[{"type":"image","data":{"url":"https://group-digest-pi-1251316161.file.myqcloud.com/e2508c2ae4610a1f0ada6bbc2b1d5590.jpeg"}},{"type":"text","data":{"text":" 你好你好"}}]}],"totalCount":1,"currentPage":1,"pageSize":10,"totalPages":1,"hasNext":false,"hasPrev":false}
 [群精华列表] 发现图片URL: https://group-digest-pi-1251316161.file.myqcloud.c...
 [群精华列表] 图片获取成功: https://group-digest-pi-1251316161.file.myqcloud.c..., base64长度: 7400
-[群精华列表] 发现图片URL: https://group-digest-pi-1251316161.file.myqcloud.c...
-[群精华列表] 图片获取成功: https://group-digest-pi-1251316161.file.myqcloud.c..., base64长度: 54632
-[群精华列表] 发现图片URL: https://group-digest-pi-1251316161.file.myqcloud.c...
-[群精华列表] 图片获取成功: https://group-digest-pi-1251316161.file.myqcloud.c..., base64长度: 41148
-[群精华列表] 总共获取 3 张图片
+[群精华列表] 总共获取 1 张图片
 svgGroupEssence: scale=2.25
-resvg 渲染耗时: 3706ms | 缩放: 2.25x
+resvg 渲染耗时: 5465ms | 缩放: 2.25x
 
