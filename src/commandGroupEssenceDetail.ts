@@ -218,7 +218,7 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
         }
 
         // 发送图片
-        if (config.sendImage) {
+        if (config.sendImage && ctx.puppeteer) {
           const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染群精华详情，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;

@@ -115,7 +115,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
           scheduleAutoRecall(session, config, String(textMsgId));
         }
 
-        if (config.sendImage) {
+        if (config.sendImage && ctx.puppeteer) {
           ctx.logger.info(`context info = ${JSON.stringify(contextInfo)}`)
           const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染群管理员列表图片，请稍候⏳...`);
           const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);

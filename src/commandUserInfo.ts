@@ -216,7 +216,7 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           scheduleAutoRecall(session, config, String(textMsgId));
         }
 
-        if (config.sendImage) {
+        if (config.sendImage && ctx.puppeteer) {
           const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染用户信息图片，请稍候⏳...`);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
