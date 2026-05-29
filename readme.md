@@ -33,6 +33,7 @@
 - **console** - Koishi 服务，用于 WebUI 功能（可选）
 - **@resvg/resvg-js** - npm 包，用于 resvg 轻量级 SVG 渲染（快速出图推荐！）
 
+#### Koishi 控制台 插件配置界面 WebUI Notifier UI 效果
 ![koishi-webui-notifier](docs/other-preview-pic/koishi-webui-notifier.png)
 
 #### Napcat 平台渲染效果:
