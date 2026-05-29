@@ -2,6 +2,8 @@
 
 # koishi-plugin-onebot-info-image
 
+💡 readme 中的图片请前往 [GitHub](https://github.com/VincentZyu233/koishi-plugin-onebot-image) 或 [Gitee](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image) 主页查看。
+
 [![npm](https://img.shields.io/npm/v/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
 [![npm-download](https://img.shields.io/npm/dm/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image)
@@ -19,8 +21,8 @@
 > ![Apifox](https://img.shields.io/badge/Apifox-Napcat文档-ff99cc?logo=apifox)
 > ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Napcat文档-3b82f6?logo=github)
 >
-> 开发时仅适配了 **Napcat** 和 **Lagrange** 协议，**llonebot** 未适配。
-> 部分 llonebot API 返回的 JSON 格式与 Napcat 相同，可尝试使用。
+> 开发时仅适配了 **Napcat** 和 **Lagrange** 的协议，**LLBot** 未适配。
+> 部分 LLBot API 返回的 JSON 格式与 Napcat 相同，可尝试使用。
 > 若需适配其他协议，欢迎提 issue 或进群艾特我反馈~
 
 ### ⚙️ 必须依赖
