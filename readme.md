@@ -2,13 +2,19 @@
 
 # koishi-plugin-onebot-info-image
 
+🎯 主要用 OneBotV11 格式的 API 获取 👤 用户详细信息 / 👥 群管理员列表信息 / 📢 群公告信息 / 📌 群精华信息，可以发 💬 纯文本 / ✉️ 合并转发 / 🖼️ 渲染图片。🔧 现在只做了 Lagrange V1 和 NapCat 的适配。👍 推荐接入 Napcat（作者开发环境用的就是 Napcat）
+
 💡 readme 中的图片请前往 [GitHub](https://github.com/VincentZyu233/koishi-plugin-onebot-image) 或 [Gitee](https://gitee.com/vincent-zyu/koishi-plugin-onebot-image) 主页查看。
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
 [![npm-download](https://img.shields.io/npm/dm/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
+
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image)
 [![Gitee](https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white)](https://gitee.com/vincent-zyu/koishi-plugin-onebot-info-image)
+
+[![QQ群](https://img.shields.io/badge/QQ群-1085190201-1AAD19?style=flat-square)](https://qm.qq.com/q/ZN7fxZ3qCq)
 [![Koishi Forum](https://img.shields.io/badge/forum.koishi.xyz_topic_12077-5546A3?style=for-the-badge&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Ff%2Ff3%2FKoishi.js_Logo.png&logoColor=white)](https://forum.koishi.xyz/t/topic/12077)
+
 
 <p><del>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>259248174</b>   🎉（这个群G了</del> </p> 
 <p>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>1085190201</b> 🎉</p>
