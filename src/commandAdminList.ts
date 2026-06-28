@@ -1,11 +1,21 @@
+// ===== 📦 外部依赖 =====
 import { Context, h } from 'koishi'
 import { basename } from 'path'
+
+// ===== 🧩 插件配置 =====
 import { Config } from './index'
-import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
+
+// ===== 📋 类型定义 =====
+import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, UnifiedAdminInfo, UnifiedContextInfo } from './type'
+
+// ===== 🖼️ 渲染模块 =====
 import { renderAdminList } from './renderAdminList'
+
+// ===== 🚀 SVG 渲染模块 =====
 import { svgAdminList } from './svgAdminList'
-import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile } from './utils'
+
+// ===== 🔧 工具函数 =====
+import { getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;

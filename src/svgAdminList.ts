@@ -1,7 +1,12 @@
-import { Resvg } from '@resvg/resvg-js'
+// ===== 📦 外部依赖 =====
 import { Context } from 'koishi'
+import { Resvg } from '@resvg/resvg-js'
+
+// ===== 📋 类型定义 =====
 import { UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { escapeXml, truncate, fetchTwemojiSvg, loadResvgFont } from './utils'
+
+// ===== 🔧 工具函数 =====
+import { escapeXml, fetchTwemojiSvg, loadResvgFont, truncate } from './utils'
 
 // Emoji 正则表达式
 const EMOJI_REGEX = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu

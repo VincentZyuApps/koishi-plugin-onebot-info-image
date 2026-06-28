@@ -1,10 +1,21 @@
+// ===== 📦 外部依赖 =====
 import { Context, h } from 'koishi'
 import { basename } from 'path'
+
+// ===== 🧩 插件配置 =====
 import { Config } from './index'
+
+// ===== 📋 类型定义 =====
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
+
+// ===== 🖼️ 渲染模块 =====
 import { renderGroupEssence } from './renderGroupEssenceList'
+
+// ===== 🚀 SVG 渲染模块 =====
 import { svgGroupEssence } from './svgGroupEssenceList'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, logCommandToFile, loadResvgFont } from './utils'
+
+// ===== 🔧 工具函数 =====
+import { getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
 
 // 群精华消息的原始格式
 export interface GroupEssenceMessageRaw {

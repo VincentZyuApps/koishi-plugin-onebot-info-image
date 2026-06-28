@@ -1,8 +1,13 @@
 // render.ts
-import { Context } from 'koishi';
-import { } from 'koishi-plugin-puppeteer'; // 引入 puppeteer 类型，但不直接使用 Puppeteer 类
 
+// ===== 📦 外部依赖 =====
+import { Context } from 'koishi';
+import { } from 'koishi-plugin-puppeteer';
+
+// ===== 📋 类型定义 =====
 import { IMAGE_STYLES, FONT_FILES, type ImageStyle, ImageType, UnifiedUserInfo, UnifiedContextInfo } from './type';
+
+// ===== 🔧 工具函数 =====
 import { generateTimestamp, getGroupAvatarBase64, getFontBase64 } from './utils';
 
 const formatMsTimestamp = (timestamp) => {

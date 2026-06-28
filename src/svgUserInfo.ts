@@ -1,7 +1,12 @@
-import { Resvg } from '@resvg/resvg-js'
+// ===== 📦 外部依赖 =====
 import { Context } from 'koishi'
-import { UnifiedUserInfo, UnifiedContextInfo } from './type'
-import { escapeXml, truncate, formatTs, loadResvgFont } from './utils'
+import { Resvg } from '@resvg/resvg-js'
+
+// ===== 📋 类型定义 =====
+import { UnifiedContextInfo, UnifiedUserInfo } from './type'
+
+// ===== 🔧 工具函数 =====
+import { escapeXml, formatTs, loadResvgFont, truncate } from './utils'
 
 function getSex(sex: string): string {
   return sex === 'male' ? '男' : sex === 'female' ? '女' : '未知'

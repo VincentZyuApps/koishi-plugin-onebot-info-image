@@ -1,11 +1,23 @@
+// ===== 📦 外部依赖 =====
 import { Context, h } from 'koishi'
 import { basename } from 'path'
+
+// ===== 🧩 插件配置 =====
 import { Config } from './index'
+
+// ===== 📋 类型定义 =====
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
-import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
-import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
+
 import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNoticeList'
-import { scheduleAutoRecall, getGroupAvatarBase64, getUserAvatarBase64, getNoticeImageBase64, logCommandToFile, loadResvgFont } from './utils'
+
+// ===== 🖼️ 渲染模块 =====
+import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
+
+// ===== 🚀 SVG 渲染模块 =====
+import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
+
+// ===== 🔧 工具函数 =====
+import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {

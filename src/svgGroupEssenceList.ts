@@ -1,6 +1,9 @@
-import { Resvg } from '@resvg/resvg-js'
+// ===== 📦 外部依赖 =====
 import { Context } from 'koishi'
-import { escapeXml, truncate, formatTs, decodeHtmlEntities, loadResvgFont } from './utils'
+import { Resvg } from '@resvg/resvg-js'
+
+// ===== 🔧 工具函数 =====
+import { decodeHtmlEntities, escapeXml, formatTs, loadResvgFont, truncate } from './utils'
 
 function parseEssenceContent(content: Array<{ type: string; data: Record<string, any> }>): { text: string; hasImage: boolean; imageUrl?: string } {
   let text = ''

@@ -1,10 +1,17 @@
 // renderGroupEssence.ts
+
+// ===== 📦 外部依赖 =====
 import { Context } from 'koishi';
 import { } from 'koishi-plugin-puppeteer';
 
-import { IMAGE_STYLES, FONT_FILES, type ImageStyle, ImageType } from './type';
-import { generateTimestamp, getGroupAvatarBase64, getFontBase64 } from './utils';
-import { PaginatedEssenceResult, GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssenceList';
+// ===== 📋 类型定义 =====
+import { FONT_FILES, IMAGE_STYLES, type ImageStyle, ImageType } from './type';
+
+// ===== 🔧 工具函数 =====
+import { generateTimestamp, getFontBase64, getGroupAvatarBase64 } from './utils';
+
+// ===== 📦 命令模块 =====
+import { formatTimestamp, GroupEssenceMessageRaw, PaginatedEssenceResult } from './commandGroupEssenceList';
 
 interface EssenceContextInfo {
   groupId: number;

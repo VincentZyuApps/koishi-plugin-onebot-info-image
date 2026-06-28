@@ -1,13 +1,22 @@
-import { Context, h } from 'koishi'
+// ===== 📦 外部依赖 =====
 import { writeFileSync, mkdirSync } from 'fs'
+import { Context, h } from 'koishi'
 import { resolve, basename } from 'path'
+
+// ===== 🧩 插件配置 =====
 import { Config } from './index'
-import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, ONEBOT_IMPL_NAME, getNapcatQQStatusText } from './type'
+
+// ===== 📋 类型定义 =====
+import { convertToUnifiedContextInfo, convertToUnifiedUserInfo, getNapcatQQStatusText, IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, ONEBOT_IMPL_NAME, UnifiedContextInfo, UnifiedUserInfo } from './type'
+
+// ===== 🖼️ 渲染模块 =====
 import { renderUserInfo } from './renderUserInfo'
+
+// ===== 🚀 SVG 渲染模块 =====
 import { svgUserInfo } from './svgUserInfo'
-import { convertToUnifiedUserInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedContextInfo } from './type'
-import { getGroupAvatarBase64, loadResvgFont, logCommandToFile } from './utils'
-import { scheduleAutoRecall } from './utils'
+
+// ===== 🔧 工具函数 =====
+import { getGroupAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
 
 export function registerUserInfoCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableUserInfoCommand) return;

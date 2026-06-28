@@ -1,15 +1,103 @@
+// ===== 📦 外部依赖 =====
 import { Context } from 'koishi';
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
+import { createHash } from 'crypto';
+import twemoji from 'twemoji';
+
+// ===== 📋 类型定义 =====
 import { FONT_FILES, type ImageStyle } from './type';
 import type { Config } from './index';
-import twemoji from 'twemoji';
 
 // Emoji 正则表达式 - 匹配所有 emoji 字符
 const EMOJI_REGEX = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu;
 
 // Emoji 缓存
 const emojiCache = new Map<string, string>();
+
+// ================== 🔤 Koishi 数据目录字体工具 ==================
+
+export const SHARED_FONT_DIR_NAME = 'fonts'
+
+export const FONT_DOWNLOAD_URLS: Record<string, string> = {
+  'LXGWWenKaiMono-Regular.ttf': 'https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/font/LXGWWenKaiMono-Regular.ttf',
+  'SourceHanSerifSC-Medium.otf': 'https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/font/SourceHanSerifSC-Medium.otf',
+  'NotoColorEmoji-Regular.ttf': 'https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/font/NotoColorEmoji-Regular.ttf',
+}
+
+interface FontIntegrity {
+  size: number
+  md5: string
+  sha1: string
+  sha256: string
+  sha512: string
+}
+
+const FONT_INTEGRITY: Record<string, FontIntegrity> = {
+  'LXGWWenKaiMono-Regular.ttf': {
+    size: 24755236,
+    md5: '90e75a25cca0e8868977b880352c6a53',
+    sha1: '7f018ad4a181e4d2df4f972f357e612885d6c24a',
+    sha256: 'ee9faa6479c5b2434f9bceca8e2e7b643f699f4f3d067aac9609261e07c6be61',
+    sha512: '793dc4357d311dba539c50b0ae38ff247af066f141ffea54ff0cc51e274453671e736989cee4998fd89211035ecfe52ad38aa828ba7f1739bcf107b94a023be5',
+  },
+  'SourceHanSerifSC-Medium.otf': {
+    size: 24805580,
+    md5: '3a2423029182ed071aec9516b952b70e',
+    sha1: '8588679f9508a8d44845e71012ac99f36b098872',
+    sha256: '1d4dc4b757c07034e2412d6edf48f54f94ec7172d4deb3b90a3e4fc9dcb94f5d',
+    sha512: '594119e898c292b4c492618f5852adc99b3259ee861ed6f552f31e0cb71db6d2de3c29a46eb180796b9cbe14cfe7a930fea91da3755e9906ebdf5d143788d0b4',
+  },
+  'NotoColorEmoji-Regular.ttf': {
+    size: 25111640,
+    md5: 'a666a1a5090c4d8c4acae3121ad40d1a',
+    sha1: '384d8393848837001a30c85c2e53fa74902aaa15',
+    sha256: '7fb39738ab18f10612d6f4595e2e8e47a0afdf34738460442d99cd0c344a4d90',
+    sha512: '54a8e8ebf6c8feaa0dac72946ed5fe23cfc6779fb7c5372d54515232c8cfdf1b0bb418ff84a2bee958fbeed578f2abf6f602addc50a4381ecec4e19fc6daf3ee',
+  },
+}
+
+let runtimeBaseDir = process.cwd()
+
+export function getFontDirByBaseDir(baseDir: string) {
+  return join(baseDir, 'data', SHARED_FONT_DIR_NAME)
+}
+
+export function getFontPathByBaseDir(baseDir: string, fontFileName: string) {
+  return join(getFontDirByBaseDir(baseDir), fontFileName)
+}
+
+function getFallbackFontPath(fontFileName: string) {
+  return getFontPathByBaseDir(runtimeBaseDir, fontFileName)
+}
+
+function normalizeRuntimeFontPath(fontPath: string) {
+  const fileName = fontPath.split(/[\\/]/).pop() || ''
+  if (FONT_DOWNLOAD_URLS[fileName] && fontPath.includes(`${join('assets', fileName)}`)) {
+    return getFallbackFontPath(fileName)
+  }
+  return fontPath
+}
+
+function calculateFontHashes(buffer: Buffer) {
+  return {
+    md5: createHash('md5').update(buffer).digest('hex'),
+    sha1: createHash('sha1').update(buffer).digest('hex'),
+    sha256: createHash('sha256').update(buffer).digest('hex'),
+    sha512: createHash('sha512').update(buffer).digest('hex'),
+  }
+}
+
+function verifyFontIntegrity(filePath: string, expected: FontIntegrity): boolean {
+  if (!existsSync(filePath)) return false
+  const buffer = readFileSync(filePath)
+  if (buffer.length !== expected.size) return false
+  const hashes = calculateFontHashes(buffer)
+  return hashes.md5 === expected.md5
+    && hashes.sha1 === expected.sha1
+    && hashes.sha256 === expected.sha256
+    && hashes.sha512 === expected.sha512
+}
 
 /**
  * 将 emoji 字符转换为 Unicode codepoint（小写，带前导零）
@@ -246,7 +334,9 @@ export function loadResvgFont(
 
   // 启用自定义字体时，优先使用用户配置
   if (configFontFiles.length > 0 && configFontFamilies.length > 0) {
-    const validFontFiles = configFontFiles.filter(fp => existsSync(fp))
+    const validFontFiles = configFontFiles
+      .map(fp => normalizeRuntimeFontPath(fp))
+      .filter(fp => existsSync(fp))
     if (validFontFiles.length > 0) {
       return {
         fontFiles: validFontFiles,
@@ -258,7 +348,7 @@ export function loadResvgFont(
   // 回退到默认字体
   const fontFiles: string[] = []
   const candidates = [
-    join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
+    getFallbackFontPath('LXGWWenKaiMono-Regular.ttf'),
     '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
   ]
 
@@ -276,17 +366,16 @@ export function loadResvgFont(
 
 /**
  * 加载 SVG 渲染用的字体：返回字体二进制数据、font-family 名称、字体所在目录
- * 优先使用 customFontPath，否则从 assets 目录加载默认字体
+ * 优先使用 customFontPath，否则从 Koishi data/fonts 目录加载默认字体
  */
 export function loadSvgFont(customFontPath?: string, customFontFamily?: string): SvgFontInfo {
   const DEFAULT_FAMILY = customFontFamily || 'LXGWWenKaiMono'
   const FALLBACK = { fontData: null, fontFamily: DEFAULT_FAMILY, fontDir: null, fontPath: null }
 
   const candidates: string[] = []
-  if (customFontPath) candidates.push(customFontPath)
+  if (customFontPath) candidates.push(normalizeRuntimeFontPath(customFontPath))
   candidates.push(
-    join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    join(__dirname, '..', '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
+    getFallbackFontPath('LXGWWenKaiMono-Regular.ttf'),
     '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
   )
 
@@ -373,12 +462,12 @@ export function decodeHtmlEntities(text: string): string {
  * 获取字体文件路径
  */
 export async function getSvgFontPath(customFontPath?: string): Promise<string | null> {
-  if (customFontPath && existsSync(customFontPath)) {
-    return customFontPath
+  if (customFontPath) {
+    const runtimeFontPath = normalizeRuntimeFontPath(customFontPath)
+    if (existsSync(runtimeFontPath)) return runtimeFontPath
   }
   const possibleFontPaths = [
-    join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
-    join(__dirname, '..', '..', 'assets', 'LXGWWenKaiMono-Regular.ttf'),
+    getFallbackFontPath('LXGWWenKaiMono-Regular.ttf'),
     '/usr/share/fonts/truetype/lxgw/LXGWWenKaiMono-Regular.ttf',
   ]
   for (const fp of possibleFontPaths) {
@@ -497,7 +586,12 @@ export async function getNoticeImageBase64(ctx: Context, imageId: string): Promi
 export async function getFontBase64(ctx: Context, imageStyle: ImageStyle): Promise<string> {
     try {
         const fontFileName = FONT_FILES[imageStyle];
-        const fontPath = join(__dirname, '..', 'assets', fontFileName);
+        const fontPath = getFontPathByBaseDir(ctx.baseDir, fontFileName);
+        const expected = FONT_INTEGRITY[fontFileName];
+        if (expected && !verifyFontIntegrity(fontPath, expected)) {
+            ctx.logger.warn(`⚠️ 字体文件 ${fontFileName} hash 校验失败，拒绝读取: ${fontPath}`);
+            return '';
+        }
         const fontBuffer = readFileSync(fontPath);
         return fontBuffer.toString('base64');
     } catch (error) {
@@ -513,48 +607,44 @@ export async function getFontBase64(ctx: Context, imageStyle: ImageStyle): Promi
  * @returns Promise<void>
  */
 export async function validateFonts(ctx: Context): Promise<void> {
-    const assetsDir = join(__dirname, '..', 'assets');
+    runtimeBaseDir = ctx.baseDir;
+    const fontDir = getFontDirByBaseDir(ctx.baseDir);
     
-    // 确保assets目录存在
-    if (!existsSync(assetsDir)) {
-        mkdirSync(assetsDir, { recursive: true });
+    // 确保 Koishi 数据目录字体文件夹存在
+    if (!existsSync(fontDir)) {
+        mkdirSync(fontDir, { recursive: true });
     }
     
-    const fontConfigs = [
-        {
-            filename: 'LXGWWenKaiMono-Regular.ttf',
-            downloadUrl: 'https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/font/LXGWWenKaiMono-Regular.ttf'
-        },
-        {
-            filename: 'SourceHanSerifSC-Medium.otf',
-            downloadUrl: 'https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/font/SourceHanSerifSC-Medium.otf'
-        },
-        {
-            filename: 'NotoColorEmoji-Regular.ttf',
-            downloadUrl: 'https://gitee.com/vincent-zyu/koishi-plugin-onebot-image/releases/download/font/NotoColorEmoji-Regular.ttf'
-        }
-    ];
+    const fontConfigs = Object.entries(FONT_DOWNLOAD_URLS).map(([filename, downloadUrl]) => ({ filename, downloadUrl }));
     
     for (const fontConfig of fontConfigs) {
-        const fontPath = join(assetsDir, fontConfig.filename);
+        const fontPath = getFontPathByBaseDir(ctx.baseDir, fontConfig.filename);
+        const expected = FONT_INTEGRITY[fontConfig.filename];
         
-        // 检查字体文件是否存在
-        if (!existsSync(fontPath)) {
-            ctx.logger.info(`字体文件 ${fontConfig.filename} 不存在，开始下载...`);
-            
-            try {
-                // 下载字体文件
-                const response = await ctx.http.get(fontConfig.downloadUrl, { responseType: 'arraybuffer' });
-                const fontBuffer = Buffer.from(response);
-                
-                // 保存字体文件
-                writeFileSync(fontPath, fontBuffer);
-                ctx.logger.info(`字体文件 ${fontConfig.filename} 下载完成`);
-            } catch (error) {
-                ctx.logger.error(`下载字体文件 ${fontConfig.filename} 失败: ${error.message}`);
-            }
+        if (expected && verifyFontIntegrity(fontPath, expected)) {
+            ctx.logger.debug(`🔤 字体文件 ${fontConfig.filename} 已存在且 hash 校验通过: ${fontPath}`);
+            continue;
+        }
+
+        if (existsSync(fontPath)) {
+            ctx.logger.warn(`⚠️ 字体文件 ${fontConfig.filename} 存在但 hash 校验失败，将重新下载: ${fontPath}`);
         } else {
-            ctx.logger.debug(`字体文件 ${fontConfig.filename} 已存在`);
+            ctx.logger.info(`🔤 字体文件 ${fontConfig.filename} 不存在，开始下载到 Koishi 数据目录: ${fontPath}`);
+        }
+            
+        try {
+            // 下载字体文件
+            const response = await ctx.http.get(fontConfig.downloadUrl, { responseType: 'arraybuffer' });
+            const fontBuffer = Buffer.from(response);
+            
+            // 保存字体文件
+            writeFileSync(fontPath, fontBuffer);
+            if (expected && !verifyFontIntegrity(fontPath, expected)) {
+                throw new Error(`❌ 字体 hash 校验失败: ${fontConfig.filename}`);
+            }
+            ctx.logger.info(`✅ 字体文件 ${fontConfig.filename} 下载完成，hash 校验通过`);
+        } catch (error) {
+            ctx.logger.error(`❌ 下载字体文件 ${fontConfig.filename} 失败: ${error.message}`);
         }
     }
 }

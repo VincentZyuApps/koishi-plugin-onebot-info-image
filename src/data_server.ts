@@ -1,9 +1,16 @@
+// ===== 📦 外部依赖 =====
 import { Context } from 'koishi';
 import { DataService } from '@koishijs/plugin-console';
-import { getSourceHanSerifSCStyleUserInfoHtmlStr, getFlatMinimalUserInfoHtmlStr, getLXGWWenKaiUserInfoHtmlStr } from './renderUserInfo';
-import { UnifiedUserInfo, UnifiedContextInfo, IMAGE_STYLES, ImageStyle } from './type';
-import { validateFonts, getFontBase64 } from './utils';
 import * as path from 'path';
+
+// ===== 🖼️ 渲染模块 =====
+import { getSourceHanSerifSCStyleUserInfoHtmlStr, getFlatMinimalUserInfoHtmlStr, getLXGWWenKaiUserInfoHtmlStr } from './renderUserInfo';
+
+// ===== 📋 类型定义 =====
+import { UnifiedUserInfo, UnifiedContextInfo, IMAGE_STYLES, ImageStyle } from './type';
+
+// ===== 🔧 工具函数 =====
+import { validateFonts, getFontBase64 } from './utils';
 
 // 模板类型
 export type TemplateType = 'sourceHanSerif' | 'flatMinimal' | 'lxgwWenKai';

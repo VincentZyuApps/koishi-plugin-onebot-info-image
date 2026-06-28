@@ -1,6 +1,13 @@
+// ===== 📦 外部依赖 =====
 import { Context } from 'koishi'
+
+// ===== 🧩 插件配置 =====
 import { Config } from './index'
+
+// ===== 📋 类型定义 =====
 import { IMAGE_STYLES } from './type'
+
+// ===== 🔧 工具函数 =====
 import { scheduleAutoRecall } from './utils'
 
 export function registerInspectStyleCommand(ctx: Context, config: Config) {
