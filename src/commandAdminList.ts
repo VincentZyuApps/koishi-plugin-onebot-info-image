@@ -16,6 +16,7 @@ import { svgAdminList } from './svgAdminList'
 
 // ===== 🔧 工具函数 =====
 import { getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
+import { guardPuppeteerOutput } from './output'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
@@ -31,6 +32,8 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
 
       if (!session.guildId)
         return session.send("❌ 当前会话不在群聊中。");
+
+      if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       const logs: string[] = [];
       const protocol = config.onebotImplName.toLowerCase();

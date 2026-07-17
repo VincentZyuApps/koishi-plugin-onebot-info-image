@@ -16,6 +16,7 @@ import { svgGroupNotice } from './svgGroupNoticeList'
 
 // ===== 🔧 工具函数 =====
 import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
+import { guardPuppeteerOutput } from './output'
 
 // 群公告的原始格式
 export interface GroupNoticeMessageRaw {
@@ -217,6 +218,8 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
 
       if (!session.guildId)
         return session.send('❌ 当前会话不在群聊中。');
+
+      if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       // 验证分页参数
       const page = Math.max(1, options.page || 1);

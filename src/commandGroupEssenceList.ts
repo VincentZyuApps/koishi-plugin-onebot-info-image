@@ -16,6 +16,7 @@ import { svgGroupEssence } from './svgGroupEssenceList'
 
 // ===== 🔧 工具函数 =====
 import { getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
+import { guardPuppeteerOutput } from './output'
 
 // 群精华消息的原始格式
 export interface GroupEssenceMessageRaw {
@@ -133,6 +134,8 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
 
       if (!session.guildId)
         return session.send('❌ 当前会话不在群聊中。');
+
+      if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       // 验证分页参数
       const page = Math.max(1, options.page || 1);

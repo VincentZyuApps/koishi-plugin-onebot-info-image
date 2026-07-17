@@ -18,6 +18,7 @@ import { svgGroupEssenceDetail } from './svgGroupEssenceDetail'
 
 // ===== 🔧 工具函数 =====
 import { getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
+import { guardPuppeteerOutput } from './output'
 
 // 单条精华消息详情的上下文信息
 export interface EssenceDetailContextInfo {
@@ -161,6 +162,8 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
         const errorMsg = `💎 ❌ 请输入要查看的精华消息序号！\n\n📖 用法: ${config.groupEssenceDetailCommandName} <序号>\n💡 示例: ${config.groupEssenceDetailCommandName} 5\n\n👉 查看精华列表: 群精华`;
         return session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
       }
+
+      if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       // 选择图片样式
       const defaultStyleDetailObj = config.imageStyleDetails.length > 0

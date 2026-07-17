@@ -17,6 +17,7 @@ import { svgUserInfo } from './svgUserInfo'
 
 // ===== 🔧 工具函数 =====
 import { getGroupAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
+import { guardPuppeteerOutput } from './output'
 
 export function registerUserInfoCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableUserInfoCommand) return;
@@ -29,6 +30,8 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
     .action(async ({ session, options }, qqId) => {
       if (!session.onebot)
         return session.send("[error]当前会话不支持onebot协议。");
+
+      if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       const logs: string[] = [];
       const protocol = config.onebotImplName.toLowerCase();

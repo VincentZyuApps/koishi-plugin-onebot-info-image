@@ -18,6 +18,7 @@ import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
 
 // ===== 🔧 工具函数 =====
 import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
+import { guardPuppeteerOutput } from './output'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {
@@ -132,6 +133,8 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         const errorMsg = `📢 ❌ 请输入要查看的公告序号！\n\n📖 用法: ${config.groupNoticeDetailCommandName} <序号>\n💡 示例: ${config.groupNoticeDetailCommandName} 2\n\n👉 查看公告列表: 群公告`;
         return session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
       }
+
+      if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       // 选择图片样式
       const defaultStyleDetailObj = config.imageStyleDetails.length > 0

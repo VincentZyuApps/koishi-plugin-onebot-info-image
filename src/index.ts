@@ -20,6 +20,7 @@ import { registerGroupEssenceDetailCommand } from './commandGroupEssenceDetail'
 import { convertToUnifiedUserInfo, convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
 import { IMAGE_STYLES, ONEBOT_IMPL_NAME } from './type';
 import { Config } from './config'
+import { getConfiguredOutputFormats } from './output'
 
 export const name = 'onebot-info-image'
 
@@ -34,6 +35,17 @@ export { Config, ImageStyleDetail } from './config'
 
 
 export function apply(ctx: Context, config: Config) {
+  const configuredFormats = getConfiguredOutputFormats(config)
+
+  if (configuredFormats.length === 0) {
+    const warning = '请至少勾选一种信息格式！'
+    ctx.logger.warn(warning)
+    ctx.inject(['notifier'], (ctx) => {
+      ctx.notifier.create(h('p', warning))
+    })
+    return
+  }
+
   // 验证并下载字体文件 - 直接调用，不等待 ready 事件
   validateFonts(ctx).catch(error => {
     ctx.logger.error(`字体文件验证失败: ${error.message}`)
@@ -45,7 +57,7 @@ export function apply(ctx: Context, config: Config) {
   }
 
   // 使用 notifier 在 WebUI 显示当前信息格式
-  if (ctx.notifier) {
+  ctx.inject(['notifier'], (ctx) => {
     const infoItems: string[] = [];
 
     // OneBot 实现平台
@@ -60,29 +72,22 @@ export function apply(ctx: Context, config: Config) {
     }
 
     // 信息格式
-    const formatItems: string[] = [];
-    if (config.sendText) formatItems.push('💬 文本消息');
-    if (config.sendImage && ctx.puppeteer) formatItems.push('🖼️ Puppeteer图片');
-    if (config.sendImageSvg) formatItems.push('🚀 resvg图片');
-    if (config.sendForward) formatItems.push('✉️ 合并转发');
-
-    if (formatItems.length === 0) {
-      ctx.notifier.create(h('p', '请至少勾选一种信息格式！'));
-      return;
-    }
+    const formatItems = configuredFormats.map(({ notifierLabel }) => notifierLabel)
 
     infoItems.push(`📋 信息格式：${formatItems.join('、')}`);
 
     // Puppeteer 渲染配置
-    if (config.sendImage && ctx.puppeteer) {
+    if (config.sendImage) {
       const puppeteerItems: string[] = [];
       puppeteerItems.push(`图片类型：${config.imageType}`);
       puppeteerItems.push(`截图质量：${config.screenshotQuality}`);
       puppeteerItems.push(`显示渲染信息：${config.imageShowRenderInfo ? '是' : '否'}`);
       
       const defaultStyle = config.imageStyleDetails[0];
-      const styleName = IMAGE_STYLES[defaultStyle.styleKey];
-      puppeteerItems.push(`默认样式：${styleName} (${defaultStyle.darkMode ? '深色' : '浅色'}模式)`);
+      if (defaultStyle) {
+        const styleName = IMAGE_STYLES[defaultStyle.styleKey];
+        puppeteerItems.push(`默认样式：${styleName} (${defaultStyle.darkMode ? '深色' : '浅色'}模式)`);
+      }
       
       infoItems.push(`🎨 Puppeteer 配置：${puppeteerItems.join(' | ')}`);
     }
@@ -115,15 +120,10 @@ export function apply(ctx: Context, config: Config) {
         h('ul', infoItems.map(item => h('li', item)))
       ])
     );
-  }
+  })
 
   //帮助文本中的 结果信息格式
-  const responseHint = [
-    config.sendText && '文本消息',
-    config.sendImage && ctx.puppeteer && 'Puppeteer图片',
-    config.sendImageSvg && 'resvg图片',
-    config.sendForward && '合并转发'
-  ].filter(Boolean).join('、');
+  const responseHint = configuredFormats.map(({ label }) => label).join('、')
 
   // 注册指令
   registerInspectStyleCommand(ctx, config);
