@@ -5,3 +5,6 @@
 *.ico -text
 *.gif -text
 *.webp -text
+
+# Protocol Buffer is a Linguist data language and is excluded by default.
+docs/protobuf/*.proto text eol=lf linguist-detectable -linguist-documentation

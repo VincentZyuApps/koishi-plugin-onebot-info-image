@@ -1,0 +1,171 @@
+// Documentation-only schema for koishi-plugin-onebot-info-image.
+// The plugin runtime does not encode or decode Protocol Buffer messages.
+
+syntax = "proto3";
+
+package onebot_info_image.v1;
+
+// OneBot implementation that supplied the source payload.
+enum OneBotImplementation {
+  ONEBOT_IMPLEMENTATION_UNSPECIFIED = 0;
+  ONEBOT_IMPLEMENTATION_LAGRANGE = 1;
+  ONEBOT_IMPLEMENTATION_NAPCAT = 2;
+}
+
+enum Sex {
+  SEX_UNSPECIFIED = 0;
+  SEX_MALE = 1;
+  SEX_FEMALE = 2;
+  SEX_UNKNOWN = 3;
+}
+
+enum MemberRole {
+  MEMBER_ROLE_UNSPECIFIED = 0;
+  MEMBER_ROLE_OWNER = 1;
+  MEMBER_ROLE_ADMIN = 2;
+  MEMBER_ROLE_MEMBER = 3;
+}
+
+// Structured form used when an implementation returns detailed presence data.
+message StatusDetails {
+  int32 status_id = 1;
+  int32 face_id = 2;
+  string message = 3;
+}
+
+// Lagrange may return StatusDetails while NapCat may return numeric status codes.
+message UnifiedUserStatus {
+  oneof value {
+    int32 raw_status = 1;
+    StatusDetails details = 2;
+  }
+
+  int32 extended_status = 3;
+}
+
+message UnifiedContextInfo {
+  bool is_group = 1 [json_name = "isGroup"];
+  optional uint64 group_id = 2 [json_name = "groupId"];
+  optional string group_name = 3 [json_name = "groupName"];
+  optional uint32 member_count = 4 [json_name = "memberCount"];
+  optional uint32 max_member_count = 5 [json_name = "maxMemberCount"];
+  optional string group_avatar_url = 6 [json_name = "groupAvatarUrl"];
+}
+
+message UnifiedAdminInfo {
+  uint64 user_id = 1;
+  string nickname = 2;
+  MemberRole role = 3;
+
+  optional string card = 10;
+  Sex sex = 11;
+  optional uint32 age = 12;
+  optional string area = 13;
+  optional string level = 14;
+  optional uint32 qq_level = 15;
+  optional int64 join_time = 16;
+  optional int64 last_sent_time = 17;
+  optional string title = 18;
+  optional int64 title_expire_time = 19;
+  optional bool unfriendly = 20;
+  optional bool card_changeable = 21;
+  optional bool is_robot = 22;
+  optional int64 shut_up_timestamp = 23;
+  optional string avatar = 24;
+}
+
+// Stable cross-implementation view derived from src/type.ts UnifiedUserInfo.
+// Historical aliases are intentionally collapsed, for example qid/q_id and
+// regTime/reg_time/RegisterTime. Implementation-specific fields remain in the
+// result envelope's raw_json field.
+message UnifiedUserInfo {
+  string user_id = 1;
+  string nickname = 2;
+  Sex sex = 3;
+  uint32 age = 4;
+  optional string avatar = 5;
+
+  optional uint64 group_id = 10;
+  optional string card = 11;
+  optional string level = 12;
+  optional uint32 qq_level = 13;
+  optional int64 join_time = 14;
+  optional int64 last_sent_time = 15;
+  MemberRole role = 16;
+  optional string title = 17;
+  optional int64 title_expire_time = 18;
+  optional bool unfriendly = 19;
+  optional bool card_changeable = 20;
+  optional bool is_robot = 21;
+  optional int64 shut_up_timestamp = 22;
+  optional string group_level = 23;
+
+  optional string uid = 30;
+  optional string uin = 31;
+  optional string remark = 32;
+  optional uint32 constellation = 33;
+  optional uint32 chinese_zodiac = 34 [json_name = "shengXiao"];
+  optional uint32 blood_type = 35 [json_name = "kBloodType"];
+  optional string hometown = 36 [json_name = "homeTown"];
+  optional uint32 career = 37 [json_name = "makeFriendCareer"];
+  optional string position = 38 [json_name = "pos"];
+  optional string college = 39;
+  optional string country = 40;
+  optional string province = 41;
+  optional string city = 42;
+  optional string postal_code = 43 [json_name = "postCode"];
+  optional string address = 44;
+  optional int64 register_time = 45;
+  optional string interest = 46;
+  repeated string labels = 47;
+  optional string qid = 48;
+  optional string signature = 49;
+  optional string long_nick = 50;
+  optional uint32 birthday_year = 51;
+  optional uint32 birthday_month = 52;
+  optional uint32 birthday_day = 53;
+  optional string email = 54 [json_name = "eMail"];
+  optional string phone_number = 55 [json_name = "phoneNum"];
+  optional uint32 category_id = 56 [json_name = "categoryId"];
+  optional int64 rich_time = 57 [json_name = "richTime"];
+  optional string top_time = 58 [json_name = "topTime"];
+  optional bool is_blocked = 59;
+  optional bool is_message_disturbed = 60 [json_name = "isMsgDisturb"];
+  optional bool is_special_care = 61 [json_name = "isSpecialCareOpen"];
+  UnifiedUserStatus status = 62;
+  optional int32 battery_status = 63 [json_name = "batteryStatus"];
+  optional int32 terminal_type = 64 [json_name = "termType"];
+  optional int32 network_type = 65 [json_name = "netType"];
+  optional bool is_vip = 66;
+  optional bool is_years_vip = 67;
+  optional uint32 vip_level = 68;
+  optional uint32 login_days = 69;
+
+  // Dynamic objects from OneBot implementations are preserved as JSON text.
+  optional string business_json = 80;
+  optional string rich_buffer_json = 81;
+  optional string custom_status_json = 82;
+  optional string music_info_json = 83;
+  optional string online_business_info_json = 84;
+  optional string extension_buffer_json = 85;
+}
+
+message UserInfoResult {
+  OneBotImplementation implementation = 1;
+  UnifiedUserInfo user = 2;
+  UnifiedContextInfo context = 3;
+
+  // Complete implementation-specific OneBot payload encoded as JSON text.
+  string raw_json = 10;
+  string raw_sample_path = 11;
+}
+
+message AdminListResult {
+  OneBotImplementation implementation = 1;
+  repeated UnifiedAdminInfo admins = 2;
+  UnifiedContextInfo context = 3;
+
+  // Complete implementation-specific OneBot payload encoded as JSON text.
+  string raw_json = 10;
+  string raw_sample_path = 11;
+}
