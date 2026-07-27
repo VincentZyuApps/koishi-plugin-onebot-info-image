@@ -1,10 +1,15 @@
+# 📝 文本文件统一使用 LF 换行符
 * text eol=lf
 
+# 🖼️ 图片文件按二进制格式处理
 *.png -text
 *.jpg -text
 *.ico -text
 *.gif -text
 *.webp -text
 
-# Protocol Buffer is a Linguist data language and is excluded by default.
+# 📚 将 Git 跟踪的 Markdown 文件纳入 Linguist 语言统计
+*.md text eol=lf linguist-detectable -linguist-documentation
+
+# 🧩 将默认被排除的 Protocol Buffer 文件纳入 Linguist 语言统计
 docs/protobuf/*.proto text eol=lf linguist-detectable -linguist-documentation

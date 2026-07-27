@@ -6,12 +6,14 @@
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
 [![npm-download](https://img.shields.io/npm/dm/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
+
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image)
 [![Gitee](https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white)](https://gitee.com/vincent-zyu/koishi-plugin-onebot-info-image)
+
 [![Koishi Forum](https://img.shields.io/badge/Koishi%20Forum-12077-5546A3?style=for-the-badge&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Ff%2Ff3%2FKoishi.js_Logo.png&logoColor=white)](https://forum.koishi.xyz/t/topic/12077)
 [![QQ群](https://img.shields.io/badge/QQ群-1085190201-12B7F5?style=flat-square&logo=qq&logoColor=white)](https://qm.qq.com/q/ZN7fxZ3qCq)
 
-> 推荐接入 [NapCat](https://napneko.github.io/)，可获取的用户与群聊字段更加完整。
+> 推荐接入 [NapCat](https://napneko.github.io/)，可获取的用户与群聊字段更加完整。并且作者开发测试和生产环境用的就是NapCat捏。
 >
 > npm 或 Koishi 市场页面可能无法完整加载仓库内图片，建议前往 [GitHub](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image) 或 [Gitee](https://gitee.com/vincent-zyu/koishi-plugin-onebot-info-image) 查看。
 
