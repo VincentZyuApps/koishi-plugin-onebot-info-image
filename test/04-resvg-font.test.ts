@@ -1,8 +1,10 @@
 import { Resvg } from '@resvg/resvg-js'
 import { readFileSync, existsSync, writeFileSync } from 'fs'
-import { join } from 'path'
+import { dirname, join } from 'path'
+import { fileURLToPath } from 'url'
 
-const FONT_PATH = join(__dirname, '..', 'assets', 'LXGWWenKaiMono-Regular.ttf')
+const TEST_DIR = dirname(fileURLToPath(import.meta.url))
+const FONT_PATH = join(TEST_DIR, '..', '..', '..', 'data', 'fonts', 'LXGWWenKaiMono-Regular.ttf')
 
 function readFontFamilyName(fontBuffer: Buffer): string | null {
   try {
@@ -95,7 +97,7 @@ console.log('--- 测试 1: 硬编码 LXGWWenKaiMono (无空格, resvg-test 方�
     },
   })
   const png = resvg.render()
-  const pngPath = join(__dirname, 'test-1-hardcoded.png')
+  const pngPath = join(TEST_DIR, 'test-1-hardcoded.png')
   writeFileSync(pngPath, png.asPng())
   console.log(`  font-family in SVG: "${fontFamily}"`)
   console.log(`  fontFiles: [${FONT_PATH}]`)
@@ -117,7 +119,7 @@ console.log('--- 测试 2: 动态读取字体名称 LXGW WenKai Mono (有空格)
     },
   })
   const png = resvg.render()
-  const pngPath = join(__dirname, 'test-2-detected.png')
+  const pngPath = join(TEST_DIR, 'test-2-detected.png')
   writeFileSync(pngPath, png.asPng())
   console.log(`  font-family in SVG: "${fontFamily}"`)
   console.log(`  fontFiles: [${FONT_PATH}]`)
@@ -140,7 +142,7 @@ console.log('--- 测试 3: 配置默认值 LXGWWenKaiMono (无空格, 当前插�
     },
   })
   const png = resvg.render()
-  const pngPath = join(__dirname, 'test-3-config.png')
+  const pngPath = join(TEST_DIR, 'test-3-config.png')
   writeFileSync(pngPath, png.asPng())
   console.log(`  font-family in SVG: "${fontFamily}"`)
   console.log(`  fontFiles: [${FONT_PATH}]`)
@@ -162,7 +164,7 @@ console.log('--- 测试 4: 不指定 fontFiles, 只用 loadSystemFonts ---')
     },
   })
   const png = resvg.render()
-  const pngPath = join(__dirname, 'test-4-system.png')
+  const pngPath = join(TEST_DIR, 'test-4-system.png')
   writeFileSync(pngPath, png.asPng())
   console.log(`  font-family in SVG: "${fontFamily}"`)
   console.log(`  fontFiles: []`)
