@@ -123,15 +123,20 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, num) => {
       const logs: string[] = [];
-      if (!session.onebot)
-        return session.send('❌ [error]当前会话不支持onebot协议。');
+      if (!session.onebot) {
+        await session.send('❌ [error]当前会话不支持onebot协议。');
+        return;
+      }
 
-      if (!session.guildId)
-        return session.send('❌ [error]当前会话不在群聊中。');
+      if (!session.guildId) {
+        await session.send('❌ [error]当前会话不在群聊中。');
+        return;
+      }
 
       if (num === undefined || num === null || isNaN(num)) {
         const errorMsg = `📢 ❌ 请输入要查看的公告序号！\n\n📖 用法: ${config.groupNoticeDetailCommandName} <序号>\n💡 示例: ${config.groupNoticeDetailCommandName} 2\n\n👉 查看公告列表: 群公告`;
-        return session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
+        await session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
+        return;
       }
 
       if (!await guardPuppeteerOutput(ctx, config, session)) return
@@ -153,7 +158,8 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
             `\n`,
             `💡 输入指令 ${config.inspectStyleCommandName} 查看图片样式列表`
           ];
-          return await session.send(idxInvalidMsgArr.join('\n'));
+          await session.send(idxInvalidMsgArr.join('\n'));
+          return;
         }
         selectedStyleDetailObj = config.imageStyleDetails[options.imageStyleIdx as number];
       }
@@ -164,13 +170,15 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         const groupNoticeList: GroupNoticeMessageRaw[] = await onebotBot.getGroupNotice(session.guildId);
 
         if (!groupNoticeList || groupNoticeList.length === 0) {
-          return session.send('📢 该群暂无公告。');
+          await session.send('📢 该群暂无公告。');
+          return;
         }
 
         // 验证序号
         const index = Math.floor(num);
         if (index < 1 || index > groupNoticeList.length) {
-          return session.send(`❌ 序号超出范围。\n有效范围：[1, ${groupNoticeList.length}] 双闭区间\n当前输入：${index}`);
+          await session.send(`❌ 序号超出范围。\n有效范围：[1, ${groupNoticeList.length}] 双闭区间\n当前输入：${index}`);
+          return;
         }
 
         // 获取指定的公告

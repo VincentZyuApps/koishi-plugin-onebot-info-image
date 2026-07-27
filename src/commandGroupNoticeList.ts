@@ -213,11 +213,15 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
       const logs: string[] = [];
-      if (!session.onebot)
-        return session.send('❌ 当前会话不支持 onebot 协议。');
+      if (!session.onebot) {
+        await session.send('❌ 当前会话不支持 onebot 协议。');
+        return;
+      }
 
-      if (!session.guildId)
-        return session.send('❌ 当前会话不在群聊中。');
+      if (!session.guildId) {
+        await session.send('❌ 当前会话不在群聊中。');
+        return;
+      }
 
       if (!await guardPuppeteerOutput(ctx, config, session)) return
 
@@ -242,7 +246,8 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
             `\n`,
             `💡 输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
           ];
-          return await session.send(idxInvalidMsgArr.join('\n'));
+          await session.send(idxInvalidMsgArr.join('\n'));
+          return;
         }
         selectedStyleDetailObj = config.imageStyleDetails[options.imageStyleIdx as number];
       }
@@ -253,13 +258,15 @@ export function registerGroupNoticeCommand(ctx: Context, config: Config, respons
         const groupNoticeList: GroupNoticeMessageRaw[] = await onebotBot.getGroupNotice(session.guildId);
 
         if (!groupNoticeList || groupNoticeList.length === 0) {
-          return session.send('📢 该群暂无公告。');
+          await session.send('📢 该群暂无公告。');
+          return;
         }
 
         // 验证页码
         const totalPages = Math.ceil(groupNoticeList.length / pageSize);
         if (page > totalPages) {
-          return session.send(`❌ 页码超出范围。\n有效范围：[1, ${totalPages}] 双闭区间\n当前输入：${page}`);
+          await session.send(`❌ 页码超出范围。\n有效范围：[1, ${totalPages}] 双闭区间\n当前输入：${page}`);
+          return;
         }
 
         // 分页处理

@@ -152,15 +152,20 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, num) => {
-      if (!session.onebot)
-        return session.send('❌ [error]当前会话不支持onebot协议。');
+      if (!session.onebot) {
+        await session.send('❌ [error]当前会话不支持onebot协议。');
+        return;
+      }
 
-      if (!session.guildId)
-        return session.send('❌ [error]当前会话不在群聊中。');
+      if (!session.guildId) {
+        await session.send('❌ [error]当前会话不在群聊中。');
+        return;
+      }
 
       if (num === undefined || num === null || isNaN(num)) {
         const errorMsg = `💎 ❌ 请输入要查看的精华消息序号！\n\n📖 用法: ${config.groupEssenceDetailCommandName} <序号>\n💡 示例: ${config.groupEssenceDetailCommandName} 5\n\n👉 查看精华列表: 群精华`;
-        return session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
+        await session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
+        return;
       }
 
       if (!await guardPuppeteerOutput(ctx, config, session)) return
@@ -182,7 +187,8 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
             `\n`,
             `💡 输入指令 ${config.inspectStyleCommandName} 查看图片样式列表`
           ];
-          return await session.send(idxInvalidMsgArr.join('\n'));
+          await session.send(idxInvalidMsgArr.join('\n'));
+          return;
         }
         selectedStyleDetailObj = config.imageStyleDetails[options.imageStyleIdx as number];
       }
@@ -196,13 +202,15 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
         const groupEssenceMsgList: GroupEssenceMessageRaw[] = await onebotBot.getEssenceMsgList(session.guildId);
 
         if (!groupEssenceMsgList || groupEssenceMsgList.length === 0) {
-          return session.send('💎 该群暂无精华消息。');
+          await session.send('💎 该群暂无精华消息。');
+          return;
         }
 
         // 验证序号
         const index = Math.floor(num);
         if (index < 1 || index > groupEssenceMsgList.length) {
-          return session.send(`❌ 序号超出范围。\n有效范围：[1, ${groupEssenceMsgList.length}] 双闭区间\n当前输入：${index}`);
+          await session.send(`❌ 序号超出范围。\n有效范围：[1, ${groupEssenceMsgList.length}] 双闭区间\n当前输入：${index}`);
+          return;
         }
 
         // 获取指定的精华消息

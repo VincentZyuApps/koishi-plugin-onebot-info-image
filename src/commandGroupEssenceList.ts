@@ -129,11 +129,15 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
-      if (!session.onebot)
-        return session.send('❌ 当前会话不支持 onebot 协议。');
+      if (!session.onebot) {
+        await session.send('❌ 当前会话不支持 onebot 协议。');
+        return;
+      }
 
-      if (!session.guildId)
-        return session.send('❌ 当前会话不在群聊中。');
+      if (!session.guildId) {
+        await session.send('❌ 当前会话不在群聊中。');
+        return;
+      }
 
       if (!await guardPuppeteerOutput(ctx, config, session)) return
 
@@ -158,7 +162,8 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
             `\n`,
             `💡 输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
           ];
-          return await session.send(idxInvalidMsgArr.join('\n'));
+          await session.send(idxInvalidMsgArr.join('\n'));
+          return;
         }
         selectedStyleDetailObj = config.imageStyleDetails[options.imageStyleIdx as number];
       }
@@ -172,14 +177,16 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
         const groupEssenceMsgList: GroupEssenceMessageRaw[] = await onebotBot.getEssenceMsgList(session.guildId);
 
         if (!groupEssenceMsgList || groupEssenceMsgList.length === 0) {
-          return session.send('💎 该群暂无精华消息。');
+          await session.send('💎 该群暂无精华消息。');
+          return;
         }
 
         // 分页处理
         const paginatedResult = paginateEssenceMessages(groupEssenceMsgList, page, pageSize);
 
         if (paginatedResult.records.length === 0) {
-          return session.send(`❌ 第 ${page} 页没有记录，共 ${paginatedResult.totalPages} 页`);
+          await session.send(`❌ 第 ${page} 页没有记录，共 ${paginatedResult.totalPages} 页`);
+          return;
         }
 
         // 获取群信息

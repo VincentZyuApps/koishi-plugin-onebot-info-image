@@ -27,11 +27,15 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
     .option("imageStyleIdx", "-i, --idx, --index <idx:number> 图片样式索引")
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }) => {
-      if (!session.onebot)
-        return session.send("❌ 当前会话不支持 onebot 协议。");
+      if (!session.onebot) {
+        await session.send("❌ 当前会话不支持 onebot 协议。");
+        return;
+      }
 
-      if (!session.guildId)
-        return session.send("❌ 当前会话不在群聊中。");
+      if (!session.guildId) {
+        await session.send("❌ 当前会话不在群聊中。");
+        return;
+      }
 
       if (!await guardPuppeteerOutput(ctx, config, session)) return
 
@@ -56,7 +60,8 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
             `\n`,
             `输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
           ];
-          return await session.send(idxInvalidMsgArr.join('\n'));
+          await session.send(idxInvalidMsgArr.join('\n'));
+          return;
         }
         selectedStyleDetailObj = config.imageStyleDetails[options.imageStyleIdx as number];
       }
@@ -74,7 +79,8 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
         if (config.verboseConsoleOutput) ctx.logger.info(groupAdminMemberListObjMsg);
 
         if (groupAdminMemberListObj.length === 0) {
-          return session.send("📋 该群没有管理员。");
+          await session.send("📋 该群没有管理员。");
+          return;
         }
 
         // 获取管理员头像并转换为 AdminInfo 格式

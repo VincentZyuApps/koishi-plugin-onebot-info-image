@@ -28,8 +28,10 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
     .option("imageStyleIdx", "-i, --idx, --index <idx:number> 图片样式索引")
     .option("mode", "--mode <mode:string> 指定 svg 渲染模式 (light/dark)，优先级高于配置项")
     .action(async ({ session, options }, qqId) => {
-      if (!session.onebot)
-        return session.send("[error]当前会话不支持onebot协议。");
+      if (!session.onebot) {
+        await session.send("[error]当前会话不支持onebot协议。");
+        return;
+      }
 
       if (!await guardPuppeteerOutput(ctx, config, session)) return
 
@@ -54,7 +56,8 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
             `\n`,
             `输入指令 ${config.inspectStyleCommandName} 查看图片样式列表。`
           ];
-          return await session.send(idxInvalidMsgArr.join('\n'));
+          await session.send(idxInvalidMsgArr.join('\n'));
+          return;
         }
         selectedStyleDetailObj = config.imageStyleDetails[options.imageStyleIdx as number];
       }
