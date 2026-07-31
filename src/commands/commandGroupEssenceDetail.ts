@@ -34,6 +34,13 @@ export interface EssenceDetailContextInfo {
   totalEssenceCount: number;  // 精华消息总数
 }
 
+function getEssenceNumberArgument(config: Config): string {
+  const argumentName = '序号';
+  return config.groupEssenceDetailUseFirstWhenNoNumber
+    ? `[${argumentName}]`
+    : `<${argumentName}>`;
+}
+
 /**
  * 解析群精华消息内容为可读文本（详细版本）
  */
@@ -95,7 +102,7 @@ function formatGroupEssenceDetailAsText(
   output += `==================\n`;
 
   // 添加用法提示
-  output += `📖 用法: ${config.groupEssenceDetailCommandName} <序号>\n`;
+  output += `📖 用法: ${config.groupEssenceDetailCommandName} ${getEssenceNumberArgument(config)}\n`;
   output += `📝 示例: ${config.groupEssenceDetailCommandName} 5  查看第5条精华详情\n`;
 
   return output;
@@ -138,7 +145,7 @@ function formatGroupEssenceDetailAsForward(
 
   // 用法提示
   const usageText = [
-    `📖 用法: ${config.groupEssenceDetailCommandName} <序号>`,
+    `📖 用法: ${config.groupEssenceDetailCommandName} ${getEssenceNumberArgument(config)}`,
     `📝 示例: ${config.groupEssenceDetailCommandName} 5  查看第5条精华详情`
   ].join('\n');
   addMessageBlock(undefined, '使用帮助', usageText);
@@ -149,7 +156,12 @@ function formatGroupEssenceDetailAsForward(
 export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupEssenceCommand) return;
 
-  ctx.command(`${config.groupEssenceDetailCommandName} <num:number>`, `获取指定序号的群精华消息详情, 发送${responseHint}`)
+  const commandDescription = `获取指定序号的群精华消息详情, 发送${responseHint}`;
+  const command = config.groupEssenceDetailUseFirstWhenNoNumber
+    ? ctx.command(`${config.groupEssenceDetailCommandName} [num:number]`, commandDescription)
+    : ctx.command(`${config.groupEssenceDetailCommandName} <num:number>`, commandDescription);
+
+  command
     .alias('群精华详情')
     .alias('aged')
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
@@ -165,8 +177,12 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
         return;
       }
 
+      if ((num === undefined || num === null) && config.groupEssenceDetailUseFirstWhenNoNumber) {
+        num = 1;
+      }
+
       if (num === undefined || num === null || isNaN(num)) {
-        const errorMsg = `💎 ❌ 请输入要查看的精华消息序号！\n\n📖 用法: ${config.groupEssenceDetailCommandName} <序号>\n💡 示例: ${config.groupEssenceDetailCommandName} 5\n\n👉 查看精华列表: 群精华`;
+        const errorMsg = `💎 ❌ 请输入要查看的精华消息序号！\n\n📖 用法: ${config.groupEssenceDetailCommandName} ${getEssenceNumberArgument(config)}\n💡 示例: ${config.groupEssenceDetailCommandName} 5\n\n👉 查看精华列表: 群精华`;
         await session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
         return;
       }
@@ -260,7 +276,7 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
           );
           // 构建图片消息
           let imageMessage = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${essenceDetailImageBase64}`)}`;
-          imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} <序号>`;
+          imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} ${getEssenceNumberArgument(config)}`;
           if (config.imageShowRenderInfo) {
             const elapsed = Date.now() - startTime;
             imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
@@ -334,7 +350,7 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
           const fontFileName = fontFiles.length > 0 ? basename(fontFiles[0]) : '默认'
           const fontFamilyDisplay = config.svgEnableCustomFont ? fontFamily : '默认'
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
-          imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} <序号>`;
+          imageMessage += `\n📌 第 ${index}/${groupEssenceMsgList.length} 条精华 | 📖 ${config.groupEssenceDetailCommandName} ${getEssenceNumberArgument(config)}`;
           if (config.svgShowRenderInfo) {
             imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`;
           }

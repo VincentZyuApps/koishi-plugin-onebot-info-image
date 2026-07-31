@@ -34,6 +34,13 @@ export interface NoticeDetailContextInfo {
   totalNoticeCount: number;  // 公告总数
 }
 
+function getNoticeNumberArgument(config: Config): string {
+  const argumentName = '序号';
+  return config.groupNoticeDetailUseFirstWhenNoNumber
+    ? `[${argumentName}]`
+    : `<${argumentName}>`;
+}
+
 /**
  * 格式化单条群公告详情为文本
  */
@@ -62,7 +69,7 @@ function formatGroupNoticeDetailAsText(
   output += `==================\n`;
 
   // 添加用法提示
-  output += `📖 用法: ${config.groupNoticeDetailCommandName} <序号>\n`;
+  output += `📖 用法: ${config.groupNoticeDetailCommandName} ${getNoticeNumberArgument(config)}\n`;
   output += `📝 示例: ${config.groupNoticeDetailCommandName} 2  查看第2条公告详情\n`;
 
   return output;
@@ -108,7 +115,7 @@ function formatGroupNoticeDetailAsForward(
 
   // 用法提示
   const usageText = [
-    `📖 用法: ${config.groupNoticeDetailCommandName} <序号>`,
+    `📖 用法: ${config.groupNoticeDetailCommandName} ${getNoticeNumberArgument(config)}`,
     `📝 示例: ${config.groupNoticeDetailCommandName} 2  查看第2条公告详情`
   ].join('\n');
   addMessageBlock(undefined, '使用帮助', usageText);
@@ -119,7 +126,12 @@ function formatGroupNoticeDetailAsForward(
 export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupNoticeCommand) return;
 
-  ctx.command(`${config.groupNoticeDetailCommandName} <num:number>`, `获取指定序号的群公告详情, 发送${responseHint}`)
+  const commandDescription = `获取指定序号的群公告详情, 发送${responseHint}`;
+  const command = config.groupNoticeDetailUseFirstWhenNoNumber
+    ? ctx.command(`${config.groupNoticeDetailCommandName} [num:number]`, commandDescription)
+    : ctx.command(`${config.groupNoticeDetailCommandName} <num:number>`, commandDescription);
+
+  command
     .alias('群公告详情')
     .alias('agnd')
     .option('imageStyleIdx', '-i, --idx, --index <idx:number> 图片样式索引')
@@ -136,8 +148,12 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         return;
       }
 
+      if ((num === undefined || num === null) && config.groupNoticeDetailUseFirstWhenNoNumber) {
+        num = 1;
+      }
+
       if (num === undefined || num === null || isNaN(num)) {
-        const errorMsg = `📢 ❌ 请输入要查看的公告序号！\n\n📖 用法: ${config.groupNoticeDetailCommandName} <序号>\n💡 示例: ${config.groupNoticeDetailCommandName} 2\n\n👉 查看公告列表: 群公告`;
+        const errorMsg = `📢 ❌ 请输入要查看的公告序号！\n\n📖 用法: ${config.groupNoticeDetailCommandName} ${getNoticeNumberArgument(config)}\n💡 示例: ${config.groupNoticeDetailCommandName} 2\n\n👉 查看公告列表: 群公告`;
         await session.send(config.enableQuoteWithImageSvg ? h.quote(session.messageId) + errorMsg : errorMsg);
         return;
       }
@@ -225,7 +241,7 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           );
           // 构建图片消息
           let imageMessage = `${config.enableQuoteWithImage ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${noticeDetailImageBase64}`)}`;
-          imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} <序号>`;
+          imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} ${getNoticeNumberArgument(config)}`;
           if (config.imageShowRenderInfo) {
             const elapsed = Date.now() - startTime;
             imageMessage += `\n🖼️ Puppeteer 渲染耗时: ${elapsed}ms | 样式: ${selectedStyleDetailObj.styleKey} | 黑暗模式：${selectedDarkMode ? '开启' : '关闭'} | 类型: ${config.imageType} | 质量: ${config.screenshotQuality}`;
@@ -287,7 +303,7 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
           const fontFileName = fontFiles.length > 0 ? basename(fontFiles[0]) : '默认'
           const fontFamilyDisplay = config.svgEnableCustomFont ? fontFamily : '默认'
           let imageMessage = `${config.enableQuoteWithImageSvg ? h.quote(session.messageId) : ''}${h.image(`data:image/png;base64,${svgImageBase64}`)}`;
-          imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} <序号>`;
+          imageMessage += `\n📢 第 ${index}/${groupNoticeList.length} 条公告 | 📖 ${config.groupNoticeDetailCommandName} ${getNoticeNumberArgument(config)}`;
           if (config.svgShowRenderInfo) {
             imageMessage += `\n\n🚀 resvg 渲染耗时: ${elapsed}ms | 缩放: ${config.svgScale}x | 字体: ${fontFileName} | font-family: ${fontFamilyDisplay}`;
           }

@@ -31,7 +31,7 @@ export type ImageType = typeof IMAGE_TYPES[keyof typeof IMAGE_TYPES];
 export const ONEBOT_IMPL_NAME = {
   LAGRNAGE: 'Lagrange',
   NAPCAT: 'NapCat',
-  // LLONEBOT: "LLOneBot" //todo
+  // LLBOT: "LLBot" //todo, 不过我观察下来他大部分请求格式和Napcat差不多捏， // 这行注释不要删捏
 }
 
 export type OneBotImplName = typeof ONEBOT_IMPL_NAME[keyof typeof ONEBOT_IMPL_NAME];

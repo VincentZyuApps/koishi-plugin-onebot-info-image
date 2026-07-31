@@ -28,33 +28,49 @@ export interface Config {
   /** ⏱️ 自动撤回延迟（秒） */
   autoRecallDelay: number;
 
-  // ===== ⚙️ 基础指令 =====
+  // ===== ℹ️ 用户信息指令 =====
   /** ℹ️ 是否启用用户信息命令 */
   enableUserInfoCommand: boolean;
   /** 🔍 用户信息命令名称 */
   userinfoCommandName: string;
   /** 📱 是否隐藏手机号 */
   hidePhoneNumber: boolean;
+
+  // ===== 👥 群管理员列表指令 =====
   /** 👥 是否启用群管理员列表命令 */
   enableGroupAdminListCommand: boolean;
   /** 👥 群管理员列表命令名称 */
   groupAdminListCommandName: string;
+
+  // ===== 📌 群精华列表指令 =====
   /** 📌 是否启用群精华消息命令 */
   enableGroupEssenceCommand: boolean;
   /** 📌 群精华列表命令名称 */
   groupEssenceCommandName: string;
-  /** 🔍 群精华消息详情命令名称 */
-  groupEssenceDetailCommandName: string;
   /** 📌 群精华列表每页显示条数 */
   groupEssencePageSize: number;
+
+  // ===== 🔍 群精华详情指令 =====
+  /** 🔍 群精华消息详情命令名称 */
+  groupEssenceDetailCommandName: string;
+  /** 1️⃣ 群精华详情未传序号时是否默认查看第一条 */
+  groupEssenceDetailUseFirstWhenNoNumber: boolean;
+
+  // ===== 📢 群公告列表指令 =====
   /** 📢 是否启用群公告命令 */
   enableGroupNoticeCommand: boolean;
   /** 📢 群公告列表命令名称 */
   groupNoticeCommandName: string;
-  /** 🔍 群公告详情命令名称 */
-  groupNoticeDetailCommandName: string;
   /** 📢 群公告每页显示条数 */
   groupNoticePageSize: number;
+
+  // ===== 🔍 群公告详情指令 =====
+  /** 🔍 群公告详情命令名称 */
+  groupNoticeDetailCommandName: string;
+  /** 1️⃣ 群公告详情未传序号时是否默认查看第一条 */
+  groupNoticeDetailUseFirstWhenNoNumber: boolean;
+
+  // ===== 🎨 图片样式列表指令 =====
   /** 🎨 查看 puppeteer 图片样式列表命令名称 */
   inspectStyleCommandName: string;
 
@@ -120,8 +136,9 @@ export const Config: Schema<Config> = Schema.intersect([
   // ===== 🤖 OneBot 实现平台 =====
   Schema.object({
     onebotImplName: Schema.union([
-      Schema.const(ONEBOT_IMPL_NAME.LAGRNAGE).description('Lagrange'),
-      Schema.const(ONEBOT_IMPL_NAME.NAPCAT).description('NapCat'),
+      Schema.const(ONEBOT_IMPL_NAME.LAGRNAGE).description('🧐💜 Lagrange V1'),
+      Schema.const(ONEBOT_IMPL_NAME.NAPCAT).description('🐈💙 NapCat'),
+      // Schema.const(ONEBOT_IMPL_NAME.LLBOT).description('🤖🩷 LLBot'), // 这行注释不要删捏
     ])
       .role('radio')
       .default(ONEBOT_IMPL_NAME.LAGRNAGE)
@@ -142,7 +159,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .description('⏱️ 自动撤回延迟（秒）。消息发出后经过该时间自动撤回。'),
   }).description('🗑️ 自动撤回配置'),
 
-  // ===== ⚙️ 基础指令 =====
+  // ===== ℹ️ 用户信息指令 =====
   Schema.object({
     enableUserInfoCommand: Schema.boolean()
       .default(true)
@@ -154,42 +171,72 @@ export const Config: Schema<Config> = Schema.intersect([
       .default(true)
       .experimental()
       .description('📱 是否隐藏手机号。开启后手机号将显示为【已隐藏】。</br> <i> 保护隐私捏 </i>'),
+  }).description('ℹ️ 用户信息指令配置'),
+
+  // ===== 👥 群管理员列表指令 =====
+  Schema.object({
     enableGroupAdminListCommand: Schema.boolean()
       .default(true)
       .description('👥 是否启用群管理员列表命令。'),
     groupAdminListCommandName: Schema.string()
       .default('群管理列表')
       .description('👥 群管理员列表命令名称。'),
+  }).description('👥 群管理员列表指令配置'),
+
+  // ===== 📌 群精华列表指令 =====
+  Schema.object({
     enableGroupEssenceCommand: Schema.boolean()
       .default(true)
-      .description('📌 是否启用群精华消息命令。'),
+      .description('📌 是否启用群精华列表及详情命令。'),
     groupEssenceCommandName: Schema.string()
       .default('群精华列表')
       .description('📌 群精华列表命令名称。'),
-    groupEssenceDetailCommandName: Schema.string()
-      .default('群精华详情')
-      .description('🔍 群精华消息详情命令名称。'),
     groupEssencePageSize: Schema.number()
       .min(1).max(20).step(1)
       .default(10)
       .description('📌 群精华列表每页显示条数。'),
+  }).description('📌 群精华列表指令配置'),
+
+  // ===== 🔍 群精华详情指令 =====
+  Schema.object({
+    groupEssenceDetailCommandName: Schema.string()
+      .default('群精华详情')
+      .description('🔍 群精华消息详情命令名称。'),
+    groupEssenceDetailUseFirstWhenNoNumber: Schema.boolean()
+      .default(true)
+      .description('1️⃣ 未传序号时是否默认查看第一条精华消息。关闭后将提示必须传入序号。'),
+  }).description('🔍 群精华详情指令配置'),
+
+  // ===== 📢 群公告列表指令 =====
+  Schema.object({
     enableGroupNoticeCommand: Schema.boolean()
       .default(true)
-      .description('📢 是否启用群公告命令。'),
+      .description('📢 是否启用群公告列表及详情命令。'),
     groupNoticeCommandName: Schema.string()
       .default('群公告列表')
       .description('📢 群公告列表命令名称。'),
-    groupNoticeDetailCommandName: Schema.string()
-      .default('群公告详情')
-      .description('🔍 群公告详情命令名称。'),
     groupNoticePageSize: Schema.number()
       .min(1).max(20).step(1)
       .default(10)
       .description('📢 群公告每页显示条数。'),
+  }).description('📢 群公告列表指令配置'),
+
+  // ===== 🔍 群公告详情指令 =====
+  Schema.object({
+    groupNoticeDetailCommandName: Schema.string()
+      .default('群公告详情')
+      .description('🔍 群公告详情命令名称。'),
+    groupNoticeDetailUseFirstWhenNoNumber: Schema.boolean()
+      .default(true)
+      .description('1️⃣ 未传序号时是否默认查看第一条公告。关闭后将提示必须传入序号。'),
+  }).description('🔍 群公告详情指令配置'),
+
+  // ===== 🎨 图片样式列表指令 =====
+  Schema.object({
     inspectStyleCommandName: Schema.string()
       .default('查看puppeteer图片样式')
       .description('🎨 查看puppeteer图片样式列表命令名称。'),
-  }).description('⚙️ 基础配置'),
+  }).description('🎨 Puppeteer 图片样式列表指令配置'),
 
   // ===== 💬 文本消息 =====
   Schema.object({
