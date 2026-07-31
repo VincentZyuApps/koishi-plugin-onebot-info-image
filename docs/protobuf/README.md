@@ -6,7 +6,7 @@
 
 - `onebot-info-image.proto` 是仅用于文档与跨语言参考的有效 Proto3 Schema。
 - 插件运行时不读取、编译或生成 Protocol Buffer 消息。
-- Schema 以 `src/type.ts` 中的 `UnifiedUserInfo`、`UnifiedAdminInfo` 和 `UnifiedContextInfo` 为基础。
+- Schema 以 `src/types.ts` 中的 `UnifiedUserInfo`、`UnifiedAdminInfo` 和 `UnifiedContextInfo` 为基础。
 - `qid/q_id`、`regTime/reg_time/RegisterTime` 等协议端历史别名在 Schema 中合并为单一语义字段。
 - 无法稳定结构化的实现端扩展字段使用 `*_json` 保存，完整原始响应由结果消息中的 `raw_json` 承载。
 

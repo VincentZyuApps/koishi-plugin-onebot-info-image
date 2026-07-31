@@ -3,20 +3,23 @@ import { Context, h } from 'koishi'
 import { basename } from 'path'
 
 // ===== 🧩 插件配置 =====
-import { Config } from './index'
+import type { Config } from '../config'
 
 // ===== 📋 类型定义 =====
-import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
+import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from '../types'
 
 // ===== 🖼️ 渲染模块 =====
-import { renderGroupNotice } from './renderGroupNoticeList'
+import { renderGroupNotice } from '../renderers/puppeteer/renderPptrGroupNoticeList'
 
 // ===== 🚀 SVG 渲染模块 =====
-import { svgGroupNotice } from './svgGroupNoticeList'
+import { svgGroupNotice } from '../renderers/svg/renderSvgGroupNoticeList'
 
 // ===== 🔧 工具函数 =====
-import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
-import { guardPuppeteerOutput } from './output'
+import { loadResvgFont } from '../utils/font'
+import { logCommandToFile } from '../utils/logging'
+import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64 } from '../utils/media'
+import { scheduleAutoRecall } from '../utils/message'
+import { guardPuppeteerOutput } from '../output'
 
 // 群公告的原始格式
 export interface GroupNoticeMessageRaw {

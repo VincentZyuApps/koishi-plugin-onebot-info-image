@@ -1,18 +1,20 @@
-// renderGroupEssenceDetail.ts
+// renderPptrGroupEssenceDetail.ts
 
 // ===== 📦 外部依赖 =====
 import { Context } from 'koishi';
 import { } from 'koishi-plugin-puppeteer';
 
 // ===== 📋 类型定义 =====
-import { FONT_FILES, IMAGE_STYLES, type ImageStyle, ImageType } from './type';
+import { FONT_FILES, IMAGE_STYLES, type ImageStyle, ImageType } from '../../types';
 
 // ===== 🔧 工具函数 =====
-import { generateTimestamp, getFontBase64, getGroupAvatarBase64 } from './utils';
+import { getFontBase64 } from '../../utils/font';
+import { getGroupAvatarBase64 } from '../../utils/media';
+import { generateTimestamp } from '../../utils/time';
 
 // ===== 📦 命令模块 =====
-import { EssenceDetailContextInfo } from './commandGroupEssenceDetail';
-import { formatTimestamp, GroupEssenceMessageRaw } from './commandGroupEssenceList';
+import { EssenceDetailContextInfo } from '../../commands/commandGroupEssenceDetail';
+import { formatTimestamp, GroupEssenceMessageRaw } from '../../commands/commandGroupEssenceList';
 
 /**
  * 解析群精华消息内容为 HTML（详情页完整版本，不做截断）

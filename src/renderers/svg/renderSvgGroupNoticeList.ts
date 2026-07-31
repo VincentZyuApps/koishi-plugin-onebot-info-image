@@ -3,7 +3,9 @@ import { Context } from 'koishi'
 import { Resvg } from '@resvg/resvg-js'
 
 // ===== 🔧 工具函数 =====
-import { decodeHtmlEntities, escapeXml, formatTs, loadResvgFont, truncate } from './utils'
+import { loadResvgFont } from '../../utils/font'
+import { decodeHtmlEntities, escapeXml, truncate } from '../../utils/svg'
+import { formatTs } from '../../utils/time'
 
 export interface GroupNoticeMessageRaw {
   notice_id: string

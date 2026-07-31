@@ -1,14 +1,16 @@
-// renderAdminList.ts
+// renderPptrAdminList.ts
 
 // ===== 📦 外部依赖 =====
 import { Context } from 'koishi';
 import { } from 'koishi-plugin-puppeteer'; // 引入 puppeteer 类型，但不直接使用 Puppeteer 类
 
 // ===== 📋 类型定义 =====
-import { FONT_FILES, IMAGE_STYLES, type ImageStyle, ImageType, UnifiedAdminInfo, UnifiedContextInfo } from './type';
+import { FONT_FILES, IMAGE_STYLES, type ImageStyle, ImageType, UnifiedAdminInfo, UnifiedContextInfo } from '../../types';
 
 // ===== 🔧 工具函数 =====
-import { generateTimestamp, getFontBase64, getGroupAvatarBase64 } from './utils';
+import { getFontBase64 } from '../../utils/font';
+import { getGroupAvatarBase64 } from '../../utils/media';
+import { generateTimestamp } from '../../utils/time';
 
 const generateAdminListItems = (admins: UnifiedAdminInfo[]) => {
     return admins.map((admin, index) => `

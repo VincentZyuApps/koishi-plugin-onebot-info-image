@@ -3,22 +3,25 @@ import { Context, h } from 'koishi'
 import { basename } from 'path'
 
 // ===== 🧩 插件配置 =====
-import { Config } from './index'
+import type { Config } from '../config'
 
 // ===== 📋 类型定义 =====
-import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from './type'
+import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from '../types'
 
 import { GroupNoticeMessageRaw, formatTimestamp, parseNoticeText } from './commandGroupNoticeList'
 
 // ===== 🖼️ 渲染模块 =====
-import { renderGroupNoticeDetail } from './renderGroupNoticeDetail'
+import { renderGroupNoticeDetail } from '../renderers/puppeteer/renderPptrGroupNoticeDetail'
 
 // ===== 🚀 SVG 渲染模块 =====
-import { svgGroupNoticeDetail } from './svgGroupNoticeDetail'
+import { svgGroupNoticeDetail } from '../renderers/svg/renderSvgGroupNoticeDetail'
 
 // ===== 🔧 工具函数 =====
-import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
-import { guardPuppeteerOutput } from './output'
+import { loadResvgFont } from '../utils/font'
+import { logCommandToFile } from '../utils/logging'
+import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64 } from '../utils/media'
+import { scheduleAutoRecall } from '../utils/message'
+import { guardPuppeteerOutput } from '../output'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {

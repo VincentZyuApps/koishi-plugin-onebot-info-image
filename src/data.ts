@@ -4,20 +4,20 @@ import { DataService } from '@koishijs/plugin-console';
 import * as path from 'path';
 
 // ===== 🖼️ 渲染模块 =====
-import { getSourceHanSerifSCStyleUserInfoHtmlStr, getFlatMinimalUserInfoHtmlStr, getLXGWWenKaiUserInfoHtmlStr } from './renderUserInfo';
+import { getSourceHanSerifSCStyleUserInfoHtmlStr, getFlatMinimalUserInfoHtmlStr, getLXGWWenKaiUserInfoHtmlStr } from './renderers/puppeteer/renderPptrUserInfo';
 
 // ===== 📋 类型定义 =====
-import { UnifiedUserInfo, UnifiedContextInfo, IMAGE_STYLES, ImageStyle } from './type';
+import { UnifiedUserInfo, UnifiedContextInfo, IMAGE_STYLES, ImageStyle } from './types';
 
 // ===== 🔧 工具函数 =====
-import { validateFonts, getFontBase64 } from './utils';
+import { validateFonts, getFontBase64 } from './utils/font';
 
 // 模板类型
 export type TemplateType = 'sourceHanSerif' | 'flatMinimal' | 'lxgwWenKai';
 // 字体类型
 export type FontType = 'sourceHanSerif' | 'lxgwWenKai';
 
-declare module '@koishijs/plugin-console' {
+declare module '@koishijs/console' {
     namespace Console {
         interface Services {
             'onebot-info-image': BotInfoData;

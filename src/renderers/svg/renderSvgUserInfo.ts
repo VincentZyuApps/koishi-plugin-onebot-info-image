@@ -3,10 +3,12 @@ import { Context } from 'koishi'
 import { Resvg } from '@resvg/resvg-js'
 
 // ===== 📋 类型定义 =====
-import { UnifiedContextInfo, UnifiedUserInfo } from './type'
+import { UnifiedContextInfo, UnifiedUserInfo } from '../../types'
 
 // ===== 🔧 工具函数 =====
-import { escapeXml, formatTs, loadResvgFont, truncate } from './utils'
+import { loadResvgFont } from '../../utils/font'
+import { escapeXml, truncate } from '../../utils/svg'
+import { formatTs } from '../../utils/time'
 
 function getSex(sex: string): string {
   return sex === 'male' ? '男' : sex === 'female' ? '女' : '未知'

@@ -4,20 +4,23 @@ import { Context, h } from 'koishi'
 import { resolve, basename } from 'path'
 
 // ===== 🧩 插件配置 =====
-import { Config } from './index'
+import type { Config } from '../config'
 
 // ===== 📋 类型定义 =====
-import { convertToUnifiedContextInfo, convertToUnifiedUserInfo, getNapcatQQStatusText, IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, ONEBOT_IMPL_NAME, UnifiedContextInfo, UnifiedUserInfo } from './type'
+import { convertToUnifiedContextInfo, convertToUnifiedUserInfo, getNapcatQQStatusText, IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, ONEBOT_IMPL_NAME, UnifiedContextInfo, UnifiedUserInfo } from '../types'
 
 // ===== 🖼️ 渲染模块 =====
-import { renderUserInfo } from './renderUserInfo'
+import { renderUserInfo } from '../renderers/puppeteer/renderPptrUserInfo'
 
 // ===== 🚀 SVG 渲染模块 =====
-import { svgUserInfo } from './svgUserInfo'
+import { svgUserInfo } from '../renderers/svg/renderSvgUserInfo'
 
 // ===== 🔧 工具函数 =====
-import { getGroupAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
-import { guardPuppeteerOutput } from './output'
+import { loadResvgFont } from '../utils/font'
+import { logCommandToFile, resolvePluginPath } from '../utils/logging'
+import { getGroupAvatarBase64 } from '../utils/media'
+import { scheduleAutoRecall } from '../utils/message'
+import { guardPuppeteerOutput } from '../output'
 
 export function registerUserInfoCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableUserInfoCommand) return;
@@ -239,7 +242,7 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           const userInfoimageBase64 = await renderUserInfo(ctx, unifiedUserInfo, unifiedContextInfo, selectedImageStyle, selectedDarkMode, config.imageType, config.screenshotQuality, config.hidePhoneNumber);
           if (config.verboseFileOutput) {
             try {
-              const tmpDir = resolve(__dirname, '../tmp');
+              const tmpDir = resolvePluginPath(__dirname, 'tmp');
               mkdirSync(tmpDir, { recursive: true });
               const outputPath = resolve(tmpDir, 'image_base64.txt');
               writeFileSync(outputPath, userInfoimageBase64, 'utf-8');

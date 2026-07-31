@@ -2,13 +2,13 @@
 import { Context } from 'koishi'
 
 // ===== 🧩 插件配置 =====
-import { Config } from './index'
+import type { Config } from '../config'
 
 // ===== 📋 类型定义 =====
-import { IMAGE_STYLES } from './type'
+import { IMAGE_STYLES } from '../types'
 
 // ===== 🔧 工具函数 =====
-import { scheduleAutoRecall } from './utils'
+import { scheduleAutoRecall } from '../utils/message'
 
 export function registerInspectStyleCommand(ctx: Context, config: Config) {
   // 注册 ais 指令 - 查看图片样式列表

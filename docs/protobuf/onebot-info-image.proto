@@ -74,7 +74,7 @@ message UnifiedAdminInfo {
   optional string avatar = 24;
 }
 
-// Stable cross-implementation view derived from src/type.ts UnifiedUserInfo.
+// Stable cross-implementation view derived from src/types.ts UnifiedUserInfo.
 // Historical aliases are intentionally collapsed, for example qid/q_id and
 // regTime/reg_time/RegisterTime. Implementation-specific fields remain in the
 // result envelope's raw_json field.

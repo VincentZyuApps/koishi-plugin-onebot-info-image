@@ -3,10 +3,11 @@ import { Context } from 'koishi'
 import { Resvg } from '@resvg/resvg-js'
 
 // ===== 📋 类型定义 =====
-import { UnifiedAdminInfo, UnifiedContextInfo } from './type'
+import { UnifiedAdminInfo, UnifiedContextInfo } from '../../types'
 
 // ===== 🔧 工具函数 =====
-import { escapeXml, fetchTwemojiSvg, loadResvgFont, truncate } from './utils'
+import { loadResvgFont } from '../../utils/font'
+import { escapeXml, fetchTwemojiSvg, truncate } from '../../utils/svg'
 
 // Emoji 正则表达式
 const EMOJI_REGEX = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu

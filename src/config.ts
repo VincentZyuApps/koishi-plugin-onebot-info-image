@@ -3,8 +3,8 @@ import {
   IMAGE_STYLES, type ImageStyleKey,
   IMAGE_STYLE_KEY_ARR, IMAGE_TYPES, type ImageType,
   ONEBOT_IMPL_NAME, type OneBotImplName,
-} from './type'
-import { getFontPathByBaseDir } from './utils'
+} from './types'
+import { getFontPathByBaseDir } from './utils/font'
 
 // ===== 🎨 图片样式详情 =====
 export interface ImageStyleDetail {

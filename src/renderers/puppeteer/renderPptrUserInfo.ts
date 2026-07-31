@@ -1,14 +1,16 @@
-// render.ts
+// renderPptrUserInfo.ts
 
 // ===== 📦 外部依赖 =====
 import { Context } from 'koishi';
 import { } from 'koishi-plugin-puppeteer';
 
 // ===== 📋 类型定义 =====
-import { IMAGE_STYLES, FONT_FILES, type ImageStyle, ImageType, UnifiedUserInfo, UnifiedContextInfo } from './type';
+import { IMAGE_STYLES, FONT_FILES, type ImageStyle, ImageType, UnifiedUserInfo, UnifiedContextInfo } from '../../types';
 
 // ===== 🔧 工具函数 =====
-import { generateTimestamp, getGroupAvatarBase64, getFontBase64 } from './utils';
+import { getFontBase64 } from '../../utils/font';
+import { getGroupAvatarBase64 } from '../../utils/media';
+import { generateTimestamp } from '../../utils/time';
 
 const formatMsTimestamp = (timestamp) => {
     if (!timestamp) return '<span class="unknown">未知</span>';

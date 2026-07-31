@@ -5,20 +5,18 @@ import { Context, h } from 'koishi'
 import {} from 'koishi-plugin-adapter-onebot';
 import { writeFileSync, mkdirSync } from 'fs'
 // ----
-import { validateFonts } from './utils'
-import { OnebotInfoImageDataServer } from './data_server'
+import { validateFonts } from './utils/font'
+import { OnebotInfoImageDataServer } from './data'
 // ---
-import { renderUserInfo } from './renderUserInfo'
-import { renderAdminList } from './renderAdminList'
-import { registerUserInfoCommand } from './commandUserInfo'
-import { registerAdminListCommand } from './commandAdminList'
-import { registerGroupNoticeCommand } from './commandGroupNoticeList'
-import { registerInspectStyleCommand } from './commandInspectStyle'
-import { registerGroupEssenceCommand } from './commandGroupEssenceList'
-import { registerGroupNoticeDetailCommand } from './commandGroupNoticeDetail'
-import { registerGroupEssenceDetailCommand } from './commandGroupEssenceDetail'
-import { convertToUnifiedUserInfo, convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedAdminInfo, UnifiedContextInfo } from './type'
-import { IMAGE_STYLES, ONEBOT_IMPL_NAME } from './type';
+import { registerUserInfoCommand } from './commands/commandUserInfo'
+import { registerAdminListCommand } from './commands/commandAdminList'
+import { registerGroupNoticeCommand } from './commands/commandGroupNoticeList'
+import { registerInspectStyleCommand } from './commands/commandInspectStyle'
+import { registerGroupEssenceCommand } from './commands/commandGroupEssenceList'
+import { registerGroupNoticeDetailCommand } from './commands/commandGroupNoticeDetail'
+import { registerGroupEssenceDetailCommand } from './commands/commandGroupEssenceDetail'
+import { convertToUnifiedUserInfo, convertToUnifiedAdminInfo, convertToUnifiedContextInfo, UnifiedUserInfo, UnifiedAdminInfo, UnifiedContextInfo } from './types'
+import { IMAGE_STYLES, ONEBOT_IMPL_NAME } from './types';
 import { Config } from './config'
 import { getConfiguredOutputFormats } from './output'
 

@@ -3,20 +3,23 @@ import { Context, h } from 'koishi'
 import { basename } from 'path'
 
 // ===== 🧩 插件配置 =====
-import { Config } from './index'
+import type { Config } from '../config'
 
 // ===== 📋 类型定义 =====
-import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, UnifiedAdminInfo, UnifiedContextInfo } from './type'
+import { convertToUnifiedAdminInfo, convertToUnifiedContextInfo, IMAGE_STYLES, IMAGE_STYLE_KEY_ARR, UnifiedAdminInfo, UnifiedContextInfo } from '../types'
 
 // ===== 🖼️ 渲染模块 =====
-import { renderAdminList } from './renderAdminList'
+import { renderAdminList } from '../renderers/puppeteer/renderPptrAdminList'
 
 // ===== 🚀 SVG 渲染模块 =====
-import { svgAdminList } from './svgAdminList'
+import { svgAdminList } from '../renderers/svg/renderSvgAdminList'
 
 // ===== 🔧 工具函数 =====
-import { getGroupAvatarBase64, getUserAvatarBase64, loadResvgFont, logCommandToFile, scheduleAutoRecall } from './utils'
-import { guardPuppeteerOutput } from './output'
+import { loadResvgFont } from '../utils/font'
+import { logCommandToFile } from '../utils/logging'
+import { getGroupAvatarBase64, getUserAvatarBase64 } from '../utils/media'
+import { scheduleAutoRecall } from '../utils/message'
+import { guardPuppeteerOutput } from '../output'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
