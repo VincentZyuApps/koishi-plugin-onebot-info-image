@@ -1,5 +1,43 @@
 ## 更新日志
 
+- **0.6.0-beta.2+20260731** 🐛
+  - 🐛 **修复生产环境类型构建失败**
+    - 修复干净安装或依赖未提升环境中无法解析 `@koishijs/console` 的问题
+    - 将 `@koishijs/console` 声明为插件直接依赖，不再依靠其他工作区包带来的传递依赖提升
+    - 避免 Console 模块增强失效后继续触发 DataService 名称及四个 WebUI 事件的连锁类型错误
+  - 📦 **对齐 Koishi Console 依赖版本**
+    - 新增 `@koishijs/console@^5.30.11` 运行依赖，与当前 `@koishijs/plugin-console` 保持一致
+    - 将 `@koishijs/client` 从 `^5.30.10` 更新至 `^5.30.11`，满足 Console 相关包的 peer dependency 范围
+    - 将 Koishi peer 最低版本调整为 `^4.18.9`，并补充同版本开发依赖以满足 Console 类型构建要求
+  - 🧪 **测试与验证**
+    - 验证当前插件可直接解析自身声明的 `@koishijs/console`
+    - 通过 TypeScript 类型检查及 `onebot-info-image` 独立 Yakumo 构建验证
+- **0.6.0-beta.1+20260731** 🏗️
+  - 🏗️ **重构源码目录结构**
+    - 将用户信息、群管理员、群公告、群精华和样式检查等七个指令模块统一迁移至 `src/commands/`
+    - 将六个 Puppeteer 渲染模块迁移至 `src/renderers/puppeteer/`，并统一使用 `renderPptr` 文件名前缀
+    - 将六个 SVG 渲染模块迁移至 `src/renderers/svg/`，并统一使用 `renderSvg` 文件名前缀
+    - 将 `src/data_server.ts` 重命名为根目录下的 `src/data.ts`
+    - 将 `src/type.ts` 重命名为 `src/types.ts`，使类型模块命名与实际用途一致
+  - 🧩 **拆分通用工具模块**
+    - 移除原有的单体 `src/utils.ts`，按照职责拆分为六个独立模块
+    - `font.ts` 集中管理字体下载、路径解析、完整性校验、字体名称读取、Base64 加载和 resvg 字体配置
+    - `media.ts` 负责获取群头像、用户头像和群公告图片并转换为 Base64
+    - `message.ts` 负责消息自动撤回调度，`logging.ts` 负责调试图片与指令日志输出
+    - `svg.ts` 负责 Twemoji、XML 转义、HTML 实体解码和 SVG 文本处理，`time.ts` 负责时间格式化
+  - 🔧 **优化模块依赖与运行路径**
+    - 将指令模块的 `Config` 类型改为直接依赖 `config.ts`，避免通过插件入口产生反向依赖
+    - 统一更新指令、Puppeteer、SVG、配置、数据服务和插件入口之间的相对导入路径
+    - 新增插件根目录定位逻辑，确保源码直跑、分模块编译及最终 bundle 中的 `tmp/` 与 `log/` 输出位置一致
+    - 修正 Console 事件类型增强目标，使 WebUI 自定义事件正确合并至 `@koishijs/console`
+    - 保持 `output.ts` 独立负责输出格式解析和 Puppeteer 运行时守卫
+  - 📝 **同步文档引用**
+    - 更新 Protocol Buffer Schema 及说明文档中的类型源码路径，由 `src/type.ts` 调整为 `src/types.ts`
+    - 保持现有指令行为、Puppeteer 渲染、SVG 渲染和 WebUI 预览行为不变
+  - 🧪 **测试与验证**
+    - 通过 TypeScript 类型检查与 Git 差异格式检查
+    - 通过 `onebot-info-image` 独立 Yakumo 构建验证
+    - 确认 esbuild Node bundle 与 Vite WebUI 生产构建均成功完成
 - **0.5.5-rc.5+20260727** 🐛
   - 🐛 **修复命令重复发送消息 ID**
     - 修复错误提示、空列表和越界提示发送完成后，又额外回复一条数字消息 ID 的问题

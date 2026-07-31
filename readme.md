@@ -101,7 +101,7 @@
 
 ![Koishi WebUI Notifier](docs/images/preview/koishi-webui-notifier.png)
 
-<details>
+<details open>
 <summary><strong>用户信息预览（4 张）</strong></summary>
 
 #### Source 样式（Puppeteer）
@@ -122,7 +122,7 @@
 
 </details>
 
-<details>
+<details open>
 <summary><strong>管理员列表预览（4 张）</strong></summary>
 
 #### Source 样式（Puppeteer）
@@ -143,7 +143,7 @@
 
 </details>
 
-<details>
+<details open>
 <summary><strong>群公告预览（4 张）</strong></summary>
 
 #### 群公告列表（Puppeteer）
@@ -164,7 +164,7 @@
 
 </details>
 
-<details>
+<details open>
 <summary><strong>群精华预览（4 张）</strong></summary>
 
 #### 群精华列表（Puppeteer）
