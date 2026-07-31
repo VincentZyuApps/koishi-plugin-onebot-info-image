@@ -234,7 +234,7 @@ export const Config: Schema<Config> = Schema.intersect([
   // ===== 🎨 图片样式列表指令 =====
   Schema.object({
     inspectStyleCommandName: Schema.string()
-      .default('查看puppeteer图片样式')
+      .default('查看onebot卡片的puppeteer图片样式')
       .description('🎨 查看puppeteer图片样式列表命令名称。'),
   }).description('🎨 Puppeteer 图片样式列表指令配置'),
 
