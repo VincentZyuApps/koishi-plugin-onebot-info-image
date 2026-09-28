@@ -1,6 +1,7 @@
 // ===== 📦 外部依赖 =====
 import { Context } from 'koishi';
 import { DataService } from '@koishijs/plugin-console';
+import {} from '@koishijs/console';
 import * as path from 'path';
 
 // ===== 🖼️ 渲染模块 =====
@@ -18,6 +19,20 @@ export type TemplateType = 'sourceHanSerif' | 'flatMinimal' | 'lxgwWenKai';
 export type FontType = 'sourceHanSerif' | 'lxgwWenKai';
 
 declare module '@koishijs/console' {
+    namespace Console {
+        interface Services {
+            'onebot-info-image': BotInfoData;
+        }
+    }
+    interface Events {
+        'onebot-info-image/refresh'(): void;
+        'onebot-info-image/setTemplate'(template: TemplateType): void;
+        'onebot-info-image/setFont'(font: FontType): void;
+        'onebot-info-image/setDarkMode'(darkMode: boolean): void;
+    }
+}
+
+declare module '@koishijs/plugin-console' {
     namespace Console {
         interface Services {
             'onebot-info-image': BotInfoData;
@@ -53,7 +68,7 @@ export class OnebotInfoImageDataServer extends DataService<BotInfoData> {
     static inject = ['console'];
 
     constructor(ctx: Context) {
-        super(ctx, 'onebot-info-image', { immediate: true });
+        super(ctx, 'onebot-info-image' as any, { immediate: true });
         
         // 预加载字体（先确保下载完毕）
         this.loadFonts();
@@ -65,24 +80,24 @@ export class OnebotInfoImageDataServer extends DataService<BotInfoData> {
         });
         
         // 注册刷新事件
-        ctx.console.addListener('onebot-info-image/refresh', async () => {
+        ctx.console.addListener('onebot-info-image/refresh' as any, async () => {
             await this.refresh();
         }, { authority: 0 });
         
         // 注册设置模板事件
-        ctx.console.addListener('onebot-info-image/setTemplate', async (template: TemplateType) => {
+        ctx.console.addListener('onebot-info-image/setTemplate' as any, async (template: TemplateType) => {
             this.currentTemplate = template;
             await this.refresh();
         }, { authority: 0 });
         
         // 注册设置字体事件
-        ctx.console.addListener('onebot-info-image/setFont', async (font: FontType) => {
+        ctx.console.addListener('onebot-info-image/setFont' as any, async (font: FontType) => {
             this.currentFont = font;
             await this.refresh();
         }, { authority: 0 });
         
         // 注册设置深色模式事件
-        ctx.console.addListener('onebot-info-image/setDarkMode', async (darkMode: boolean) => {
+        ctx.console.addListener('onebot-info-image/setDarkMode' as any, async (darkMode: boolean) => {
             this.currentDarkMode = darkMode;
             await this.refresh();
         }, { authority: 0 });
