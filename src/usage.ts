@@ -118,7 +118,7 @@ export const usage = `
   <li><code>群精华详情 &lt;序号&gt;</code>（别名：<code>精华详情</code>）：查看单条精华消息详细图文内容。</li>
   <li><code>群公告 [page]</code>（别名：<code>公告列表</code>）：分页查看群发布的公告。</li>
   <li><code>群公告详情 &lt;序号&gt;</code>（别名：<code>公告详情</code>）：查看指定群公告完整内容与发布者。</li>
-  <li><code>预览样式</code>（别名：<code>查看样式</code>）：预览当前选择的图片卡片主题风格。</li>
+  <li><code>查看onebot信息插件的puppeteer图片样式</code>（别名：<code>awa_onebot_info_image_styles_list</code>、<code>aoiisl</code>、<code>ais</code>）：查看并罗列所有可用的 Puppeteer 图片主题样式。</li>
 </ul>
 <p><b>支持输出形式：</b>纯文本、OneBot 合并转发消息、Puppeteer 渲染图片、resvg 极速 SVG 图片，可在配置项中自由勾选切换。</p>
 </div>

@@ -15,6 +15,8 @@ export function registerInspectStyleCommand(ctx: Context, config: Config) {
   ctx.command(config.inspectStyleCommandName, "查看图片样式列表")
     .alias('ais')
     .alias("awa_inspect_style")
+    .alias("awa_onebot_info_image_styles_list")
+    .alias("aoiisl")
     .action(async ({ session }) => {
       let msg = '用户信息图片样式列表：\n';
       for (let i = 0; i < config.imageStyleDetails.length; i++) {
