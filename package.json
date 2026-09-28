@@ -1,6 +1,6 @@
 {
   "name": "koishi-plugin-onebot-info-image",
-  "description": "🎯 主要用 OneBotV11 格式的 API 获取 👤 用户详细信息 / 👥 群管理员列表信息 / 📢 群公告信息 / 📌 群精华信息，可以发 💬 纯文本 / ✉️ 合并转发 / 🖼️ 渲染图片。🔧 现在支持 Lagrange V1、NapCat 与 LLBot 的适配。👍 推荐接入 Napcat / LLBot",
+  "description": "🎯 主要用 OneBotV11 格式的 API 获取 👤 用户详细信息 / 👥 群管理员列表信息 / 📢 群公告信息 / 📌 群精华信息，可以发 💬 纯文本 / ✉️ 合并转发 / 🖼️ 渲染图片。🔧 完整适配 Lagrange V1、NapCat、LLBot 等 OneBot 协议端。👍 推荐接入 NapCat / LLBot",
   "version": "0.7.0-beta.5+20260928",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -35,8 +35,8 @@
   },
   "koishi": {
     "description": {
-      "en": "🎯 Retrieve detailed user info, 👥 group admin lists, 📢 notices, and 📌 essence messages using the OneBot V11 API. Supports sending via 💬 plain text, ✉️ merged forward messages, or 🖼️ rendered images. 🔧 (Compatible with Lagrange V1, NapCat, and LLBot). 👍 Napcat / LLBot recommended.",
-      "zh": "🎯 主要用 OneBotV11 格式的 API 获取 👤 用户详细信息 / 👥 群管理员列表信息 / 📢 群公告信息 / 📌 群精华信息，可以发 💬 纯文本 / ✉️ 合并转发 / 🖼️ 渲染图片。🔧 现在支持 Lagrange V1、NapCat 与 LLBot 的适配。👍 推荐接入 Napcat / LLBot"
+      "en": "🎯 Retrieve detailed user info, 👥 group admin lists, 📢 notices, and 📌 essence messages using the OneBot V11 API. Supports sending via 💬 plain text, ✉️ merged forward messages, or 🖼️ rendered images. 🔧 Fully compatible with Lagrange V1, NapCat, and LLBot OneBot implementations. 👍 NapCat / LLBot recommended.",
+      "zh": "🎯 主要用 OneBotV11 格式的 API 获取 👤 用户详细信息 / 👥 群管理员列表信息 / 📢 群公告信息 / 📌 群精华信息，可以发 💬 纯文本 / ✉️ 合并转发 / 🖼️ 渲染图片。🔧 完整适配 Lagrange V1、NapCat、LLBot 等 OneBot 协议端。👍 推荐接入 NapCat / LLBot"
     },
     "service": {
       "required": [

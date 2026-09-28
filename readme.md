@@ -13,7 +13,7 @@
 [![Koishi Forum](https://img.shields.io/badge/Koishi%20Forum-12077-5546A3?style=for-the-badge&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Ff%2Ff3%2FKoishi.js_Logo.png&logoColor=white)](https://forum.koishi.xyz/t/topic/12077)
 [![QQ群](https://img.shields.io/badge/QQ群-1085190201-12B7F5?style=flat-square&logo=qq&logoColor=white)](https://qm.qq.com/q/ZN7fxZ3qCq)
 
-> 推荐接入 [NapCat](https://napneko.github.io/)，可获取的用户与群聊字段更加完整。并且作者开发测试和生产环境用的就是NapCat捏。
+> 推荐接入 [NapCat](https://napneko.github.io/) / [Lucky Lillia Bot](https://github.com/LLOneBot/LuckyLilliaBot)，可获取的用户与群聊字段更加完整。并且作者开发测试和生产环境用的就是 NapCat 与 LLBot 捏。
 >
 > npm 或 Koishi 市场页面可能无法完整加载仓库内图片，建议前往 [GitHub](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image) 或 [Gitee](https://gitee.com/vincent-zyu/koishi-plugin-onebot-info-image) 查看。
 
@@ -44,8 +44,8 @@
 | 协议端 | 状态 | 说明 |
 | --- | --- | --- |
 | NapCat | 完整适配 | 推荐使用，可获取更多扩展字段 |
+| LLOneBot / Lucky Lillia Bot | 完整适配 | 推荐使用，已针对群精华等接口做自适应补全 |
 | Lagrange.OneBot | 已适配 | 支持用户信息与群聊相关功能 |
-| LLOneBot / Lucky Lillia Bot | 未适配 | 部分返回格式与 NapCat 相同，可自行尝试 |
 
 本插件仅面向 OneBot V11 会话，使用其他协议时相关指令会返回不支持提示。
 
