@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-onebot-info-image",
   "description": "🎯 主要用 OneBotV11 格式的 API 获取 👤 用户详细信息 / 👥 群管理员列表信息 / 📢 群公告信息 / 📌 群精华信息，可以发 💬 纯文本 / ✉️ 合并转发 / 🖼️ 渲染图片。🔧 完整适配 Lagrange V1、NapCat、LLBot 等 OneBot 协议端。👍 推荐接入 NapCat / LLBot",
-  "version": "0.7.0-beta.6+20260928",
+  "version": "0.7.0-beta.7+20260928",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

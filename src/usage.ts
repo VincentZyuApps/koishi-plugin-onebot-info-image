@@ -6,7 +6,7 @@ const detailsBodyStyle = 'padding:4px 14px 10px;border-top:1px solid var(--k-col
 
 export const usage = `
 <h1>Koishi 插件：onebot-info-image 获取群员信息 渲染成图像</h1>
-<h2>🎯 插件版本：v\${pkg.version}</h2>
+<h2>🎯 插件版本：v${pkg.version}</h2>
 
 <p>
   <a href="https://www.npmjs.com/package/koishi-plugin-onebot-info-image" target="_blank">
@@ -47,9 +47,9 @@ export const usage = `
   </a>
 </p>
 
-<details style="\${detailsStyle}">
-<summary style="\${summaryStyle}"><b style="color: #e74c3c;">⚙️ 前置与可选服务依赖</b></summary>
-<div style="\${detailsBodyStyle}">
+<details style="${detailsStyle}">
+<summary style="${summaryStyle}"><b style="color: #e74c3c;">⚙️ 前置与可选服务依赖</b></summary>
+<div style="${detailsBodyStyle}">
 <p><b>必需服务与依赖：</b></p>
 <ul>
   <li><b style="color: #e74c3c;">http</b>：Koishi 内置网络请求服务，用于下载头像、公告配图与字体资源。<span style="color: #e74c3c; font-weight: bold;">【必需】</span></li>
@@ -61,15 +61,15 @@ export const usage = `
   <li><b style="color: #27ae60;">notifier</b>：Koishi 控制台通知服务，用于在控制台顶部输出当前插件配置生效摘要。<span style="color: #27ae60;">【可选】</span></li>
   <li><b style="color: #27ae60;">console</b>：Koishi 控制台数据服务，用于 WebUI 样式卡片预览。<span style="color: #27ae60;">【可选】</span></li>
 </ul>
-<blockquote style="margin: 8px 0; padding: 6px 12px; border-left: 4px solid #27ae60; background: rgba(39, 174, 96, 0.1); border-radius: 4px;">
+<blockquote style="margin: 12px 0; padding: 10px 14px; border-left: 5px solid #27ae60; border-radius: 6px; background: rgba(39, 174, 96, .1);">
 💡 <b>建议：</b>推荐开启 <code>resvg</code> 渲染模式，生成毫秒级即时响应，内存开销极低且排版优美！
 </blockquote>
 </div>
 </details>
 
-<details style="\${detailsStyle}">
-<summary style="\${summaryStyle}"><b style="color: #3b82f6;">🤖 OneBot 协议端适配情况与推荐</b></summary>
-<div style="\${detailsBodyStyle}">
+<details style="${detailsStyle}">
+<summary style="${summaryStyle}"><b style="color: #3b82f6;">🤖 OneBot 协议端适配情况与推荐</b></summary>
+<div style="${detailsBodyStyle}">
 <p>本插件专为 <b>OneBot V11</b> 生态打造，已全面适配当前主流协议端：</p>
 <table style="width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px;">
   <thead>
@@ -103,13 +103,15 @@ export const usage = `
   <a href="https://napneko.github.io/" target="_blank"><img src="https://img.shields.io/badge/GitHub%20Pages-Napcat文档-3b82f6?logo=github" alt="Napcat文档" style="vertical-align: middle; margin-right: 8px;"></a>
   <a href="https://github.com/LLOneBot/LuckyLilliaBot" target="_blank"><img src="https://img.shields.io/badge/GitHub-LuckyLilliaBot-pink?logo=github" alt="LLBot" style="vertical-align: middle;"></a>
 </p>
-<p style="font-size: 13px; opacity: 0.8; font-style: italic;">注：仅面向 OneBot V11 会话协议，若在官方 Bot 平台或其他适配器下调用将返回不支持提示。</p>
+<blockquote style="margin: 12px 0; padding: 10px 14px; border-left: 5px solid #3b82f6; border-radius: 6px; background: rgba(59, 130, 246, .1);">
+💡 <b>提示：</b>仅面向 OneBot V11 会话协议，若在官方 Bot 平台或其他适配器下调用将返回不支持提示。
+</blockquote>
 </div>
 </details>
 
-<details style="\${detailsStyle}">
-<summary style="\${summaryStyle}"><b style="color: #f59e0b;">📌 常用指令与输出形式速查</b></summary>
-<div style="\${detailsBodyStyle}">
+<details style="${detailsStyle}">
+<summary style="${summaryStyle}"><b style="color: #f59e0b;">📌 常用指令与输出形式速查</b></summary>
+<div style="${detailsBodyStyle}">
 <p>插件提供多种指令，支持在群聊中直接查询或配合参数使用：</p>
 <ul>
   <li><code>用户信息 [user]</code>（别名：<code>查信息</code>、<code>个人信息</code>）：查询指定成员或自己的详细资料卡片。</li>
@@ -120,29 +122,34 @@ export const usage = `
   <li><code>群公告详情 &lt;序号&gt;</code>（别名：<code>公告详情</code>）：查看指定群公告完整内容与发布者。</li>
   <li><code>查看onebot信息插件的puppeteer图片样式</code>（别名：<code>awa_onebot_info_image_styles_list</code>、<code>aoiisl</code>、<code>ais</code>）：查看并罗列所有可用的 Puppeteer 图片主题样式。</li>
 </ul>
-<p><b>支持输出形式：</b>纯文本、OneBot 合并转发消息、Puppeteer 渲染图片、resvg 极速 SVG 图片，可在配置项中自由勾选切换。</p>
+<blockquote style="margin: 12px 0; padding: 10px 14px; border-left: 5px solid #f59e0b; border-radius: 6px; background: rgba(245, 158, 11, .1);">
+<b>支持输出形式：</b>纯文本、OneBot 合并转发消息、Puppeteer 渲染图片、resvg 极速 SVG 图片，可在配置项中自由勾选切换。
+</blockquote>
 </div>
 </details>
 
-<details style="\${detailsStyle}">
-<summary style="\${summaryStyle}"><b style="color: #10b981;">🎨 字体使用与开源授权</b></summary>
-<div style="\${detailsBodyStyle}">
+<details style="${detailsStyle}">
+<summary style="${summaryStyle}"><b style="color: #10b981;">🎨 字体使用与开源授权</b></summary>
+<div style="${detailsBodyStyle}">
 <p>本插件用于图片生成的字体遵循开源许可，启动时会自动校验并下载：</p>
 <ul>
   <li><b style="color: #3498db;"><a href="https://github.com/adobe-fonts/source-han-serif/tree/master" target="_blank">思源宋体（Source Han Serif SC）</a></b>：由 Adobe 与 Google 联合开发维护，遵循 <a href="https://openfontlicense.org" target="_blank">SIL Open Font License 1.1</a> 协议。</li>
   <li><b style="color: #3498db;"><a href="https://github.com/lxgw/LxgwWenkai" target="_blank">霞鹜文楷（LXGW WenKai）</a></b>：由开源作者 LXGW 开发并维护，遵循 <a href="https://openfontlicense.org" target="_blank">SIL Open Font License 1.1</a> 协议。</li>
 </ul>
-<p>两款字体均为自由商用字体，可自由用于本插件及二次开发。</p>
+<blockquote style="margin: 12px 0; padding: 10px 14px; border-left: 5px solid #10b981; border-radius: 6px; background: rgba(16, 185, 129, .1);">
+两款字体均为自由商用字体，可自由用于本插件及二次开发。
+</blockquote>
 </div>
 </details>
 
-<details style="\${detailsStyle}">
-<summary style="\${summaryStyle}"><b style="color: #8b5cf6;">📜 插件开源许可与致谢</b></summary>
-<div style="\${detailsBodyStyle}">
+<details style="${detailsStyle}">
+<summary style="${summaryStyle}"><b style="color: #8b5cf6;">📜 插件开源许可与致谢</b></summary>
+<div style="${detailsBodyStyle}">
 <p>本插件为开源免费项目，基于 <b>MIT License</b> 开放，欢迎 Issue、PR 与二次创作！</p>
 <p>如果您觉得插件对您有所帮助，欢迎在 GitHub / Gitee 点一个 ⭐ <b>Star</b> 给予支持！</p>
-<p style="color: #ec4899; font-weight: bold;">感谢所有开源协议实现端（NapCat、Lucky Lillia Bot、Lagrange）与开源字体的贡献者！❤️</p>
+<blockquote style="margin: 12px 0; padding: 10px 14px; border-left: 5px solid #8b5cf6; border-radius: 6px; background: rgba(139, 92, 246, .1);">
+感谢所有开源协议实现端（NapCat、Lucky Lillia Bot、Lagrange）与开源字体的贡献者！❤️
+</blockquote>
 </div>
 </details>
 `
-
