@@ -138,7 +138,7 @@ export const Config: Schema<Config> = Schema.intersect([
     onebotImplName: Schema.union([
       Schema.const(ONEBOT_IMPL_NAME.LAGRNAGE).description('🧐💜 Lagrange V1'),
       Schema.const(ONEBOT_IMPL_NAME.NAPCAT).description('🐈💙 NapCat'),
-      // Schema.const(ONEBOT_IMPL_NAME.LLBOT).description('🤖🩷 LLBot'), // 这行注释不要删捏
+      Schema.const(ONEBOT_IMPL_NAME.LLBOT).description('🤖🩷 LLBot (Lucky Lillia Bot)'), // 这行注释不要删捏
     ])
       .role('radio')
       .default(ONEBOT_IMPL_NAME.LAGRNAGE)

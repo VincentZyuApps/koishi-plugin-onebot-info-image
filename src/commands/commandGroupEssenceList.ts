@@ -108,6 +108,59 @@ function parseEssenceContent(content: Array<{ type: string; data: Record<string,
 }
 
 /**
+ * 为缺失 content 字段的群精华消息记录（如 LLBot 等实现）通过 getMsg 异步补全消息内容
+ */
+export async function populateEssenceRecordsContent(
+  session: any,
+  records: GroupEssenceMessageRaw[],
+  ctx?: Context,
+  logs?: string[],
+  config?: Config
+): Promise<void> {
+  const missingRecords = records.filter(r => (!r.content || r.content.length === 0) && r.message_id);
+  if (missingRecords.length === 0) return;
+
+  const logMsg = `[群精华适配] 检测到 ${missingRecords.length} 条精华消息 content 为空，尝试通过 getMsg 补全...`;
+  logs?.push(logMsg);
+  if (config?.verboseConsoleOutput && ctx) {
+    ctx.logger.info(logMsg);
+  }
+
+  await Promise.allSettled(
+    missingRecords.map(async (record) => {
+      try {
+        const msgRes = await session.onebot.getMsg(record.message_id);
+        if (msgRes && msgRes.message) {
+          if (Array.isArray(msgRes.message)) {
+            record.content = msgRes.message;
+          } else if (typeof msgRes.message === 'string') {
+            record.content = [{ type: 'text', data: { text: msgRes.message } }];
+          }
+          const succMsg = `[群精华适配] 消息 ID ${record.message_id} 成功补全 ${record.content.length} 个消息段`;
+          logs?.push(succMsg);
+          if (config?.verboseConsoleOutput && ctx) {
+            ctx.logger.info(succMsg);
+          }
+        }
+      } catch (err: any) {
+        try {
+          const rawMsg = await session.bot.getMessage(session.channelId || session.guildId, String(record.message_id));
+          if (rawMsg?.content) {
+            record.content = [{ type: 'text', data: { text: rawMsg.content } }];
+          }
+        } catch {
+          const failMsg = `[群精华适配] 消息 ID ${record.message_id} 补全失败: ${err?.message || err}`;
+          logs?.push(failMsg);
+          if (config?.verboseConsoleOutput && ctx) {
+            ctx.logger.warn(failMsg);
+          }
+        }
+      }
+    })
+  );
+}
+
+/**
  * 格式化时间戳
  */
 export function formatTimestamp(timestamp: number): string {
@@ -192,6 +245,9 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           return;
         }
 
+        // 针对 LLBot 等不直接返回 content 字段的 OneBot 实现进行自适应补全
+        await populateEssenceRecordsContent(session, paginatedResult.records, ctx, logs, config);
+
         // 获取群信息
         const groupInfoObj = await session.onebot.getGroupInfo(session.guildId);
         const contextInfo = {
@@ -270,8 +326,8 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
           // 获取每条消息中的图片
           const imagesBase64: Record<string, string> = {};
           for (const record of paginatedResult.records) {
-            for (const item of record.content) {
-              if (item.type === 'image' && item.data.url) {
+            for (const item of (record.content || [])) {
+              if (item.type === 'image' && item.data?.url) {
                 let imageUrl = item.data.url;
                 // 清理 URL 中的反引号和逗号
                 imageUrl = imageUrl.replace(/[`]/g, '').replace(/[,]$/, '').trim();

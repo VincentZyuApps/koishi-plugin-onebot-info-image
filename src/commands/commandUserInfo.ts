@@ -189,17 +189,24 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
 
         if (config.onebotImplName === ONEBOT_IMPL_NAME.LAGRNAGE) {
           // userInfoArg.status = {
-
           // }
         } else if (config.onebotImplName === ONEBOT_IMPL_NAME.NAPCAT) {
-          const ncUserStatusObj = await session.onebot._request('nc_get_user_status', { user_id: targetUserId });
-          const napcatStatusData = ncUserStatusObj?.data ?? null;
-          // ctx.logger.info(`[napcat独有]: ncUserStatusObj = \n\t ${JSON.stringify(ncUserStatusObj)}`);
-          userInfoArg.status = {
-            napcat_origin: ncUserStatusObj,
-            message: getNapcatQQStatusText(napcatStatusData?.status, napcatStatusData?.ext_status)
+          try {
+            const ncUserStatusObj = await session.onebot._request('nc_get_user_status', { user_id: targetUserId });
+            const napcatStatusData = ncUserStatusObj?.data ?? null;
+            // ctx.logger.info(`[napcat独有]: ncUserStatusObj = \n\t ${JSON.stringify(ncUserStatusObj)}`);
+            userInfoArg.status = {
+              napcat_origin: ncUserStatusObj,
+              message: getNapcatQQStatusText(napcatStatusData?.status, napcatStatusData?.ext_status)
+            };
+          } catch (statusErr) {
+            ctx.logger.warn(`获取 NapCat 用户在线状态失败: ${statusErr.message}`);
           }
-          // ctx.logger.info(`[napcat独有]: userInfoArg.status = \n\t ${JSON.stringify(userInfoArg.status)}`);
+        } else if (config.onebotImplName === ONEBOT_IMPL_NAME.LLBOT) {
+          // LLBot 暂无单独的用户在线状态接口，保持默认未知
+          userInfoArg.status = {
+            message: '未知状态'
+          };
         }
 
         let userInfoArgMsg = `userInfoArg = \n\t ${JSON.stringify(userInfoArg)}`;

@@ -31,7 +31,7 @@ export type ImageType = typeof IMAGE_TYPES[keyof typeof IMAGE_TYPES];
 export const ONEBOT_IMPL_NAME = {
   LAGRNAGE: 'Lagrange',
   NAPCAT: 'NapCat',
-  // LLBOT: "LLBot" //todo, 不过我观察下来他大部分请求格式和Napcat差不多捏， // 这行注释不要删捏
+  LLBOT: 'LLBot', // LLBOT: "LLBot" //todo, 不过我观察下来他大部分请求格式和Napcat差不多捏， // 这行注释不要删捏
 }
 
 export type OneBotImplName = typeof ONEBOT_IMPL_NAME[keyof typeof ONEBOT_IMPL_NAME];
@@ -286,6 +286,41 @@ export function convertToUnifiedUserInfo(userInfo: any, onebotImplName: OneBotIm
       login_days: userInfo.login_days || 0,
       group_level: userInfo.group_level || userInfo.level || '0'
     };
+  } else if (onebotImplName === ONEBOT_IMPL_NAME.LLBOT) {
+    // LLBot (Lucky Lillia Bot / LLOneBot) 格式处理
+    return {
+      ...baseInfo,
+      card: userInfo.card || '',
+      level: String(userInfo.level || 0),
+      qq_level: userInfo.qq_level || userInfo.qqLevel || (typeof userInfo.level === 'number' ? userInfo.level : 0),
+      role: userInfo.role || 'member',
+      join_time: userInfo.join_time ? Number(userInfo.join_time) * 1000 : 0,
+      last_sent_time: userInfo.last_sent_time ? Number(userInfo.last_sent_time) * 1000 : 0,
+      title: userInfo.title || '',
+      title_expire_time: userInfo.title_expire_time || 0,
+      unfriendly: userInfo.unfriendly || false,
+      card_changeable: userInfo.card_changeable || false,
+      is_robot: userInfo.is_robot || false,
+      shut_up_timestamp: userInfo.shut_up_timestamp || 0,
+      // LLBot 特有/支持字段
+      qid: userInfo.qid || '',
+      longNick: userInfo.long_nick || userInfo.longNick || '',
+      long_nick: userInfo.long_nick || userInfo.longNick || '',
+      sign: userInfo.long_nick || userInfo.longNick || '',
+      RegisterTime: userInfo.reg_time ? Number(userInfo.reg_time) * 1000 : 0,
+      city: userInfo.city || '',
+      country: userInfo.country || '',
+      labels: userInfo.labels || [],
+      birthday_year: userInfo.birthday_year || 0,
+      birthday_month: userInfo.birthday_month || 0,
+      birthday_day: userInfo.birthday_day || 0,
+      is_vip: userInfo.is_vip || false,
+      is_years_vip: userInfo.is_years_vip || false,
+      vip_level: userInfo.vip_level || 0,
+      login_days: userInfo.login_days || 0,
+      group_level: userInfo.group_level || userInfo.level || '0',
+      status: userInfo.status || 0
+    };
   }
 
   // 默认返回基础信息
@@ -328,6 +363,25 @@ export function convertToUnifiedAdminInfo(adminInfo: any, onebotImplName: OneBot
       qq_level: adminInfo.qq_level || 0,
       join_time: adminInfo.join_time ? adminInfo.join_time*1000 : 0,
       last_sent_time: adminInfo.last_sent_time ? adminInfo.last_sent_time*1000 : 0,
+      title: adminInfo.title || '',
+      title_expire_time: adminInfo.title_expire_time || 0,
+      unfriendly: adminInfo.unfriendly || false,
+      card_changeable: adminInfo.card_changeable || false,
+      is_robot: adminInfo.is_robot || false,
+      shut_up_timestamp: adminInfo.shut_up_timestamp || 0
+    };
+  } else if (onebotImplName === ONEBOT_IMPL_NAME.LLBOT) {
+    // LLBot 格式处理
+    return {
+      ...baseInfo,
+      card: adminInfo.card || '',
+      sex: adminInfo.sex || 'unknown',
+      age: adminInfo.age || 0,
+      area: adminInfo.area || '',
+      level: String(adminInfo.level || 0),
+      qq_level: adminInfo.qq_level || 0,
+      join_time: adminInfo.join_time ? Number(adminInfo.join_time) * 1000 : 0,
+      last_sent_time: adminInfo.last_sent_time ? Number(adminInfo.last_sent_time) * 1000 : 0,
       title: adminInfo.title || '',
       title_expire_time: adminInfo.title_expire_time || 0,
       unfriendly: adminInfo.unfriendly || false,

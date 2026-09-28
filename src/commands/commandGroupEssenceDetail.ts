@@ -8,7 +8,7 @@ import type { Config } from '../config'
 // ===== 📋 类型定义 =====
 import { IMAGE_STYLES, IMAGE_STYLE_KEY_ARR } from '../types'
 
-import { GroupEssenceMessageRaw, formatTimestamp } from './commandGroupEssenceList'
+import { GroupEssenceMessageRaw, formatTimestamp, populateEssenceRecordsContent } from './commandGroupEssenceList'
 
 // ===== 🖼️ 渲染模块 =====
 import { renderGroupEssenceDetail } from '../renderers/puppeteer/renderPptrGroupEssenceDetail'
@@ -235,6 +235,9 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
         // 获取指定的精华消息
         const targetRecord = groupEssenceMsgList[index - 1];
 
+        // 针对 LLBot 等不直接返回 content 字段的 OneBot 实现进行自适应补全
+        await populateEssenceRecordsContent(session, [targetRecord], ctx, logs, config);
+
         // 获取群信息
         const groupInfoObj = await session.onebot.getGroupInfo(session.guildId);
         const contextInfo: EssenceDetailContextInfo = {
@@ -298,8 +301,8 @@ export function registerGroupEssenceDetailCommand(ctx: Context, config: Config, 
 
           // 获取消息中的图片
           const imagesBase64: Record<string, string> = {};
-          for (const item of targetRecord.content) {
-            if (item.type === 'image' && item.data.url) {
+          for (const item of (targetRecord.content || [])) {
+            if (item.type === 'image' && item.data?.url) {
               let imageUrl = item.data.url;
               // 清理 URL 中的反引号和逗号
               imageUrl = imageUrl.replace(/[`]/g, '').replace(/[,]$/, '').trim();

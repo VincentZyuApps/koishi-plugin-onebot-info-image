@@ -70,7 +70,7 @@ export const usage = `
 <p style="color: #ffffff; font-size: 16px; margin-top: 8px;"><strong>📋 协议适配情况：</strong></p>
 <p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>Napcat</strong> - <span style="color: #4ade80;">✅ 完全适配</span></p>
 <p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>Lagrange.OneBot</strong> - <span style="color: #4ade80;">✅ 完全适配</span></p>
-<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>LLOneBot</strong> (现<strong>Lucky Lillia Bot</strong>)- <span style="color: #fca5a5;">⚠️ 未适配，部分API可能可用</span></p>
+<p style="color: #ffffff; font-size: 15px; margin-left: 20px;">• <strong>LLOneBot</strong> (现<strong>Lucky Lillia Bot</strong>)- <span style="color: #4ade80;">✅ 完全适配</span></p>
 <p style="color: #ffffff; font-size: 14px; margin-top: 10px; font-style: italic;">若需适配其他协议端或格式，欢迎提 issue 或进群艾特我反馈~</p>
 
 <hr>

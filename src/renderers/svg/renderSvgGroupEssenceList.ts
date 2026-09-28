@@ -12,7 +12,7 @@ function parseEssenceContent(content: Array<{ type: string; data: Record<string,
   let hasImage = false
   let imageUrl: string | undefined
 
-  for (const item of content) {
+  for (const item of (content || [])) {
     if (item.type === 'text') {
       text += decodeHtmlEntities(item.data.text) || ''
     } else if (item.type === 'at') {

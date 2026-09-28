@@ -58,8 +58,9 @@ export function apply(ctx: Context, config: Config) {
   ctx.inject(['notifier'], (ctx) => {
     const infoItems: string[] = [];
 
-    // OneBot 实现平台
-    const implNameText = config.onebotImplName === ONEBOT_IMPL_NAME.LAGRNAGE ? 'Lagrange' : 'NapCat';
+    let implNameText = 'NapCat';
+    if (config.onebotImplName === ONEBOT_IMPL_NAME.LAGRNAGE) implNameText = 'Lagrange';
+    else if (config.onebotImplName === ONEBOT_IMPL_NAME.LLBOT) implNameText = 'LLBot';
     infoItems.push(`🤖 OneBot 实现：${implNameText}`);
 
     // 自动撤回配置

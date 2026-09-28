@@ -15,7 +15,7 @@ interface ParsedContentItem {
 
 function parseEssenceContentToItems(content: Array<{ type: string; data: Record<string, any> }>): ParsedContentItem[] {
   const items: ParsedContentItem[] = []
-  for (const item of content) {
+  for (const item of (content || [])) {
     if (item.type === 'text') {
       const text = decodeHtmlEntities(item.data.text) || ''
       if (text) {
