@@ -20,6 +20,7 @@ import { logCommandToFile } from '../utils/logging'
 import { getGroupAvatarBase64, getUserAvatarBase64 } from '../utils/media'
 import { scheduleAutoRecall } from '../utils/message'
 import { guardPuppeteerOutput } from '../output'
+import { resolveOneBotImpl } from '../utils/detector'
 
 // 群精华消息的原始格式
 export interface GroupEssenceMessageRaw {
@@ -404,7 +405,8 @@ export function registerGroupEssenceCommand(ctx: Context, config: Config, respon
         }
 
         // 输出日志到文件
-        const protocol = config.onebotImplName.toLowerCase();
+        const realImpl = await resolveOneBotImpl(session.bot, config.onebotImplName, ctx.logger);
+        const protocol = realImpl.toLowerCase();
         logCommandToFile(ctx, config, protocol, '群精华列表', logs);
 
       } catch (error) {

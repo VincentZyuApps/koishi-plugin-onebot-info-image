@@ -21,6 +21,7 @@ import { logCommandToFile, resolvePluginPath } from '../utils/logging'
 import { getGroupAvatarBase64 } from '../utils/media'
 import { scheduleAutoRecall } from '../utils/message'
 import { guardPuppeteerOutput } from '../output'
+import { resolveOneBotImpl } from '../utils/detector'
 
 export function registerUserInfoCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableUserInfoCommand) return;
@@ -39,7 +40,8 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
       if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       const logs: string[] = [];
-      const protocol = config.onebotImplName.toLowerCase();
+      const realImpl = await resolveOneBotImpl(session.bot, config.onebotImplName, ctx.logger);
+      const protocol = realImpl.toLowerCase();
 
       // 选择图片样式
       const IMAGE_STYLE_VALUES = Object.values(IMAGE_STYLES);
@@ -187,10 +189,10 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           };
         }
 
-        if (config.onebotImplName === ONEBOT_IMPL_NAME.LAGRNAGE) {
+        if (realImpl === ONEBOT_IMPL_NAME.LAGRNAGE) {
           // userInfoArg.status = {
           // }
-        } else if (config.onebotImplName === ONEBOT_IMPL_NAME.NAPCAT) {
+        } else if (realImpl === ONEBOT_IMPL_NAME.NAPCAT) {
           try {
             const ncUserStatusObj = await session.onebot._request('nc_get_user_status', { user_id: targetUserId });
             const napcatStatusData = ncUserStatusObj?.data ?? null;
@@ -202,7 +204,7 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           } catch (statusErr) {
             ctx.logger.warn(`获取 NapCat 用户在线状态失败: ${statusErr.message}`);
           }
-        } else if (config.onebotImplName === ONEBOT_IMPL_NAME.LLBOT) {
+        } else if (realImpl === ONEBOT_IMPL_NAME.LLBOT) {
           // LLBot 暂无单独的用户在线状态接口，保持默认未知
           userInfoArg.status = {
             message: '未知状态'
@@ -220,8 +222,8 @@ export function registerUserInfoCommand(ctx: Context, config: Config, responseHi
           await ctx.logger.info(contextInfoMsg);
         }
 
-        const unifiedUserInfo = convertToUnifiedUserInfo(userInfoArg, config.onebotImplName);
-        const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
+        const unifiedUserInfo = convertToUnifiedUserInfo(userInfoArg, realImpl);
+        const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, realImpl);
 
         let unifiedUserInfoMsg = `unifiedUserInfo = \n\t ${JSON.stringify(unifiedUserInfo)}`;
         let unifiedContextInfoMsg = `unifiedContextInfo = \n\t ${JSON.stringify(unifiedContextInfo)}`;

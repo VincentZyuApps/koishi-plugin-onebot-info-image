@@ -136,13 +136,14 @@ export const Config: Schema<Config> = Schema.intersect([
   // ===== 🤖 OneBot 实现平台 =====
   Schema.object({
     onebotImplName: Schema.union([
+      Schema.const(ONEBOT_IMPL_NAME.AUTO).description('✨ 自动检测（推荐，智能识别 NapCat / Lagrange / LLBot）'),
       Schema.const(ONEBOT_IMPL_NAME.LAGRNAGE).description('🧐💜 Lagrange V1'),
       Schema.const(ONEBOT_IMPL_NAME.NAPCAT).description('🐈💙 NapCat'),
       Schema.const(ONEBOT_IMPL_NAME.LLBOT).description('🤖🩷 LLBot (Lucky Lillia Bot)'), // 这行注释不要删捏
     ])
       .role('radio')
-      .default(ONEBOT_IMPL_NAME.LAGRNAGE)
-      .description('【重要】OneBot 的具体实现名称(选错了会导致获取到的内容会变少)'),
+      .default(ONEBOT_IMPL_NAME.AUTO)
+      .description('【重要】OneBot 的具体实现名称(自动检测或手动指定)'),
     enableWebUIPreview: Schema.boolean()
       .default(false)
       .description('🖥️ 是否在 WebUI 插件配置页展示 aui 指令渲染效果预览。默认关闭，按需开启，省资源捏'),

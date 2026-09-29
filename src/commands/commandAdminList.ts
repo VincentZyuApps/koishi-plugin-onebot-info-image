@@ -20,6 +20,7 @@ import { logCommandToFile } from '../utils/logging'
 import { getGroupAvatarBase64, getUserAvatarBase64 } from '../utils/media'
 import { scheduleAutoRecall } from '../utils/message'
 import { guardPuppeteerOutput } from '../output'
+import { resolveOneBotImpl } from '../utils/detector'
 
 export function registerAdminListCommand(ctx: Context, config: Config, responseHint: string) {
   if (!config.enableGroupAdminListCommand) return;
@@ -43,7 +44,8 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
       if (!await guardPuppeteerOutput(ctx, config, session)) return
 
       const logs: string[] = [];
-      const protocol = config.onebotImplName.toLowerCase();
+      const realImpl = await resolveOneBotImpl(session.bot, config.onebotImplName, ctx.logger);
+      const protocol = realImpl.toLowerCase();
 
       // 选择图片样式
       const IMAGE_STYLE_VALUES = Object.values(IMAGE_STYLES);
@@ -104,7 +106,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
               title: member.title,
               avatar: userObj.avatar || ''
             };
-            adminListArg.push(convertToUnifiedAdminInfo(rawAdminInfo, config.onebotImplName));
+            adminListArg.push(convertToUnifiedAdminInfo(rawAdminInfo, realImpl));
           } catch (error) {
             ctx.logger.error(`获取管理员列表信息失败: ${error}`);
           }
@@ -131,7 +133,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
         };
 
         if (config.sendText) {
-          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
+          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, realImpl);
           const formattedText = formatAdminListDirectText(adminListArg, unifiedContextInfo);
           const textMsgId = await session.send(`${config.enableQuoteWithText ? h.quote(session.messageId) : ''}${formattedText}`);
           scheduleAutoRecall(session, config, String(textMsgId));
@@ -140,7 +142,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
         if (config.sendImage && ctx.puppeteer) {
           ctx.logger.info(`context info = ${JSON.stringify(contextInfo)}`)
           const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🔄正在使用 Puppeteer 渲染群管理员列表图片，请稍候⏳...`);
-          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
+          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, realImpl);
           const selectedImageStyle = IMAGE_STYLES[selectedStyleDetailObj.styleKey];
           const selectedDarkMode = selectedStyleDetailObj.darkMode;
           const startTime = Date.now();
@@ -158,7 +160,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
 
         if (config.sendImageSvg) {
           const waitTipMsgId = await session.send(`${h.quote(session.messageId)}🚀正在用 resvg 渲染群管理员列表图片，请稍候⏳...`);
-          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
+          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, realImpl);
           const groupAvatarBase64 = await getGroupAvatarBase64(ctx, session.guildId);
           const startTime = Date.now();
           let svgDarkMode = config.svgEnableDarkMode;
@@ -202,7 +204,7 @@ export function registerAdminListCommand(ctx: Context, config: Config, responseH
         }
 
         if (config.sendForward) {
-          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, config.onebotImplName);
+          const unifiedContextInfo = convertToUnifiedContextInfo(contextInfo, realImpl);
           const forwardMessageContent = formatAdminListForwardText(adminListArg, unifiedContextInfo);
           const fwdMsgId = await session.send(h.unescape(forwardMessageContent));
           scheduleAutoRecall(session, config, String(fwdMsgId));

@@ -7,6 +7,7 @@ import { writeFileSync, mkdirSync } from 'fs'
 // ----
 import { validateFonts } from './utils/font'
 import { OnebotInfoImageDataServer } from './data'
+import { clearOneBotImplCache } from './utils/detector'
 // ---
 import { registerUserInfoCommand } from './commands/commandUserInfo'
 import { registerAdminListCommand } from './commands/commandAdminList'
@@ -54,12 +55,20 @@ export function apply(ctx: Context, config: Config) {
     ctx.plugin(OnebotInfoImageDataServer);
   }
 
+  // 监听 bot 状态变更，自动清除 OneBot 实现探测缓存
+  ctx.on('bot-status-updated', (bot) => {
+    if (bot.platform === 'onebot') {
+      clearOneBotImplCache(bot.selfId);
+    }
+  });
+
   // 使用 notifier 在 WebUI 显示当前信息格式
   ctx.inject(['notifier'], (ctx) => {
     const infoItems: string[] = [];
 
     let implNameText = 'NapCat';
-    if (config.onebotImplName === ONEBOT_IMPL_NAME.LAGRNAGE) implNameText = 'Lagrange';
+    if (config.onebotImplName === ONEBOT_IMPL_NAME.AUTO) implNameText = '✨ 自动检测 (Auto-Detect)';
+    else if (config.onebotImplName === ONEBOT_IMPL_NAME.LAGRNAGE) implNameText = 'Lagrange';
     else if (config.onebotImplName === ONEBOT_IMPL_NAME.LLBOT) implNameText = 'LLBot';
     infoItems.push(`🤖 OneBot 实现：${implNameText}`);
 

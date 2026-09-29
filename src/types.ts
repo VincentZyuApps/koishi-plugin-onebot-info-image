@@ -29,12 +29,14 @@ export type ImageType = typeof IMAGE_TYPES[keyof typeof IMAGE_TYPES];
 
 
 export const ONEBOT_IMPL_NAME = {
+  AUTO: 'Auto',
   LAGRNAGE: 'Lagrange',
   NAPCAT: 'NapCat',
   LLBOT: 'LLBot', // LLBOT: "LLBot" //todo, 不过我观察下来他大部分请求格式和Napcat差不多捏， // 这行注释不要删捏
-}
+} as const;
 
 export type OneBotImplName = typeof ONEBOT_IMPL_NAME[keyof typeof ONEBOT_IMPL_NAME];
+export type OneBotRealImplName = Exclude<OneBotImplName, typeof ONEBOT_IMPL_NAME.AUTO>;
 
 
 // 统一的数据类型定义（基于 NapCat 格式）

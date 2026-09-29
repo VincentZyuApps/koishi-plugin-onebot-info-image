@@ -22,6 +22,7 @@ import { logCommandToFile } from '../utils/logging'
 import { getGroupAvatarBase64, getNoticeImageBase64, getUserAvatarBase64 } from '../utils/media'
 import { scheduleAutoRecall } from '../utils/message'
 import { guardPuppeteerOutput } from '../output'
+import { resolveOneBotImpl } from '../utils/detector'
 
 // 单条公告详情的上下文信息
 export interface NoticeDetailContextInfo {
@@ -320,7 +321,8 @@ export function registerGroupNoticeDetailCommand(ctx: Context, config: Config, r
         }
 
         // 输出日志到文件
-        const protocol = config.onebotImplName.toLowerCase();
+        const realImpl = await resolveOneBotImpl(session.bot, config.onebotImplName, ctx.logger);
+        const protocol = realImpl.toLowerCase();
         logCommandToFile(ctx, config, protocol, '群公告详情', logs);
 
       } catch (error) {
