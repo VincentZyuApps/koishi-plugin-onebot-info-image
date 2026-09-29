@@ -136,7 +136,7 @@ export const Config: Schema<Config> = Schema.intersect([
   // ===== 🤖 OneBot 实现平台 =====
   Schema.object({
     onebotImplName: Schema.union([
-      Schema.const(ONEBOT_IMPL_NAME.AUTO).description('✨ 自动检测（推荐，智能识别 NapCat / Lagrange / LLBot）'),
+      Schema.const(ONEBOT_IMPL_NAME.AUTO).description('✨🤖 自动检测（推荐，智能识别 NapCat / Lagrange / LLBot）'),
       Schema.const(ONEBOT_IMPL_NAME.LAGRNAGE).description('🧐💜 Lagrange V1'),
       Schema.const(ONEBOT_IMPL_NAME.NAPCAT).description('🐈💙 NapCat'),
       Schema.const(ONEBOT_IMPL_NAME.LLBOT).description('🤖🩷 LLBot (Lucky Lillia Bot)'), // 这行注释不要删捏

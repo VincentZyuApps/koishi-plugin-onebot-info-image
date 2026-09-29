@@ -67,7 +67,7 @@ export function apply(ctx: Context, config: Config) {
     const infoItems: string[] = [];
 
     let implNameText = 'NapCat';
-    if (config.onebotImplName === ONEBOT_IMPL_NAME.AUTO) implNameText = '✨ 自动检测 (Auto-Detect)';
+    if (config.onebotImplName === ONEBOT_IMPL_NAME.AUTO) implNameText = '✨🤖 自动检测 (Auto-Detect)';
     else if (config.onebotImplName === ONEBOT_IMPL_NAME.LAGRNAGE) implNameText = 'Lagrange';
     else if (config.onebotImplName === ONEBOT_IMPL_NAME.LLBOT) implNameText = 'LLBot';
     infoItems.push(`🤖 OneBot 实现：${implNameText}`);
