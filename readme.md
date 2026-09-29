@@ -1,11 +1,11 @@
 ![koishi-plugin-onebot-info-image](https://socialify.git.ci/VincentZyuApps/koishi-plugin-onebot-info-image/image?description=1&font=Bitter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Ff%2Ff3%2FKoishi.js_Logo.png&name=1&owner=1&pattern=Plus&pulls=1&stargazers=1&theme=Auto)
 
-# koishi-plugin-onebot-info-image
+# 🖼️ koishi-plugin-onebot-info-image
 
 使用 OneBot V11 API 获取用户信息、群管理员列表、群公告和群精华消息，并以文本、Puppeteer 图片、resvg 图片或合并转发消息发送结果。
 
-[![npm](https://img.shields.io/npm/v/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
-[![npm-download](https://img.shields.io/npm/dm/koishi-plugin-onebot-info-image?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
+[![npm](https://img.shields.io/npm/v/koishi-plugin-onebot-info-image?style=flat-square&logo=npm)](https://www.npmjs.com/package/koishi-plugin-onebot-info-image)
+[![npm-download](https://img.shields.io/npm/dm/koishi-plugin-onebot-info-image?style=flat-square&logo=npm)](https://npm-stat.com/charts.html?package=koishi-plugin-onebot-info-image)
 
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image)
 [![Gitee](https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white)](https://gitee.com/vincent-zyu/koishi-plugin-onebot-info-image)
@@ -17,18 +17,20 @@
 >
 > npm 或 Koishi 市场页面可能无法完整加载仓库内图片，建议前往 [GitHub](https://github.com/VincentZyuApps/koishi-plugin-onebot-info-image) 或 [Gitee](https://gitee.com/vincent-zyu/koishi-plugin-onebot-info-image) 查看。
 
-## 目录
+## 📑 目录
 
-- [主要功能](#主要功能)
-- [协议兼容性](#协议兼容性)
-- [依赖说明](#依赖说明)
-- [默认指令](#默认指令)
-- [输出格式](#输出格式)
-- [效果预览](#效果预览)
-- [协议数据样例](#协议数据样例)
-- [交流反馈](#交流反馈)
+- [主要功能](#-主要功能)
+- [协议兼容性](#-协议兼容性)
+- [依赖说明](#-依赖说明)
+- [默认指令](#️-默认指令)
+- [输出格式](#-输出格式)
+- [效果预览](#-效果预览)
+- [协议数据样例](#-协议数据样例)
+- [字体与许可](#-字体与许可)
+- [交流反馈](#-交流反馈)
+- [相关文档](#-相关文档)
 
-## 主要功能
+## 🎯 主要功能
 
 | 功能 | 支持内容 |
 | --- | --- |
@@ -39,7 +41,7 @@
 | 多种输出 | 文本、Puppeteer 图片、resvg 图片和 OneBot 合并转发 |
 | 辅助能力 | 图片样式切换、深色模式、自动撤回和 WebUI 配置汇总 |
 
-## 协议兼容性
+## 🔌 协议兼容性
 
 | 协议端 | 状态 | 说明 |
 | --- | --- | --- |
@@ -49,7 +51,7 @@
 
 本插件仅面向 OneBot V11 会话，使用其他协议时相关指令会返回不支持提示。
 
-## 依赖说明
+## 📦 依赖说明
 
 | 依赖 | 类型 | 用途 |
 | --- | --- | --- |
@@ -61,7 +63,7 @@
 
 默认仅开启 Puppeteer 图片输出，因此使用默认配置时需要启用一个提供 `puppeteer` 服务的插件。未启用 Puppeteer 时，可改用文本、resvg 图片或合并转发输出。
 
-## 默认指令
+## ⌨️ 默认指令
 
 所有指令名都可以在插件配置中修改。
 
@@ -82,7 +84,7 @@
 - `-p, --page <页码>`：指定群公告或群精华列表页码。
 - `-s, --pagesize <数量>`：指定列表每页显示数量。
 
-## 输出格式
+## 🎨 输出格式
 
 | 格式 | 配置项 | 说明 |
 | --- | --- | --- |
@@ -93,30 +95,30 @@
 
 至少需要启用一种输出格式。多种格式可以同时开启；当 Puppeteer 服务不可用时，插件会跳过 Puppeteer 图片并继续发送其他已启用格式。
 
-## 效果预览
+## 👀 效果预览
 
 以下图片均使用 NapCat 平台生成。
 
-### WebUI 配置汇总
+### 🖥️ WebUI 配置汇总
 
 ![Koishi WebUI Notifier](docs/images/preview/koishi-webui-notifier.png)
 
 <details open>
 <summary><strong>用户信息预览（4 张）</strong></summary>
 
-#### Source 样式（Puppeteer）
+#### 📰 Source 样式（Puppeteer）
 
 ![NapCat 用户信息 Source Puppeteer](docs/images/preview/napcat-用户信息-source-pptr.png)
 
-#### LXGW 样式（Puppeteer）
+#### ✒️ LXGW 样式（Puppeteer）
 
 ![NapCat 用户信息 LXGW Puppeteer](docs/images/preview/napcat-用户信息-lxgw-pptr.png)
 
-#### Flat 样式（Puppeteer）
+#### 🧩 Flat 样式（Puppeteer）
 
 ![NapCat 用户信息 Flat Puppeteer](docs/images/preview/napcat-用户信息-flat-pptr.png)
 
-#### resvg 渲染
+#### ⚡ resvg 渲染
 
 ![NapCat 用户信息 SVG](docs/images/preview/napcat-用户信息-svg.png)
 
@@ -125,19 +127,19 @@
 <details open>
 <summary><strong>管理员列表预览（4 张）</strong></summary>
 
-#### Source 样式（Puppeteer）
+#### 📰 Source 样式（Puppeteer）
 
 ![NapCat 管理员列表 Source Puppeteer](docs/images/preview/napcat-管理员列表-source-pptr.png)
 
-#### LXGW 样式（Puppeteer）
+#### ✒️ LXGW 样式（Puppeteer）
 
 ![NapCat 管理员列表 LXGW Puppeteer](docs/images/preview/napcat-管理员列表-lxgw-pptr.png)
 
-#### Flat 样式（Puppeteer）
+#### 🧩 Flat 样式（Puppeteer）
 
 ![NapCat 管理员列表 Flat Puppeteer](docs/images/preview/napcat-管理员列表-flat-pptr.png)
 
-#### resvg 渲染
+#### ⚡ resvg 渲染
 
 ![NapCat 管理员列表 SVG](docs/images/preview/napcat-管理员列表-svg.png)
 
@@ -146,19 +148,19 @@
 <details open>
 <summary><strong>群公告预览（4 张）</strong></summary>
 
-#### 群公告列表（Puppeteer）
+#### 📢 群公告列表（Puppeteer）
 
 ![NapCat 群公告列表 Source Puppeteer](docs/images/preview/napcat-群公告列表-source-pptr.png)
 
-#### 群公告列表（resvg）
+#### ⚡ 群公告列表（resvg）
 
 ![NapCat 群公告列表 SVG](docs/images/preview/napcat-群公告列表-svg.png)
 
-#### 群公告详情（Puppeteer）
+#### 📜 群公告详情（Puppeteer）
 
 ![NapCat 群公告详情 Source Puppeteer](docs/images/preview/napcat-群公告详情-source-pptr.png)
 
-#### 群公告详情（resvg）
+#### ⚡ 群公告详情（resvg）
 
 ![NapCat 群公告详情 SVG](docs/images/preview/napcat-群公告详情-svg.png)
 
@@ -167,32 +169,32 @@
 <details open>
 <summary><strong>群精华预览（4 张）</strong></summary>
 
-#### 群精华列表（Puppeteer）
+#### 📌 群精华列表（Puppeteer）
 
 ![NapCat 群精华列表 Source Puppeteer](docs/images/preview/napcat-群精华列表-source-pptr.png)
 
-#### 群精华列表（resvg）
+#### ⚡ 群精华列表（resvg）
 
 ![NapCat 群精华列表 SVG](docs/images/preview/napcat-群精华列表-svg.png)
 
-#### 群精华详情（Puppeteer）
+#### 💎 群精华详情（Puppeteer）
 
 ![NapCat 群精华详情 Source Puppeteer](docs/images/preview/napcat-群精华详情-source-pptr.png)
 
-#### 群精华详情（resvg）
+#### ⚡ 群精华详情（resvg）
 
 ![NapCat 群精华详情 SVG](docs/images/preview/napcat-群精华详情-svg.png)
 
 </details>
 
-### 样式说明
+### 🎭 样式说明
 
 - **Source**：使用思源宋体渲染的现代信息卡片样式。
 - **LXGW**：使用霞鹜文楷渲染的黑白信息卡片样式。
 - **Flat**：色块清晰的扁平化信息卡片样式。
 - **resvg**：使用 SVG 模板与 resvg 引擎渲染的轻量图片。
 
-## 协议数据样例
+## 🧪 协议数据样例
 
 以下文档保留了不同 OneBot 实现返回的原始 JSON 数据，方便对照字段差异和排查协议适配问题。
 
@@ -203,7 +205,7 @@
 | Lagrange.OneBot | [查看样例](docs/protocol/lagrange-用户信息.md) | [查看样例](docs/protocol/lagrange-管理员列表.md) |
 | NapCat | [查看样例](docs/protocol/napcat-用户信息.md) | [查看样例](docs/protocol/napcat-管理员列表.md) |
 
-## 字体与许可
+## 🔤 字体与许可
 
 图片渲染使用以下开源字体：
 
@@ -212,11 +214,11 @@
 
 本插件基于 [MIT License](LICENSE) 开源，欢迎修改、分发和二次开发。
 
-## 交流反馈
+## 💬 交流反馈
 
 Bug 反馈、功能建议和插件开发交流可加入 QQ 群 `1085190201`，也可以通过 [Koishi 论坛主题](https://forum.koishi.xyz/t/topic/12077) 或仓库 Issue 反馈。
 
-## 相关文档
+## 📚 相关文档
 
 - [更新日志](changelog.md)
 - [开发指南](dev.md)
