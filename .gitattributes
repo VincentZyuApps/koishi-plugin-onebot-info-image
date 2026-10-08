@@ -8,8 +8,16 @@
 *.gif -text
 *.webp -text
 
-# 📚 如需将 Git 跟踪的 Markdown 文件纳入 Linguist 语言统计，请取消下一行注释
 # *.md text eol=lf linguist-detectable -linguist-documentation
 
 # 🧩 将默认被排除的 Protocol Buffer 文件纳入 Linguist 语言统计
 docs/protobuf/*.proto text eol=lf linguist-detectable -linguist-documentation
+
+# 📚 将所有 Markdown 与 README 纳入 GitHub Linguist 语言统计
+README.md linguist-language=Markdown linguist-detectable=true linguist-documentation=false
+readme.md linguist-language=Markdown linguist-detectable=true linguist-documentation=false
+*.md linguist-language=Markdown linguist-detectable=true linguist-documentation=false
+docs/**/*.md linguist-language=Markdown linguist-detectable=true linguist-documentation=false
+
+# ⚙️ 将配置文件本身纳入 GitHub Linguist 语言统计
+.gitattributes linguist-language=gitattributes linguist-detectable=true linguist-documentation=false -linguist-vendored -linguist-generated
