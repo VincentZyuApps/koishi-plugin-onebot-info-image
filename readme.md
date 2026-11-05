@@ -101,26 +101,26 @@
 
 ### 🖥️ WebUI 配置汇总
 
-![Koishi WebUI Notifier](docs/images/preview/koishi-webui-notifier.png)
+![Koishi WebUI Notifier](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/koishi-webui-notifier.png)
 
 <details open>
 <summary><strong>用户信息预览（4 张）</strong></summary>
 
 #### 📰 Source 样式（Puppeteer）
 
-![NapCat 用户信息 Source Puppeteer](docs/images/preview/napcat-用户信息-source-pptr.png)
+![NapCat 用户信息 Source Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF-source-pptr.png)
 
 #### ✒️ LXGW 样式（Puppeteer）
 
-![NapCat 用户信息 LXGW Puppeteer](docs/images/preview/napcat-用户信息-lxgw-pptr.png)
+![NapCat 用户信息 LXGW Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF-lxgw-pptr.png)
 
 #### 🧩 Flat 样式（Puppeteer）
 
-![NapCat 用户信息 Flat Puppeteer](docs/images/preview/napcat-用户信息-flat-pptr.png)
+![NapCat 用户信息 Flat Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF-flat-pptr.png)
 
 #### ⚡ resvg 渲染
 
-![NapCat 用户信息 SVG](docs/images/preview/napcat-用户信息-svg.png)
+![NapCat 用户信息 SVG](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF-svg.png)
 
 </details>
 
@@ -129,19 +129,19 @@
 
 #### 📰 Source 样式（Puppeteer）
 
-![NapCat 管理员列表 Source Puppeteer](docs/images/preview/napcat-管理员列表-source-pptr.png)
+![NapCat 管理员列表 Source Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%AE%A1%E7%90%86%E5%91%98%E5%88%97%E8%A1%A8-source-pptr.png)
 
 #### ✒️ LXGW 样式（Puppeteer）
 
-![NapCat 管理员列表 LXGW Puppeteer](docs/images/preview/napcat-管理员列表-lxgw-pptr.png)
+![NapCat 管理员列表 LXGW Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%AE%A1%E7%90%86%E5%91%98%E5%88%97%E8%A1%A8-lxgw-pptr.png)
 
 #### 🧩 Flat 样式（Puppeteer）
 
-![NapCat 管理员列表 Flat Puppeteer](docs/images/preview/napcat-管理员列表-flat-pptr.png)
+![NapCat 管理员列表 Flat Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%AE%A1%E7%90%86%E5%91%98%E5%88%97%E8%A1%A8-flat-pptr.png)
 
 #### ⚡ resvg 渲染
 
-![NapCat 管理员列表 SVG](docs/images/preview/napcat-管理员列表-svg.png)
+![NapCat 管理员列表 SVG](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%AE%A1%E7%90%86%E5%91%98%E5%88%97%E8%A1%A8-svg.png)
 
 </details>
 
@@ -150,19 +150,19 @@
 
 #### 📢 群公告列表（Puppeteer）
 
-![NapCat 群公告列表 Source Puppeteer](docs/images/preview/napcat-群公告列表-source-pptr.png)
+![NapCat 群公告列表 Source Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E5%85%AC%E5%91%8A%E5%88%97%E8%A1%A8-source-pptr.png)
 
 #### ⚡ 群公告列表（resvg）
 
-![NapCat 群公告列表 SVG](docs/images/preview/napcat-群公告列表-svg.png)
+![NapCat 群公告列表 SVG](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E5%85%AC%E5%91%8A%E5%88%97%E8%A1%A8-svg.png)
 
 #### 📜 群公告详情（Puppeteer）
 
-![NapCat 群公告详情 Source Puppeteer](docs/images/preview/napcat-群公告详情-source-pptr.png)
+![NapCat 群公告详情 Source Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E5%85%AC%E5%91%8A%E8%AF%A6%E6%83%85-source-pptr.png)
 
 #### ⚡ 群公告详情（resvg）
 
-![NapCat 群公告详情 SVG](docs/images/preview/napcat-群公告详情-svg.png)
+![NapCat 群公告详情 SVG](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E5%85%AC%E5%91%8A%E8%AF%A6%E6%83%85-svg.png)
 
 </details>
 
@@ -171,19 +171,19 @@
 
 #### 📌 群精华列表（Puppeteer）
 
-![NapCat 群精华列表 Source Puppeteer](docs/images/preview/napcat-群精华列表-source-pptr.png)
+![NapCat 群精华列表 Source Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E7%B2%BE%E5%8D%8E%E5%88%97%E8%A1%A8-source-pptr.png)
 
 #### ⚡ 群精华列表（resvg）
 
-![NapCat 群精华列表 SVG](docs/images/preview/napcat-群精华列表-svg.png)
+![NapCat 群精华列表 SVG](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E7%B2%BE%E5%8D%8E%E5%88%97%E8%A1%A8-svg.png)
 
 #### 💎 群精华详情（Puppeteer）
 
-![NapCat 群精华详情 Source Puppeteer](docs/images/preview/napcat-群精华详情-source-pptr.png)
+![NapCat 群精华详情 Source Puppeteer](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E7%B2%BE%E5%8D%8E%E8%AF%A6%E6%83%85-source-pptr.png)
 
 #### ⚡ 群精华详情（resvg）
 
-![NapCat 群精华详情 SVG](docs/images/preview/napcat-群精华详情-svg.png)
+![NapCat 群精华详情 SVG](https://cdn.jsdelivr.net/gh/VincentZyuApps/koishi-plugin-onebot-info-image@main/docs/images/preview/napcat-%E7%BE%A4%E7%B2%BE%E5%8D%8E%E8%AF%A6%E6%83%85-svg.png)
 
 </details>
 
